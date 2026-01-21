@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+================================================================================
+ORGANIZATION FIELD MAPPING VERIFICATION
+================================================================================
+
+[STEP 1] Pydantic Schema Fields
+--------------------------------------------------------------------------------
+  File "D:\Project\PEOPLE_OS\scripts\verify_field_mapping.py", line 31, in <module>
+    print(f"  {field_name:25} \u2192 alias: {alias or 'None':20} type: {field_info.annotation}")
+  File "C:\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 28: character maps to <undefined>

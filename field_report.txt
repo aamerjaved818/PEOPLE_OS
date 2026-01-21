@@ -1,0 +1,73 @@
+Traceback (most recent call last):
+================================================================================
+ORGANIZATION FIELD MAPPING VERIFICATION
+================================================================================
+
+[STEP 1] Pydantic Schema Fields
+--------------------------------------------------------------------------------
+  id                        -> alias: None                 type: typing.Optional[str]
+  code                      -> alias: None                 type: typing.Optional[str]
+  name                      -> alias: None                 type: <class 'str'>
+  is_active                 -> alias: isActive             type: <class 'bool'>
+  head_id                   -> alias: headId               type: typing.Optional[str]
+  industry                  -> alias: None                 type: typing.Optional[str]
+  currency                  -> alias: None                 type: typing.Optional[str]
+  tax_year_end              -> alias: taxYearEnd           type: typing.Optional[str]
+  File "D:\Project\PEOPLE_OS\scripts\verify_field_mapping.py", line 74, in <module>
+  email                     -> alias: None                 type: typing.Optional[str]
+  phone                     -> alias: None                 type: typing.Optional[str]
+  website                   -> alias: None                 type: typing.Optional[str]
+  address_line1             -> alias: addressLine1         type: typing.Optional[str]
+  address_line2             -> alias: addressLine2         type: typing.Optional[str]
+  city                      -> alias: None                 type: typing.Optional[str]
+  state                     -> alias: None                 type: typing.Optional[str]
+  zip_code                  -> alias: zipCode              type: typing.Optional[str]
+  country                   -> alias: None                 type: typing.Optional[str]
+  tax_identifier            -> alias: taxId                type: typing.Optional[str]
+  registration_number       -> alias: registrationNumber   type: typing.Optional[str]
+  founded_date              -> alias: foundedDate          type: typing.Optional[str]
+  logo                      -> alias: None                 type: typing.Optional[str]
+  cover_url                 -> alias: coverUrl             type: typing.Optional[str]
+  description               -> alias: None                 type: typing.Optional[str]
+  social_links              -> alias: socialLinks          type: typing.Optional[typing.Any]
+
+Total Schema Fields: 24
+
+[STEP 2] Database Columns
+--------------------------------------------------------------------------------
+  code                      -> type: VARCHAR
+  name                      -> type: VARCHAR
+  is_active                 -> type: BOOLEAN
+  enabled_modules           -> type: VARCHAR
+  head_id                   -> type: VARCHAR
+  tax_identifier            -> type: VARCHAR
+  registration_number       -> type: VARCHAR
+  founded_date              -> type: VARCHAR
+  email                     -> type: VARCHAR
+  phone                     -> type: VARCHAR
+  website                   -> type: VARCHAR
+  address_line1             -> type: VARCHAR
+  address_line2             -> type: VARCHAR
+  city                      -> type: VARCHAR
+  state                     -> type: VARCHAR
+  zip_code                  -> type: VARCHAR
+  country                   -> type: VARCHAR
+  logo                      -> type: VARCHAR
+  cover_url                 -> type: VARCHAR
+  industry                  -> type: VARCHAR
+  currency                  -> type: VARCHAR
+  tax_year_end              -> type: VARCHAR
+  social_links              -> type: VARCHAR
+  description               -> type: VARCHAR
+  system_authority          -> type: VARCHAR
+  approval_workflows        -> type: VARCHAR
+
+Total DB Columns: 31
+
+[STEP 3] CRUD Field Assignments
+--------------------------------------------------------------------------------
+    print("  DB Column          \u2190 Pydantic Field")
+  File "C:\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2190' in position 21: character maps to <undefined>
