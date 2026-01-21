@@ -55,6 +55,15 @@ const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
   isAnalyzing,
   aiSuggestions,
 }) => {
+  console.log('EmployeeInfoTab Render - Params:', {
+    grade: employee?.grade,
+    employmentLevel: employee?.employmentLevel,
+    designation_id: employee?.designation_id,
+    grade_id: employee?.grade_id,
+    full_employee_keys: employee ? Object.keys(employee) : [],
+    full_employee: employee,
+  });
+
   const [internalSuggestions, setInternalSuggestions] = useState<any[]>([]);
   const [internalAnalyzing, setInternalAnalyzing] = useState(false);
 
@@ -239,6 +248,22 @@ const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
 
   return (
     <div className="space-y-16 animate-in slide-in-from-bottom-8 duration-700">
+      {/* DEBUG: Remove later */}
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        <strong className="font-bold">DEBUG INFO:</strong>
+        <pre className="text-xs">
+          {JSON.stringify(
+            {
+              grade: employee?.grade,
+              employmentLevel: employee?.employmentLevel,
+              designation_id: employee?.designation_id,
+              id: employee?.id,
+            },
+            null,
+            2
+          )}
+        </pre>
+      </div>
       {/* AI Intelligence Hub */}
       {(suggestions.length > 0 || analyzing) && (
         <div className="bg-gradient-to-r from-blue-600/10 to-indigo-600/5 border border-blue-500/20 rounded-2xl p-8 space-y-6 shadow-2xl relative overflow-hidden group">
