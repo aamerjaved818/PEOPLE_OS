@@ -8,13 +8,11 @@ import {
   FileText,
   FileSpreadsheet,
   Upload,
-  Download,
 } from 'lucide-react';
 import EmployeeStats from './EmployeeStats';
 import EmployeeList from './EmployeeList';
 import { Employee as EmployeeType } from '../../types';
 import { formatDate } from '../../utils/formatting';
-// import { exportToExcel, exportToPDF } from '../../utils/exportUtils'; // Lazy loaded
 
 import { ImportEmployeesModal } from './ImportEmployeesModal';
 import { useModal } from '../../hooks/useModal';

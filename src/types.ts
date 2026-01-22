@@ -173,6 +173,7 @@ export interface Department {
   parentDepartmentId?: string;
   isActive?: boolean;
   hodId?: string; // Link to Employee (HOD)
+  plantId?: string; // Link to Plant
 }
 
 export interface SubDepartment {
@@ -590,19 +591,6 @@ export interface LeaveBalance {
   used: number;
 }
 
-export interface AttendanceRecord {
-  id: string;
-  name: string;
-  code: string;
-  shift: string;
-  inTime: string;
-  outTime: string;
-  duration: string;
-  status: 'Present' | 'Late' | 'Absent' | 'Half Day';
-  verification: 'Facial' | 'GPS' | 'Manual';
-  location: string;
-}
-
 export interface Course {
   id: number;
   title: string;
@@ -960,3 +948,66 @@ export interface SettingNode {
 }
 
 // --- Plant/Location Management ---
+
+// --- Attendance Types ---
+
+export interface AttendanceRecord {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  employeeCode?: string;
+  date: string;
+  clockIn: string | null;
+  clockOut: string | null;
+  status: 'Present' | 'Absent' | 'Leave' | 'Late' | 'Half Day';
+  shiftId: string;
+  shiftName?: string;
+  verificationType: 'Facial' | 'GPS' | 'Manual' | 'Biometric';
+  location?: string;
+  duration?: string;
+  remarks?: string;
+}
+
+export interface AttendanceStats {
+  present: number;
+  late: number;
+  absent: number;
+  onLeave: number;
+  halfDay: number;
+  totalEmployees: number;
+  date: string;
+}
+
+export interface AttendanceCorrection {
+  id: string;
+  employeeId: string;
+  employeeName?: string;
+  employeeCode?: string;
+  date: string;
+  type: 'Missing Punch' | 'Shift Swap' | 'Time Correction' | 'Wrong Status';
+  originalClockIn?: string;
+  originalClockOut?: string;
+  originalStatus?: string;
+  requestedClockIn?: string;
+  requestedClockOut?: string;
+  requestedStatus?: string;
+  reason: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectionReason?: string;
+  createdAt?: string;
+}
+
+export interface CreateCorrectionPayload {
+  employeeId: string;
+  date: string;
+  type: string;
+  originalClockIn?: string;
+  originalClockOut?: string;
+  originalStatus?: string;
+  requestedClockIn?: string;
+  requestedClockOut?: string;
+  requestedStatus?: string;
+  reason: string;
+}

@@ -586,6 +586,18 @@ def get_background_jobs(db: Session = Depends(get_db), current_user: dict = Depe
     return crud.get_background_jobs(db, org_id)
 
 
+# ===== HCM / Employee Endpoints =====
+
+@app.get("/api/v1/hcm/plants/{plant_id}/next-code", tags=["HCM"])
+def get_next_employee_code_endpoint(
+    plant_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(check_permission("edit_employee"))
+):
+    """Generate the next available employee code for a plant."""
+    return {"next_code": crud.get_next_employee_code(db, plant_id, peek=True)}
+
+
 # ===== System Maintenance Endpoints =====
 
 @app.post("/api/v1/system/restore", tags=["System"])
@@ -784,6 +796,77 @@ def bulk_create_attendance(
 ):
     return crud.bulk_create_attendance(
         db, payload.records, user_id=current_user["id"]
+    )
+
+
+@app.get("/api/v1/hcm/attendance/stats", response_model=schemas.AttendanceStats, tags=["Attendance"])
+def get_attendance_stats(
+    date: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get attendance statistics for a specific date."""
+    org_id = get_user_org(current_user)
+    return crud.get_attendance_stats(db, date, organization_id=org_id)
+
+
+@app.get("/api/v1/hcm/attendance/matrix", tags=["Attendance"])
+def get_attendance_matrix(
+    month: int,
+    year: int,
+    skip: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get monthly attendance matrix."""
+    org_id = get_user_org(current_user)
+    return crud.get_attendance_matrix(
+        db, month, year, organization_id=org_id, skip=skip, limit=limit
+    )
+
+
+@app.get("/api/v1/hcm/attendance/corrections", response_model=List[schemas.AttendanceCorrection], tags=["Attendance"])
+def get_attendance_corrections(
+    status: Optional[str] = None,
+    employee_id: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get attendance correction requests."""
+    return crud.get_attendance_corrections(
+        db, status=status, employee_id=employee_id, skip=skip, limit=limit
+    )
+
+
+@app.post("/api/v1/hcm/attendance/corrections", response_model=schemas.AttendanceCorrection, tags=["Attendance"])
+def create_attendance_correction(
+    correction: schemas.AttendanceCorrectionCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new attendance correction request."""
+    return crud.create_attendance_correction(
+        db, correction, user_id=current_user["id"]
+    )
+
+
+@app.put("/api/v1/hcm/attendance/corrections/{correction_id}/status", response_model=schemas.AttendanceCorrection, tags=["Attendance"])
+def update_correction_status(
+    correction_id: str,
+    payload: schemas.AttendanceCorrectionApproval,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(check_permission("approve_leaves")) # Reusing leave approval permission for now
+):
+    """Approve or reject a correction request."""
+    return crud.approve_attendance_correction(
+        db, 
+        correction_id=correction_id, 
+        action=payload.action, 
+        approver_id=current_user["id"],
+        rejection_reason=payload.rejection_reason
     )
 
 

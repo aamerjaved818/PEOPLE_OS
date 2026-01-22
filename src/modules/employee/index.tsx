@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Save } from 'lucide-react';
 import { Employee as EmployeeType, AISuggestion } from '../../types';
 import { api } from '../../services/api';
 import Logger from '../../utils/logger';
@@ -346,37 +345,20 @@ const Employee: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[100rem] mx-auto space-y-14 pb-20 animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
-        <div>
-          <h1 className="text-4xl font-black text-text-primary tracking-tighter leading-none antialiased">
-            {viewMode === 'dashboard' ? 'Employee Management' : 'Employee Profile'}
-          </h1>
-          <p className="text-text-secondary mt-4 font-black uppercase tracking-[0.4em] text-[0.75rem] flex items-center gap-4">
-            <span className="w-10 h-[0.125rem] bg-primary"></span>
-            Employee Lifecycle Management
-          </p>
-        </div>
-        {viewMode === 'master' && (
-          <div className="flex gap-4 p-4 bg-surface rounded-lg shadow-md border border-border">
-            <button
-              onClick={() => setViewMode('dashboard')}
-              disabled={isSaving}
-              className="px-10 py-4 text-text-secondary font-black uppercase text-[0.6875rem] tracking-widest hover:bg-muted-bg rounded-md transition-all disabled:opacity-50"
-            >
-              Back
-            </button>
-            <Button
-              onClick={handleSave}
-              isLoading={isSaving}
-              icon={Save}
-              className="px-14 py-4 bg-primary text-white hover:bg-primary-hover"
-            >
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </Button>
+    <div className="max-w-[100rem] mx-auto pb-20 animate-in fade-in duration-700">
+      {viewMode === 'dashboard' && (
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-14">
+          <div>
+            <h1 className="text-4xl font-black text-text-primary tracking-tighter leading-none antialiased">
+              Employee Management
+            </h1>
+            <p className="text-text-secondary mt-4 font-black uppercase tracking-[0.4em] text-[0.75rem] flex items-center gap-4">
+              <span className="w-10 h-[0.125rem] bg-primary"></span>
+              Employee Lifecycle Management
+            </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {viewMode === 'dashboard' ? (
         <div className="animate-in slide-in-from-bottom-8 fade-in duration-700">
@@ -403,6 +385,9 @@ const Employee: React.FC = () => {
             aiSuggestions={aiSuggestions}
             isDisabled={isSaving}
             isNewRecord={isNewRecord}
+            onSave={handleSave}
+            onBack={() => setViewMode('dashboard')}
+            onExit={handleExit}
           />
         </div>
       )}

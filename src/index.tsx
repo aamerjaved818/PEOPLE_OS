@@ -3,7 +3,7 @@ import './services/systemCleanup';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './styles/globals.css';
+import './index.css';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from './contexts/ThemeContext';
 

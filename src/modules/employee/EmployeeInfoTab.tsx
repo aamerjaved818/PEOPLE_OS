@@ -22,12 +22,12 @@ import {
   Sun,
   Zap,
   ChevronDown,
+  LogOut,
 } from 'lucide-react';
 import { formatCNIC, formatCell } from '../../utils/formatting';
-import { Employee as EmployeeType, Plant } from '../../types';
+import { Employee as EmployeeType } from '../../types';
 import { useOrgStore } from '../../store/orgStore';
 import { api } from '../../services/api';
-import { useUIStore } from '../../store/uiStore';
 
 import { Input } from '../../components/ui/Input';
 import { DateInput } from '../../components/ui/DateInput';
@@ -47,6 +47,8 @@ interface EmployeeInfoTabProps {
   updateField: (field: keyof EmployeeType, value: any) => void;
   isAnalyzing: boolean;
   aiSuggestions: any[];
+  onExit?: (emp: EmployeeType) => void;
+  isNewRecord?: boolean;
 }
 
 const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
@@ -54,14 +56,14 @@ const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
   updateField,
   isAnalyzing,
   aiSuggestions,
+  onExit,
+  isNewRecord = false,
 }) => {
   const [internalSuggestions, setInternalSuggestions] = useState<any[]>([]);
   const [internalAnalyzing, setInternalAnalyzing] = useState(false);
 
   const suggestions = aiSuggestions.length > 0 ? aiSuggestions : internalSuggestions;
   const analyzing = isAnalyzing || internalAnalyzing;
-
-  const { setActiveModule } = useUIStore();
 
   const { shifts, jobLevels, departments, designations, grades, subDepartments, plants, profile } =
     useOrgStore();
@@ -191,24 +193,6 @@ const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
     }
   }, [employee?.plant_id, employee?.hrPlant, employee?.division, plants, updateField]);
 
-  // Logic: Auto-fill Employee ID when Plant changes
-  useEffect(() => {
-    const fetchNextCode = async () => {
-      if (employee?.plant_id && !employee?.employeeCode) {
-        try {
-          const data = await api.get(`/plants/${employee.plant_id}/next-code`);
-          if (data?.nextCode) {
-            updateField('employeeCode' as any, data.nextCode);
-          }
-        } catch (error) {
-          console.error('Failed to fetch next employee code:', error);
-        }
-      }
-    };
-
-    fetchNextCode();
-  }, [employee?.plant_id, employee?.employeeCode, updateField]);
-
   // Logic: Social Security vs Medical (Exclusive)
   const handleBenefitChange = (type: 'ss' | 'medical', val: boolean) => {
     if (type === 'ss') {
@@ -323,14 +307,25 @@ const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
               <select
                 className="w-full bg-surface border border-border/40 rounded-xl pl-12 pr-10 py-3.5 text-[0.8rem] font-black text-text-primary outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none uppercase"
                 value={employee?.plant_id || ''}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                onChange={async (e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const prevId = employee?.plant_id;
                   const id = e.target.value;
                   updateField('plant_id', id);
                   const obj = plants.find((p) => p.id === id);
                   if (obj) {
                     updateField('hrPlant', obj.name);
-                    // Always clear existing code when plant changes to force re-fetch from backend
-                    updateField('employeeCode' as any, '');
+                    // Fetch next sequence ONLY for new records and if plant actually changed
+                    if (isNewRecord && id !== prevId) {
+                      try {
+                        const nextCode = await api.getNextEmployeeCode(id);
+                        updateField('employeeCode' as any, nextCode);
+                      } catch (err) {
+                        console.error('Failed to fetch next employee code:', err);
+                        // Fallback: clear if failed, or keep as is?
+                        // For now, clear to show something happened
+                        updateField('employeeCode' as any, '');
+                      }
+                    }
                   }
                   // Cascade reset: Clear division when plant changes
                   updateField('division', 'Nil');
@@ -554,14 +549,6 @@ const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
                 Shift *
                 <Zap className="w-3 h-3 text-warning" />
               </label>
-              <button
-                type="button"
-                onClick={() => setActiveModule('attendance')}
-                className="text-[0.6rem] font-bold text-primary hover:underline uppercase tracking-wider flex items-center gap-1"
-                title="Go to Shift Management"
-              >
-                Manage <ChevronRight size={10} />
-              </button>
             </div>
             <div className="relative">
               <Clock
@@ -590,7 +577,7 @@ const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.name} ({s.startTime} - {s.endTime})
+                      {s.name}
                     </option>
                   ))}
               </select>
@@ -646,7 +633,8 @@ const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
               Leaving Type
             </label>
             <select
-              className="w-full bg-surface border border-border/40 rounded-xl px-4 py-3.5 text-[0.8rem] font-black text-text-primary outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+              className="w-full bg-surface border border-border/40 rounded-xl px-4 py-3.5 text-[0.8rem] font-black text-text-primary outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none disabled:opacity-60 disabled:cursor-not-allowed cursor-not-allowed bg-muted-bg/10"
               value={employee?.leavingType || ''}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                 updateField('leavingType', e.target.value)
@@ -663,10 +651,39 @@ const EmployeeInfoTab: React.FC<EmployeeInfoTabProps> = ({
           <DateInput
             label="Leaving Date"
             value={employee?.leavingDate || ''}
+            disabled
+            className="cursor-not-allowed opacity-60"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               updateField('leavingDate', e.target.value)
             }
           />
+
+          {/* Separation Control Link */}
+          {!employee?.leavingDate && onExit && (
+            <div className="md:col-span-2 flex items-center justify-between p-5 bg-orange-500/5 border border-orange-500/10 rounded-2xl group/exit hover:bg-orange-500/10 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-orange-500/10 rounded-xl text-orange-500 group-hover/exit:scale-110 transition-transform">
+                  <LogOut size={20} />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[0.75rem] font-black uppercase tracking-[0.15em] text-orange-600">
+                    Offboarding Lifecycle
+                  </p>
+                  <p className="text-[0.625rem] font-bold text-text-muted max-w-[20rem]">
+                    Leaving details are locked. Use the official workflow to process employee
+                    separation.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onExit(employee as EmployeeType)}
+                className="px-6 py-3 bg-orange-500/10 text-orange-600 hover:bg-orange-500 hover:text-white rounded-xl text-[0.65rem] font-black uppercase tracking-widest transition-all active:scale-95 border border-orange-500/20"
+              >
+                Initiate Exit
+              </button>
+            </div>
+          )}
           {/* Logic: EOBI Status */}
           <div className="bg-surface/30 p-4 rounded-xl space-y-4 border border-border">
             <div className="flex items-center gap-3">

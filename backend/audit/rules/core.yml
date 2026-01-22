@@ -1,0 +1,81 @@
+dimension: core
+version: v1.0.0
+
+# Signal definitions
+signals:
+  centralized_settings_violations:
+    description: 'Independent settings creation (must use centralized settings)'
+    max: 0
+    weight: 0.5
+    severity: critical
+
+  centralized_config_violations:
+    description: 'Independent configurations creation (must use centralized configurations)'
+    max: 0
+    weight: 0.5
+    severity: critical
+
+  independent_database_usage:
+    description: 'Independent database creation or usage (must use default database from centralized config)'
+    max: 0
+    weight: 0.5
+    severity: critical
+
+  duplicate_ids_or_codes:
+    description: 'Duplicate IDs or codes project-wide (all must be unique)'
+    max: 0
+    weight: 0.5
+    severity: critical
+
+# Scoring configuration
+scoring:
+  base_score: 5.0
+  deductions:
+    - signal: centralized_settings_violations
+      formula: 'count * 1.0'
+      description: 'Independent settings creation violates core architecture'
+
+    - signal: centralized_config_violations
+      formula: 'count * 1.0'
+      description: 'Independent configuration creation violates core architecture'
+
+    - signal: independent_database_usage
+      formula: 'count * 1.0'
+      description: 'Independent database usage violates centralized database policy'
+
+    - signal: duplicate_ids_or_codes
+      formula: 'count * 0.5'
+      description: 'Non-unique IDs or codes cause data integrity issues'
+
+# Thresholds
+thresholds:
+  block_release: 2.0
+  require_review: 3.0
+  excellent: 5.0
+
+# Core Rules
+rules:
+  - name: 'Centralized Settings Only'
+    description: 'Always create and use centralized settings. Independent settings creation is not allowed.'
+    enforcement: 'mandatory'
+
+  - name: 'Centralized Configurations Only'
+    description: 'Always create and use centralized configurations. Independent configurations creation is not allowed.'
+    enforcement: 'mandatory'
+
+  - name: 'Default Database Usage Only'
+    description: 'Set default database path in centralized configurations/settings. Always use default database. Independent database creation or use is not allowed.'
+    enforcement: 'mandatory'
+
+  - name: 'Unique IDs and Codes'
+    description: 'Ensure project-wide all IDs and codes are unique across all entities and modules.'
+    enforcement: 'mandatory'
+
+# Metadata
+meta:
+  owner: 'core-team'
+  last_updated: '2026-01-21'
+  changelog:
+    - date: '2026-01-21'
+      change: 'Initial core project rules established'
+      author: 'project-lead'

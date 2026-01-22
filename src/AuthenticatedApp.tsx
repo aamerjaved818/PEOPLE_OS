@@ -76,7 +76,7 @@ const SystemHealth = React.lazy(() => import('./modules/system-health'));
 
 // Legacy Wrapper for modules that haven't been converted to the new Layout System
 const LegacyModuleWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="h-full w-full overflow-y-auto overscroll-contain custom-scrollbar p-6 md:p-10">
+  <div className="h-full w-full overflow-y-auto overscroll-contain custom-scrollbar px-6 md:px-10 pb-10">
     <div className="w-full pb-20">{children}</div>
   </div>
 );

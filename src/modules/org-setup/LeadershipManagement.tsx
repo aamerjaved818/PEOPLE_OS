@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { Users, Building2, Factory, Crown, Briefcase, MapPin } from 'lucide-react';
 import { useOrgStore } from '@/store/orgStore';
 import { useToast } from '@/components/ui/Toast';
-import { VibrantBadge } from '@/components/ui/VibrantBadge';
 import { DataExportButton } from '@/components/common/DataExportButton';
 
 const LeadershipManagement: React.FC = () => {

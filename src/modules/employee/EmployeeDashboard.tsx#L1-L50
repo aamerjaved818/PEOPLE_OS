@@ -1,0 +1,48 @@
+import React from 'react';
+import {
+  Search,
+  SearchCode,
+  Plus,
+  Sparkles,
+  Filter as FilterIcon,
+  FileText,
+  FileSpreadsheet,
+  Upload,
+} from 'lucide-react';
+import EmployeeStats from './EmployeeStats';
+import EmployeeList from './EmployeeList';
+import { Employee as EmployeeType } from '../../types';
+import { formatDate } from '../../utils/formatting';
+
+import { ImportEmployeesModal } from './ImportEmployeesModal';
+import { useModal } from '../../hooks/useModal';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../../components/ui/DropdownMenu';
+
+interface EmployeeDashboardProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  onAdd: () => void;
+  onSelect: (emp: EmployeeType) => void;
+  onEdit: (emp: EmployeeType) => void;
+  onExit: (emp: EmployeeType) => void;
+  onDelete: (id: string) => void;
+  filteredEmployees: EmployeeType[];
+  upcomingEvents: any[];
+}
+
+const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
+  searchTerm,
+  setSearchTerm,
+  onAdd,
+  onSelect,
+  onEdit,
+  onExit,
+  onDelete,
+  filteredEmployees,
+  upcomingEvents,
+}) => {

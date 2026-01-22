@@ -9,7 +9,7 @@ import {
   Wallet,
   Banknote,
 } from 'lucide-react';
-import { formatDate, formatTime, formatCurrency } from '../../utils/formatting';
+import { formatCurrency } from '../../utils/formatting';
 import { Employee as EmployeeType, Increment, PayrollRecord } from '../../types';
 import { useOrgStore } from '../../store/orgStore';
 import { Input } from '../../components/ui/Input';
@@ -204,7 +204,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
               <Input
                 label="Gross Salary *"
                 type="number"
-                value={employee?.grossSalary || 0}
+                value={employee?.grossSalary || ''}
                 onChange={(e) => isNewRecord && updateField('grossSalary', Number(e.target.value))}
                 readOnly={!isNewRecord}
                 className={
@@ -216,7 +216,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
               <Input
                 label="House Rent"
                 type="number"
-                value={employee?.houseRent || 0}
+                value={employee?.houseRent || ''}
                 onChange={(e) => isNewRecord && updateField('houseRent', Number(e.target.value))}
                 readOnly={!isNewRecord}
                 className={
@@ -228,7 +228,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
               <Input
                 label="Utility Allowance"
                 type="number"
-                value={employee?.utilityAllowance || 0}
+                value={employee?.utilityAllowance || ''}
                 onChange={(e) =>
                   isNewRecord && updateField('utilityAllowance', Number(e.target.value))
                 }
@@ -242,7 +242,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
               <Input
                 label="Other Allowance"
                 type="number"
-                value={employee?.otherAllowance || 0}
+                value={employee?.otherAllowance || ''}
                 onChange={(e) =>
                   isNewRecord && updateField('otherAllowance', Number(e.target.value))
                 }
@@ -319,35 +319,11 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
             <div className="flex gap-2 flex-wrap justify-end">
               <Button
                 onClick={() => openFiscalModal('Increment')}
-                variant="secondary"
-                icon={ArrowUp}
-                size="sm"
-              >
-                Increment
-              </Button>
-              <Button
-                onClick={() => openFiscalModal('Promotion')}
                 variant="primary"
-                icon={TrendingUp}
-                size="sm"
-              >
-                Promotion
-              </Button>
-              <Button
-                onClick={() => openFiscalModal('Adjustment')}
-                variant="outline"
                 icon={Plus}
                 size="sm"
               >
-                Adjustment
-              </Button>
-              <Button
-                onClick={() => openFiscalModal('Correction')}
-                variant="danger"
-                icon={Plus}
-                size="sm"
-              >
-                Correction
+                Add/Edit Benefit
               </Button>
             </div>
           </div>
@@ -358,109 +334,101 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
                 key={i}
                 className="p-8 bg-surface rounded-md border border-border flex flex-col gap-6 group hover:shadow-md transition-all"
               >
-                {/* Header Row: Type, Date, Audit Stamp */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
+                <div className="flex items-center gap-6 py-4">
+                  {/* Status Indicator & Icon */}
+                  <div
+                    className={`w-10 h-10 rounded flex items-center justify-center flex-shrink-0
+                    ${
+                      inc.type === 'Promotion'
+                        ? 'bg-warning-soft text-warning'
+                        : inc.type === 'Correction'
+                          ? 'bg-danger-soft text-danger'
+                          : inc.type === 'Adjustment'
+                            ? 'bg-secondary-soft text-secondary'
+                            : 'bg-primary-soft text-primary'
+                    }`}
+                  >
+                    {inc.type === 'Promotion' ? <TrendingUp size={16} /> : <ArrowUp size={16} />}
+                  </div>
+
+                  {/* Primary Info: Date & Type */}
+                  <div className="flex-shrink-0 w-32">
+                    <DateInput
+                      value={inc.effectiveDate}
+                      onChange={(e) => updateInc(i, 'effectiveDate', e.target.value)}
+                      className="bg-transparent border-none font-bold text-xs text-text-primary outline-none p-0 h-auto"
+                    />
                     <div
-                      className={`w-12 h-12 rounded flex items-center justify-center 
-                        ${
-                          inc.type === 'Promotion'
-                            ? 'bg-warning-soft text-warning'
-                            : inc.type === 'Correction'
-                              ? 'bg-danger-soft text-danger'
-                              : inc.type === 'Adjustment'
-                                ? 'bg-secondary-soft text-secondary'
-                                : 'bg-primary-soft text-primary'
-                        }`}
+                      className={`inline-block px-1.5 py-0.5 rounded-[0.125rem] text-[0.45rem] font-black uppercase tracking-[0.1em]
+                      ${
+                        inc.type === 'Promotion'
+                          ? 'bg-warning-soft text-warning'
+                          : inc.type === 'Correction'
+                            ? 'bg-danger-soft text-danger'
+                            : 'bg-primary-soft text-primary'
+                      }`}
                     >
-                      {inc.type === 'Promotion' ? <TrendingUp size={20} /> : <ArrowUp size={20} />}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <DateInput
-                          value={inc.effectiveDate}
-                          onChange={(e) => updateInc(i, 'effectiveDate', e.target.value)}
-                          className="bg-transparent border-none font-black text-sm text-text-primary outline-none w-32 p-0 h-auto"
-                        />
-                        <span
-                          className={`px-2 py-0.5 rounded-[0.125rem] text-[0.5rem] font-black uppercase tracking-wider
-                          ${
-                            inc.type === 'Promotion'
-                              ? 'bg-warning-soft text-warning'
-                              : inc.type === 'Correction'
-                                ? 'bg-danger-soft text-danger'
-                                : 'bg-primary-soft text-primary'
-                          }`}
-                        >
-                          {inc.type}
-                        </span>
-                      </div>
-                      <p className="text-[0.5625rem] font-bold text-text-muted mt-1 uppercase tracking-tighter">
-                        Created {formatDate(inc.createdAt)} {formatTime(inc.createdAt)} by{' '}
-                        {inc.createdBy}
-                      </p>
+                      {inc.type}
                     </div>
                   </div>
+
+                  {/* Financial Grid: Inline and super compact */}
+                  <div className="flex-1 grid grid-cols-4 gap-4 px-4 border-l border-border/20">
+                    <div className="flex flex-col">
+                      <span className="text-[0.45rem] font-black text-text-muted uppercase tracking-tighter">
+                        Gross
+                      </span>
+                      <span className="text-xs font-bold text-text-primary">
+                        {inc.newGross || '-'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[0.45rem] font-black text-text-muted uppercase tracking-tighter">
+                        House Rent
+                      </span>
+                      <span className="text-xs font-bold text-text-primary">
+                        {inc.newHouseRent || '-'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[0.45rem] font-black text-text-muted uppercase tracking-tighter">
+                        Utility
+                      </span>
+                      <span className="text-xs font-bold text-text-primary">
+                        {inc.newUtilityAllowance || '-'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[0.45rem] font-black text-text-muted uppercase tracking-tighter">
+                        Other
+                      </span>
+                      <span className="text-xs font-bold text-text-primary">
+                        {inc.newOtherAllowance || '-'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Remarks - Flexible space */}
+                  <div className="flex-[1.5] px-4 border-l border-border/20">
+                    <span className="text-[0.45rem] font-black text-text-muted uppercase tracking-tighter block mb-1">
+                      Reason
+                    </span>
+                    <input
+                      value={inc.remarks}
+                      placeholder="Reason for change..."
+                      onChange={(e) => updateInc(i, 'remarks', e.target.value)}
+                      className="bg-transparent border-none text-[0.7rem] text-text-primary font-medium outline-none w-full placeholder:text-text-muted/30 italic"
+                    />
+                  </div>
+
+                  {/* Actions */}
                   <button
                     onClick={() => removeInc(i)}
-                    aria-label="Remove increment"
-                    className="text-text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Remove record"
+                    className="text-text-muted hover:text-danger p-2 rounded-lg hover:bg-danger/5 transition-colors opacity-0 group-hover:opacity-100"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={14} />
                   </button>
-                </div>
-
-                {/* Values Grid: Gross + All Allowances */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-4 border-y border-border/30">
-                  <div className="space-y-1">
-                    <p className="text-[0.5rem] font-black text-text-muted uppercase">Gross</p>
-                    <input
-                      type="number"
-                      value={inc.newGross}
-                      onChange={(e) => updateInc(i, 'newGross', Number(e.target.value))}
-                      className="w-full bg-muted-bg px-3 py-1.5 rounded font-bold text-xs text-text-primary outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[0.5rem] font-black text-text-muted uppercase">House Rent</p>
-                    <input
-                      type="number"
-                      value={inc.newHouseRent || 0}
-                      onChange={(e) => updateInc(i, 'newHouseRent', Number(e.target.value))}
-                      className="w-full bg-muted-bg px-3 py-1.5 rounded font-bold text-xs text-text-primary outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[0.5rem] font-black text-text-muted uppercase">Utility</p>
-                    <input
-                      type="number"
-                      value={inc.newUtilityAllowance || 0}
-                      onChange={(e) => updateInc(i, 'newUtilityAllowance', Number(e.target.value))}
-                      className="w-full bg-muted-bg px-3 py-1.5 rounded font-bold text-xs text-text-primary outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[0.5rem] font-black text-text-muted uppercase">Other</p>
-                    <input
-                      type="number"
-                      value={inc.newOtherAllowance || 0}
-                      onChange={(e) => updateInc(i, 'newOtherAllowance', Number(e.target.value))}
-                      className="w-full bg-muted-bg px-3 py-1.5 rounded font-bold text-xs text-text-primary outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Remarks/Audit Mandatory Field */}
-                <div>
-                  <p className="text-[0.5rem] font-black text-text-muted uppercase tracking-widest mb-1">
-                    Reason for Change
-                  </p>
-                  <input
-                    value={inc.remarks}
-                    placeholder="e.g., Annual Grade Increment, Correction of entry error, Market alignment..."
-                    onChange={(e) => updateInc(i, 'remarks', e.target.value)}
-                    className="bg-transparent border-none text-[0.6875rem] text-text-primary font-medium outline-none w-full placeholder:text-text-muted/50 italic"
-                  />
                 </div>
               </div>
             ))}
@@ -555,6 +523,22 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
       >
         <div className="space-y-6">
           <div className="space-y-2">
+            <label className="text-xs font-bold text-text-muted uppercase tracking-wider">
+              Benefit Type *
+            </label>
+            <select
+              value={modalType}
+              onChange={(e) => setModalType(e.target.value as Increment['type'])}
+              className="w-full bg-surface border border-border rounded-md px-4 py-3 text-sm font-bold text-text-primary outline-none"
+            >
+              <option value="Increment">Increment</option>
+              <option value="Promotion">Promotion</option>
+              <option value="Adjustment">Adjustment</option>
+              <option value="Correction">Correction</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
             <DateInput
               label="Effective Date *"
               value={modalData.effectiveDate}
@@ -565,11 +549,11 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-bold text-text-muted uppercase tracking-wider">
-                Gross Salary *
+                Revised Gross Salary *
               </label>
               <input
                 type="number"
-                value={modalData.newGross}
+                value={modalData.newGross || ''}
                 onChange={(e) => setModalData({ ...modalData, newGross: Number(e.target.value) })}
                 className="w-full bg-surface border border-border rounded-md px-4 py-3 text-sm font-bold text-text-primary outline-none"
                 required
@@ -577,11 +561,11 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-text-muted uppercase tracking-wider">
-                House Rent
+                Revised House Rent
               </label>
               <input
                 type="number"
-                value={modalData.newHouseRent}
+                value={modalData.newHouseRent || ''}
                 onChange={(e) =>
                   setModalData({ ...modalData, newHouseRent: Number(e.target.value) })
                 }
@@ -590,11 +574,11 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-text-muted uppercase tracking-wider">
-                Utility Allowance
+                Revised Utility Allowance
               </label>
               <input
                 type="number"
-                value={modalData.newUtilityAllowance}
+                value={modalData.newUtilityAllowance || ''}
                 onChange={(e) =>
                   setModalData({ ...modalData, newUtilityAllowance: Number(e.target.value) })
                 }
@@ -603,11 +587,11 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-text-muted uppercase tracking-wider">
-                Other Allowance
+                Revised Other Allowance
               </label>
               <input
                 type="number"
-                value={modalData.newOtherAllowance}
+                value={modalData.newOtherAllowance || ''}
                 onChange={(e) =>
                   setModalData({ ...modalData, newOtherAllowance: Number(e.target.value) })
                 }

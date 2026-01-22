@@ -13,3 +13,53 @@ DEBUG: GradeID: GRD-1768459845
 DEBUG: GradeRel found: M8
 DEBUG: Grade Property: M8
 DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management
+DEBUG: Loaded Employee ENERGY01-0001
+DEBUG: GradeID: GRD-1768459845
+DEBUG: GradeRel found: M8
+DEBUG: Grade Property: M8
+DEBUG: JobLevel found: Management

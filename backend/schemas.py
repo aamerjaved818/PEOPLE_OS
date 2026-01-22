@@ -113,7 +113,7 @@ class EmployeeBase(BaseModel):
     role: Optional[str] = None
     department: Optional[str] = None
     status: str = "Active"
-    join_date: Optional[str] = None
+    join_date: Optional[str] = Field(None, alias="joiningDate")
     date_of_birth: Optional[str] = Field(None, alias="dateOfBirth")
     hire_date: Optional[str] = Field(None, alias="hireDate")
     employment_type: Optional[str] = Field(None, alias="employmentType")
@@ -147,6 +147,55 @@ class EmployeeBase(BaseModel):
     bank_name: Optional[str] = Field(None, alias="bankName")
     eobi_number: Optional[str] = Field(None, alias="eobiNumber")
     social_security_number: Optional[str] = Field(None, alias="socialSecurityNumber")
+
+    # Extended Fields (Added to fix persistence issues)
+    probation_period: Optional[str] = Field(None, alias="probationPeriod")
+    confirmation_date: Optional[str] = Field(None, alias="confirmationDate")
+    leaving_date: Optional[str] = Field(None, alias="leavingDate")
+    leaving_type: Optional[str] = Field(None, alias="leavingType")
+    
+    eobi_status: bool = Field(False, alias="eobiStatus")
+    social_security_status: bool = Field(False, alias="socialSecurityStatus")
+    medical_status: bool = Field(False, alias="medicalStatus")
+    
+    cnic_issue_date: Optional[str] = Field(None, alias="cnicIssueDate")
+    line_manager_id: Optional[str] = Field(None, alias="lineManagerId")
+    sub_department_id: Optional[str] = Field(None, alias="subDepartmentId")
+
+    # Validation Logic
+    @field_validator("cnic")
+    @classmethod
+    def validate_cnic(cls, v):
+        if not v:
+            return v
+        # Allow 12345-1234567-1 or 1234512345671
+        import re
+        pattern = r"^(\d{5}-\d{7}-\d{1}|\d{13})$"
+        if not re.match(pattern, v):
+            raise ValueError("CNIC must be 13 digits (e.g. 12345-1234567-1 or 1234512345671)")
+        return v
+
+    @field_validator("phone", "personal_phone")
+    @classmethod
+    def validate_phone(cls, v):
+        if not v:
+            return v
+        # Basic check: allow +, -, space, digits. Min 10 digits.
+        import re
+        # Remove common separators
+        clean = re.sub(r"[\s\-\(\)\+]", "", v)
+        if not clean.isdigit() or len(clean) < 10:
+             raise ValueError("Phone number must contain at least 10 digits")
+        return v
+
+    @field_validator("gross_salary")
+    @classmethod
+    def validate_positive_financials(cls, v):
+        if v is not None and v < 0:
+            raise ValueError("Salary/Financial values cannot be negative")
+        return v
+
+
 
     class Config:
         populate_by_name = True
@@ -1384,8 +1433,11 @@ class AttendanceCreate(BaseModel):
     date: str  # YYYY-MM-DD format
     clock_in: Optional[str] = Field(None, alias="clockIn")
     clock_out: Optional[str] = Field(None, alias="clockOut")
-    status: str = "Absent"  # Present, Absent, Leave, Late
+    status: str = "Absent"  # Present, Absent, Leave, Late, Half Day
     shift_id: Optional[str] = Field(None, alias="shiftId")
+    verification_type: str = Field("Manual", alias="verificationType")
+    location: Optional[str] = None
+    remarks: Optional[str] = None
 
     class Config:
         populate_by_name = True
@@ -1394,6 +1446,9 @@ class AttendanceCreate(BaseModel):
 class Attendance(AttendanceCreate, AuditBase):
     id: int
     employee_name: Optional[str] = Field(None, alias="employeeName")
+    employee_code: Optional[str] = Field(None, alias="employeeCode")
+    shift_name: Optional[str] = Field(None, alias="shiftName")
+    duration: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -1402,6 +1457,61 @@ class Attendance(AttendanceCreate, AuditBase):
 
 class AttendanceBulkCreate(BaseModel):
     records: List[AttendanceCreate]
+
+
+class AttendanceStats(BaseModel):
+    """Statistics for attendance dashboard"""
+    present: int = 0
+    late: int = 0
+    absent: int = 0
+    on_leave: int = Field(0, alias="onLeave")
+    half_day: int = Field(0, alias="halfDay")
+    total_employees: int = Field(0, alias="totalEmployees")
+    date: str
+
+    class Config:
+        populate_by_name = True
+
+
+# --- Attendance Correction Schemas ---
+
+
+class AttendanceCorrectionCreate(BaseModel):
+    employee_id: str = Field(..., alias="employeeId")
+    date: str  # YYYY-MM-DD
+    type: str  # Missing Punch, Shift Swap, Time Correction, Wrong Status
+    original_clock_in: Optional[str] = Field(None, alias="originalClockIn")
+    original_clock_out: Optional[str] = Field(None, alias="originalClockOut")
+    original_status: Optional[str] = Field(None, alias="originalStatus")
+    requested_clock_in: Optional[str] = Field(None, alias="requestedClockIn")
+    requested_clock_out: Optional[str] = Field(None, alias="requestedClockOut")
+    requested_status: Optional[str] = Field(None, alias="requestedStatus")
+    reason: str
+
+    class Config:
+        populate_by_name = True
+
+
+class AttendanceCorrection(AttendanceCorrectionCreate, AuditBase):
+    id: str
+    status: str = "Pending"  # Pending, Approved, Rejected
+    employee_name: Optional[str] = Field(None, alias="employeeName")
+    employee_code: Optional[str] = Field(None, alias="employeeCode")
+    approved_by: Optional[str] = Field(None, alias="approvedBy")
+    approved_at: Optional[str] = Field(None, alias="approvedAt")
+    rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
+
+    class Config:
+        from_attributes = True
+        populate_by_name = True
+
+
+class AttendanceCorrectionApproval(BaseModel):
+    action: str  # approve or reject
+    rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
+
+    class Config:
+        populate_by_name = True
 
 
 # --- Payroll Ledger Schemas ---

@@ -51,24 +51,8 @@ def get_employee(db: Session, employee_id: str):
         .filter(models.DBEmployee.id == employee_id)
         .first()
     )
-    if emp:
-        try:
-            with open("backend/debug_employee.txt", "a") as f:
-                f.write(f"DEBUG: Loaded Employee {employee_id}\n")
-                f.write(f"DEBUG: GradeID: {emp.grade_id}\n")
-                if emp.grade_rel:
-                    f.write(f"DEBUG: GradeRel found: {emp.grade_rel.name}\n")
-                    f.write(f"DEBUG: Grade Property: {emp.grade}\n")
-                    if emp.grade_rel.job_level:
-                         f.write(f"DEBUG: JobLevel found: {emp.grade_rel.job_level.name}\n")
-                    else:
-                         f.write(f"DEBUG: JobLevel Missing in GradeRel\n")
-                else:
-                    f.write("DEBUG: GradeRel is None\n")
-        except Exception as e:
-            print(f"Logging failed: {e}")
-            
     return emp
+
 
 
 def get_employees(db: Session, skip: int = 0, limit: int = 100, organization_id: str = None):
@@ -98,20 +82,51 @@ def get_employees(db: Session, skip: int = 0, limit: int = 100, organization_id:
 
 def get_next_employee_code(db: Session, plant_id: str, peek: bool = False) -> str:
     """
-    Generate the next employee code for a plant in the format 'PLANTCODE-0000'.
-    If peek is True, the sequence is not incremented.
+    Generate the next employee code for a plant.
+    If peek is True, the sequence is not incremented (useful for previews).
     """
     plant = db.query(models.DBHRPlant).filter(models.DBHRPlant.id == plant_id).first()
     if not plant:
-        return f"EMP-{int(time.time())}"
+        if peek:
+            return f"EMP-{int(time.time())}"
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    # Prefix from plant code (e.g. EP01) or first 4 chars of ID
+    prefix = plant.code or plant.id[:4].upper()
     
-    next_seq = plant.current_sequence + 1
+    # Find max sequence from existing employees in this plant
+    existing_codes = db.query(models.DBEmployee.employee_code).filter(
+        models.DBEmployee.plant_id == plant_id,
+        models.DBEmployee.employee_code.like(f"{prefix}-%")
+    ).all()
+    
+    max_db_seq = 0
+    for (code,) in existing_codes:
+        if not code: continue
+        parts = code.split('-')
+        if len(parts) > 1:
+            seq_part = parts[-1]
+            if seq_part.isdigit():
+                max_db_seq = max(max_db_seq, int(seq_part))
+    
+    # Use max of DB and current_sequence tracker
+    next_seq = max(max_db_seq, plant.current_sequence)
+    
+    while True:
+        next_seq += 1
+        # Use 4 digits padding for new codes (consistent with ENERGY01-0001)
+        candidate_code = f"{prefix}-{next_seq:04d}"
+        exists = db.query(models.DBEmployee).filter(models.DBEmployee.employee_code == candidate_code).first()
+        if not exists:
+            break
+            
     if not peek:
         plant.current_sequence = next_seq
         db.add(plant)
         db.commit()
-    
-    return f"{plant.code}-{str(next_seq).zfill(4)}"
+        db.refresh(plant)
+
+    return candidate_code
 
 def create_employee(db: Session, employee: schemas.EmployeeCreate, user_id: str):
     # Construct name if missing
@@ -160,10 +175,19 @@ def create_employee(db: Session, employee: schemas.EmployeeCreate, user_id: str)
         organization_id=org_id,
         # Legacy Fields (Start)
         employee_code=generated_code,
-        eobi_status=False,
-        social_security_status=False,
-        medical_status=False,
+        eobi_status=employee.eobi_status,
+        social_security_status=employee.social_security_status,
+        medical_status=employee.medical_status,
         # Legacy Fields (End)
+
+        # Extended Fields
+        probation_period=employee.probation_period,
+        confirmation_date=format_to_db(employee.confirmation_date) if employee.confirmation_date else None,
+        leaving_date=format_to_db(employee.leaving_date) if employee.leaving_date else None,
+        leaving_type=employee.leaving_type,
+        cnic_issue_date=format_to_db(employee.cnic_issue_date) if employee.cnic_issue_date else None,
+        line_manager_id=employee.line_manager_id,
+        sub_department_id=employee.sub_department_id,
 
         # Personal Details
         father_name=employee.father_name,
@@ -266,14 +290,14 @@ def create_employee(db: Session, employee: schemas.EmployeeCreate, user_id: str)
     for inc in employee.increments:
         db_inc = models.DBIncrement(
             employee_id=db_employee.id,
-            effective_date=inc.effectiveDate,
-            amount=inc.newGross,
+            effective_date=inc.effective_date,
+            amount=inc.new_gross,
             increment_type=inc.type,
             remarks=inc.remarks,
-            new_gross=inc.newGross,
-            house_rent=inc.newHouseRent,
-            utility=inc.newUtilityAllowance,
-            other_allowance=inc.newOtherAllowance,
+            new_gross=inc.new_gross,
+            house_rent=inc.new_house_rent,
+            utility=inc.new_utility_allowance,
+            other_allowance=inc.new_other_allowance,
             created_by=user_id,
             updated_by=user_id,
         )
@@ -291,16 +315,16 @@ def update_employee(
         # Update Main Fields (Surgical update to avoid nullifying fields if missing from input)
         if hasattr(employee, 'name') and employee.name: db_employee.name = employee.name
         if hasattr(employee, 'role') and employee.role: db_employee.role = employee.role
-        if hasattr(employee, 'department') and employee.department: db_employee.department = employee.department
         if hasattr(employee, 'employee_code') and employee.employee_code:
             db_employee.employee_code = employee.employee_code
-            db_employee.id = employee.employee_code  # Enforce ID = Code
 
         if hasattr(employee, 'department_id') and employee.department_id: db_employee.department_id = employee.department_id
         if hasattr(employee, 'designation_id') and employee.designation_id: db_employee.designation_id = employee.designation_id
         if hasattr(employee, 'grade_id') and employee.grade_id: db_employee.grade_id = employee.grade_id
         if hasattr(employee, 'plant_id') and employee.plant_id: db_employee.plant_id = employee.plant_id
         if hasattr(employee, 'shift_id') and employee.shift_id: db_employee.shift_id = employee.shift_id
+        if hasattr(employee, 'line_manager_id') and employee.line_manager_id: db_employee.line_manager_id = employee.line_manager_id
+        if hasattr(employee, 'sub_department_id') and employee.sub_department_id: db_employee.sub_department_id = employee.sub_department_id
 
         if hasattr(employee, 'status') and employee.status: db_employee.status = employee.status
         if hasattr(employee, 'join_date') and employee.join_date: db_employee.join_date = format_to_db(employee.join_date)
@@ -315,6 +339,8 @@ def update_employee(
         if hasattr(employee, 'marital_status') and employee.marital_status: db_employee.marital_status = employee.marital_status
         if hasattr(employee, 'blood_group') and employee.blood_group: db_employee.blood_group = employee.blood_group
         if hasattr(employee, 'nationality') and employee.nationality: db_employee.nationality = employee.nationality
+        if hasattr(employee, 'cnic_issue_date') and employee.cnic_issue_date: db_employee.cnic_issue_date = format_to_db(employee.cnic_issue_date)
+        if hasattr(employee, 'date_of_birth') and employee.date_of_birth: db_employee.date_of_birth = format_to_db(employee.date_of_birth)
 
         # Contact
         if hasattr(employee, 'phone') and employee.phone: db_employee.phone = employee.phone
@@ -332,6 +358,17 @@ def update_employee(
         if hasattr(employee, 'bank_name') and employee.bank_name: db_employee.bank_name = employee.bank_name
         if hasattr(employee, 'eobi_number') and employee.eobi_number: db_employee.eobi_number = employee.eobi_number
         if hasattr(employee, 'social_security_number') and employee.social_security_number: db_employee.social_security_number = employee.social_security_number
+        
+        # Extended Fields Update
+        if hasattr(employee, 'probation_period') and employee.probation_period: db_employee.probation_period = employee.probation_period
+        if hasattr(employee, 'confirmation_date') and employee.confirmation_date: db_employee.confirmation_date = format_to_db(employee.confirmation_date)
+        if hasattr(employee, 'leaving_date') and employee.leaving_date: db_employee.leaving_date = format_to_db(employee.leaving_date)
+        if hasattr(employee, 'leaving_type') and employee.leaving_type: db_employee.leaving_type = employee.leaving_type
+        
+        # Boolean Status Updates (Explicitly check if not None, as False is a value)
+        if hasattr(employee, 'eobi_status') and employee.eobi_status is not None: db_employee.eobi_status = employee.eobi_status
+        if hasattr(employee, 'social_security_status') and employee.social_security_status is not None: db_employee.social_security_status = employee.social_security_status
+        if hasattr(employee, 'medical_status') and employee.medical_status is not None: db_employee.medical_status = employee.medical_status
         
         db_employee.updated_by = user_id
 
@@ -428,21 +465,20 @@ def update_employee(
             models.DBIncrement.employee_id == employee_id
         ).delete()
         for inc in employee.increments:
-            db.add(
-                models.DBIncrement(
-                    employee_id=employee_id,
-                    effective_date=inc.effectiveDate,
-                    amount=inc.newGross,
-                    increment_type=inc.type,
-                    remarks=inc.remarks,
-                    new_gross=inc.newGross,
-                    house_rent=inc.newHouseRent,
-                    utility=inc.newUtilityAllowance,
-                    other_allowance=inc.newOtherAllowance,
-                    created_by=user_id,
-                    updated_by=user_id,
-                )
+            db_add_inc = models.DBIncrement(
+                employee_id=employee_id,
+                effective_date=inc.effective_date,
+                amount=inc.new_gross,
+                increment_type=inc.type,
+                remarks=inc.remarks,
+                new_gross=inc.new_gross,
+                house_rent=inc.new_house_rent,
+                utility=inc.new_utility_allowance,
+                other_allowance=inc.new_other_allowance,
+                created_by=user_id,
+                updated_by=user_id,
             )
+            db.add(db_add_inc)
 
         db.commit()
         db.refresh(db_employee)
@@ -919,6 +955,224 @@ def bulk_create_attendance(
     for r in created:
         db.refresh(r)
     return created
+
+
+def get_attendance_stats(db: Session, date: str, organization_id: Optional[str] = None):
+    """Get attendance statistics for a specific date."""
+    from sqlalchemy import func
+    
+    # Base query for attendance on the date
+    query = db.query(hcm_models.DBAttendance).filter(
+        hcm_models.DBAttendance.date == date
+    )
+    
+    # Count by status
+    present = query.filter(hcm_models.DBAttendance.status == "Present").count()
+    late = query.filter(hcm_models.DBAttendance.status == "Late").count()
+    absent = query.filter(hcm_models.DBAttendance.status == "Absent").count()
+    on_leave = query.filter(hcm_models.DBAttendance.status == "Leave").count()
+    half_day = query.filter(hcm_models.DBAttendance.status == "Half Day").count()
+    
+    # Total active employees
+    emp_query = db.query(hcm_models.DBEmployee).filter(
+        hcm_models.DBEmployee.status == "Active"
+    )
+    if organization_id:
+        emp_query = emp_query.filter(
+            hcm_models.DBEmployee.organization_id == organization_id
+        )
+    total_employees = emp_query.count()
+    
+    return {
+        "present": present,
+        "late": late,
+        "absent": absent,
+        "on_leave": on_leave,
+        "half_day": half_day,
+        "total_employees": total_employees,
+        "date": date
+    }
+
+
+def get_attendance_matrix(
+    db: Session,
+    month: int,
+    year: int,
+    organization_id: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 50
+):
+    """Get attendance data for monthly matrix view."""
+    import calendar
+    
+    # Get date range for the month
+    _, last_day = calendar.monthrange(year, month)
+    date_from = f"{year}-{month:02d}-01"
+    date_to = f"{year}-{month:02d}-{last_day:02d}"
+    
+    # Get employees
+    emp_query = db.query(hcm_models.DBEmployee).filter(
+        hcm_models.DBEmployee.status == "Active"
+    )
+    if organization_id:
+        emp_query = emp_query.filter(
+            hcm_models.DBEmployee.organization_id == organization_id
+        )
+    employees = emp_query.offset(skip).limit(limit).all()
+    
+    result = []
+    for emp in employees:
+        # Get attendance for this employee in the month
+        attendance = db.query(hcm_models.DBAttendance).filter(
+            hcm_models.DBAttendance.employee_id == emp.id,
+            hcm_models.DBAttendance.date >= date_from,
+            hcm_models.DBAttendance.date <= date_to
+        ).all()
+        
+        # Build day-by-day status map
+        days = {}
+        for record in attendance:
+            day = int(record.date.split("-")[2])
+            days[day] = {
+                "status": record.status,
+                "clock_in": record.clock_in,
+                "clock_out": record.clock_out
+            }
+        
+        result.append({
+            "employee_id": emp.id,
+            "employee_name": emp.name,
+            "employee_code": emp.employee_code,
+            "days": days
+        })
+    
+    return result
+
+
+# --- Attendance Corrections CRUD ---
+
+
+def get_attendance_corrections(
+    db: Session,
+    status: Optional[str] = None,
+    employee_id: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100
+):
+    """Get attendance correction requests."""
+    query = db.query(hcm_models.DBAttendanceCorrection)
+    
+    if status:
+        query = query.filter(
+            hcm_models.DBAttendanceCorrection.status == status
+        )
+    if employee_id:
+        query = query.filter(
+            hcm_models.DBAttendanceCorrection.employee_id == employee_id
+        )
+    
+    return query.order_by(
+        hcm_models.DBAttendanceCorrection.created_at.desc()
+    ).offset(skip).limit(limit).all()
+
+
+def create_attendance_correction(
+    db: Session,
+    correction: schemas.AttendanceCorrectionCreate,
+    user_id: str
+):
+    """Create an attendance correction request."""
+    correction_id = f"COR-{int(time.time())}"
+    
+    db_correction = hcm_models.DBAttendanceCorrection(
+        id=correction_id,
+        employee_id=correction.employee_id,
+        date=correction.date,
+        type=correction.type,
+        original_clock_in=correction.original_clock_in,
+        original_clock_out=correction.original_clock_out,
+        original_status=correction.original_status,
+        requested_clock_in=correction.requested_clock_in,
+        requested_clock_out=correction.requested_clock_out,
+        requested_status=correction.requested_status,
+        reason=correction.reason,
+        status="Pending",
+        created_by=user_id,
+        updated_by=user_id
+    )
+    db.add(db_correction)
+    db.commit()
+    db.refresh(db_correction)
+    return db_correction
+
+
+def approve_attendance_correction(
+    db: Session,
+    correction_id: str,
+    action: str,
+    approver_id: str,
+    rejection_reason: Optional[str] = None
+):
+    """Approve or reject an attendance correction request."""
+    db_correction = db.query(hcm_models.DBAttendanceCorrection).filter(
+        hcm_models.DBAttendanceCorrection.id == correction_id
+    ).first()
+    
+    if not db_correction:
+        raise HTTPException(status_code=404, detail="Correction request not found")
+    
+    if db_correction.status != "Pending":
+        raise HTTPException(
+            status_code=400, 
+            detail="Correction has already been processed"
+        )
+    
+    current_time = datetime.now().isoformat()
+    
+    if action == "approve":
+        db_correction.status = "Approved"
+        db_correction.approved_by = approver_id
+        db_correction.approved_at = current_time
+        
+        # Apply the correction to the attendance record
+        attendance = db.query(hcm_models.DBAttendance).filter(
+            hcm_models.DBAttendance.employee_id == db_correction.employee_id,
+            hcm_models.DBAttendance.date == db_correction.date
+        ).first()
+        
+        if attendance:
+            if db_correction.requested_clock_in:
+                attendance.clock_in = db_correction.requested_clock_in
+            if db_correction.requested_clock_out:
+                attendance.clock_out = db_correction.requested_clock_out
+            if db_correction.requested_status:
+                attendance.status = db_correction.requested_status
+            attendance.updated_by = approver_id
+        else:
+            # Create new attendance record if none exists
+            new_attendance = hcm_models.DBAttendance(
+                employee_id=db_correction.employee_id,
+                date=db_correction.date,
+                clock_in=db_correction.requested_clock_in,
+                clock_out=db_correction.requested_clock_out,
+                status=db_correction.requested_status or "Present",
+                verification_type="Manual",
+                remarks=f"Created via correction {correction_id}",
+                created_by=approver_id,
+                updated_by=approver_id
+            )
+            db.add(new_attendance)
+    
+    elif action == "reject":
+        db_correction.status = "Rejected"
+        db_correction.approved_by = approver_id
+        db_correction.approved_at = current_time
+        db_correction.rejection_reason = rejection_reason
+    
+    db_correction.updated_by = approver_id
+    db.commit()
+    db.refresh(db_correction)
+    return db_correction
 
 
 # --- Payroll Ledger CRUD ---
@@ -1429,9 +1683,6 @@ def delete_shift(db: Session, shift_id: str):
     return db_shift
 
 
-# --- Job Levels ---
-def get_job_levels(db: Session):
-    return db.query(models.DBJobLevel).all()
 
 
 
@@ -1673,8 +1924,6 @@ def create_audit_log(db: Session, log: schemas.AuditLogCreate):
     return db_log
 
 
-def get_payroll_records(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.DBPayrollLedger).offset(skip).limit(limit).all()
 
 
 def create_payroll_ledger_entry(
@@ -2822,39 +3071,6 @@ def delete_plant(db: Session, plant_id: str):
     return db_plant
 
 
-# --- Attendance ---
-def get_attendance_records(
-    db: Session,
-    skip: int = 0,
-    limit: int = 100,
-    employee_id: str = None,
-    date: str = None,
-):
-    query = db.query(models.DBAttendance)
-    if employee_id:
-        query = query.filter(models.DBAttendance.employee_id == employee_id)
-    if date:
-        query = query.filter(models.DBAttendance.date == date)
-    return query.offset(skip).limit(limit).all()
-
-
-def create_attendance_record(
-    db: Session, attendance: schemas.AttendanceCreate, user_id: str
-):
-    db_attendance = models.DBAttendance(
-        employee_id=attendance.employee_id,
-        date=attendance.date,
-        clock_in=attendance.clock_in,
-        clock_out=attendance.clock_out,
-        status=attendance.status,
-        shift_id=attendance.shift_id,
-        created_by=user_id,
-        updated_by=user_id,
-    )
-    db.add(db_attendance)
-    db.commit()
-    db.refresh(db_attendance)
-    return db_attendance
 
 
 # --- Leaves ---

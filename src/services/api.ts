@@ -117,8 +117,8 @@ class ApiService {
 
     // One-time cache clear to ensure migration to DB-only source.
     // One-time cache clear to ensure migration to DB-only source.
-    if (!secureStorage.getItem('clean_slate_v2')) {
-      Logger.info('Enforcing clean slate v2. Clearing local cache...');
+    if (!secureStorage.getItem('clean_slate_v3')) {
+      Logger.info('Enforcing clean slate v3. Clearing local cache...');
       const token = this.authToken;
       const dataVersion = secureStorage.getItem('data_version');
       secureStorage.clear();
@@ -128,7 +128,7 @@ class ApiService {
       if (dataVersion) {
         secureStorage.setItem('data_version', dataVersion);
       }
-      secureStorage.setItem('clean_slate_v2', 'true');
+      secureStorage.setItem('clean_slate_v3', 'true');
     }
 
     // Version check removed to prevent conflict.
@@ -640,6 +640,11 @@ class ApiService {
     if (!response.ok) {
       throw new Error('Failed to save payroll settings');
     }
+  }
+
+  async getNextEmployeeCode(plantId: string): Promise<string> {
+    const response = await this.get(`/hcm/plants/${plantId}/next-code`);
+    return response.next_code;
   }
 
   async saveEmployee(employee: EmployeeType): Promise<EmployeeType> {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Save } from 'lucide-react';
 import EmployeeDetailHeader from './EmployeeDetailHeader';
 import EmployeeTabs from './EmployeeTabs';
 import EmployeeInfoTab from './EmployeeInfoTab';
@@ -9,6 +10,7 @@ import ExperienceTab from './ExperienceTab';
 
 import DisciplineTab from './DisciplineTab';
 import { DetailLayout } from '../../components/layout/DetailLayout';
+import { Button } from '../../components/ui/Button';
 import { Employee as EmployeeType } from '../../types';
 
 interface EmployeeMasterProps {
@@ -20,6 +22,9 @@ interface EmployeeMasterProps {
   aiSuggestions: any[];
   isDisabled?: boolean;
   isNewRecord?: boolean;
+  onSave: () => void;
+  onBack: () => void;
+  onExit?: (emp: EmployeeType) => void;
 }
 
 const EmployeeMaster: React.FC<EmployeeMasterProps> = ({
@@ -31,6 +36,9 @@ const EmployeeMaster: React.FC<EmployeeMasterProps> = ({
   aiSuggestions,
   isDisabled,
   isNewRecord = false,
+  onSave,
+  onBack,
+  onExit,
 }) => {
   const renderTabContent = () => {
     switch (activeTab) {
@@ -41,6 +49,8 @@ const EmployeeMaster: React.FC<EmployeeMasterProps> = ({
             updateField={updateField}
             isAnalyzing={isAnalyzing}
             aiSuggestions={aiSuggestions}
+            onExit={onExit}
+            isNewRecord={isNewRecord}
           />
         );
       case 1:
@@ -68,7 +78,30 @@ const EmployeeMaster: React.FC<EmployeeMasterProps> = ({
     <DetailLayout
       aria-label="Employee Details"
       header={<EmployeeDetailHeader employee={currentEmployee} aiSuggestions={aiSuggestions} />}
-      tabs={<EmployeeTabs activeTab={activeTab} onTabChange={setActiveTab} disabled={isDisabled} />}
+      tabs={
+        <div className="flex flex-col">
+          <EmployeeTabs activeTab={activeTab} onTabChange={setActiveTab} disabled={isDisabled} />
+          <div className="px-8 lg:px-12 pb-6">
+            <div className="max-w-7xl mx-auto flex gap-4 p-4 bg-surface rounded-lg shadow-md border border-border">
+              <button
+                onClick={onBack}
+                disabled={isDisabled}
+                className="px-10 py-4 text-text-secondary font-black uppercase text-[0.6875rem] tracking-widest hover:bg-muted-bg rounded-md transition-all disabled:opacity-50"
+              >
+                Back
+              </button>
+              <Button
+                onClick={onSave}
+                isLoading={isDisabled}
+                icon={Save}
+                className="px-14 py-4 bg-primary text-white hover:bg-primary-hover"
+              >
+                {isDisabled ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      }
     >
       {renderTabContent()}
     </DetailLayout>

@@ -46,7 +46,6 @@ class DBEmployee(Base, PrismaAuditMixin):
     social_security_status = Column(Boolean, default=False)
     medical_status = Column(Boolean, default=False)
     role = Column(String)
-    department = Column(String)
     organization_id = Column(String, ForeignKey("core_organizations.id"), index=True, nullable=True)
     
     # Foreign Keys
@@ -59,6 +58,7 @@ class DBEmployee(Base, PrismaAuditMixin):
     status = Column(String)
     join_date = Column(String)
     email = Column(String, unique=True, index=True)
+    date_of_birth = Column(String, nullable=True)
     
     # Personal Details
     father_name = Column(String, nullable=True)
@@ -86,6 +86,15 @@ class DBEmployee(Base, PrismaAuditMixin):
     bank_name = Column(String, nullable=True)
     eobi_number = Column(String, nullable=True)
     social_security_number = Column(String, nullable=True)
+
+    # Missing fields added
+    probation_period = Column(String, nullable=True)
+    confirmation_date = Column(String, nullable=True)
+    leaving_date = Column(String, nullable=True)
+    leaving_type = Column(String, nullable=True)
+    cnic_issue_date = Column(String, nullable=True)
+    line_manager_id = Column(String, nullable=True)
+    sub_department_id = Column(String, nullable=True)
 
     # Relationships
     department_rel = relationship("DBDepartment", foreign_keys=[department_id])
@@ -278,12 +287,83 @@ class DBAttendance(Base, AuditMixin):
     date = Column(String, nullable=False, index=True) # YYYY-MM-DD
     clock_in = Column(String, nullable=True)
     clock_out = Column(String, nullable=True)
-    status = Column(String, default="Absent") # Present, Absent, Leave, Late
+    status = Column(String, default="Absent") # Present, Absent, Leave, Late, Half Day
     shift_id = Column(String, ForeignKey("hcm_shifts.id"), nullable=True)
+    verification_type = Column(String, default="Manual") # Facial, GPS, Manual, Biometric
+    location = Column(String, nullable=True) # Geofence location name
+    remarks = Column(String, nullable=True)
     
     # Relationships
     employee = relationship("DBEmployee", backref="attendance_records")
     shift = relationship("DBShift")
+
+    # Computed properties for API response
+    @property
+    def employee_name(self):
+        return self.employee.name if self.employee else None
+
+    @property
+    def employee_code(self):
+        return self.employee.employee_code if self.employee else None
+
+    @property
+    def shift_name(self):
+        return self.shift.name if self.shift else None
+
+    @property
+    def duration(self):
+        """Calculate duration between clock_in and clock_out"""
+        if self.clock_in and self.clock_out:
+            try:
+                from datetime import datetime
+                fmt = "%H:%M"
+                t_in = datetime.strptime(self.clock_in, fmt)
+                t_out = datetime.strptime(self.clock_out, fmt)
+                diff = t_out - t_in
+                hours, remainder = divmod(diff.seconds, 3600)
+                minutes = remainder // 60
+                return f"{hours}h {minutes}m"
+            except:
+                return "-"
+        return "-"
+
+
+class DBAttendanceCorrection(Base, AuditMixin):
+    """Attendance Correction Request Model"""
+    __tablename__ = "hcm_attendance_corrections"
+    
+    id = Column(String, primary_key=True, index=True)
+    employee_id = Column(String, ForeignKey("hcm_employees.id", onupdate="CASCADE"), nullable=False, index=True)
+    date = Column(String, nullable=False) # YYYY-MM-DD
+    type = Column(String, nullable=False) # Missing Punch, Shift Swap, Time Correction, Wrong Status
+    
+    # Original values
+    original_clock_in = Column(String, nullable=True)
+    original_clock_out = Column(String, nullable=True)
+    original_status = Column(String, nullable=True)
+    
+    # Requested corrections
+    requested_clock_in = Column(String, nullable=True)
+    requested_clock_out = Column(String, nullable=True)
+    requested_status = Column(String, nullable=True)
+    
+    reason = Column(String, nullable=False)
+    status = Column(String, default="Pending") # Pending, Approved, Rejected
+    
+    approved_by = Column(String, ForeignKey("core_users.id"), nullable=True)
+    approved_at = Column(String, nullable=True)
+    rejection_reason = Column(String, nullable=True)
+    
+    # Relationships
+    employee = relationship("DBEmployee")
+
+    @property
+    def employee_name(self):
+        return self.employee.name if self.employee else None
+
+    @property
+    def employee_code(self):
+        return self.employee.employee_code if self.employee else None
 
 class DBPayrollLedger(Base, AuditMixin):
     __tablename__ = "hcm_payroll_ledger"

@@ -125,8 +125,8 @@ const Attendance: React.FC = () => {
   const filteredRecords = useMemo(() => {
     return attendanceRecords.filter(
       (record) =>
-        record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.code.toLowerCase().includes(searchTerm.toLowerCase())
+        (record.employeeName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (record.employeeCode?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
   }, [attendanceRecords, searchTerm]);
 
@@ -207,23 +207,23 @@ const Attendance: React.FC = () => {
                   >
                     <td className="px-14 py-8 font-sans">
                       <p className="text-lg font-black text-text-primary leading-none">
-                        {row.name}
+                        {row.employeeName}
                       </p>
                       <p className="text-[0.625rem] font-black text-primary uppercase tracking-widest mt-2">
-                        {row.code}
+                        {row.employeeCode}
                       </p>
                     </td>
                     <td className="px-8 py-8">
                       <VibrantBadge color="purple" variant="outline" className="font-black">
-                        Shift {row.shift}
+                        Shift {row.shiftName}
                       </VibrantBadge>
                     </td>
                     <td className="px-8 py-8 space-y-1">
                       <p className="text-sm font-black text-text-muted">
-                        In: <span className="text-primary">{row.inTime}</span>
+                        In: <span className="text-primary">{row.clockIn}</span>
                       </p>
                       <p className="text-sm font-black text-text-muted">
-                        Out: <span className="text-primary">{row.outTime}</span>
+                        Out: <span className="text-primary">{row.clockOut}</span>
                       </p>
                     </td>
                     <td className="px-8 py-8">
@@ -231,13 +231,13 @@ const Attendance: React.FC = () => {
                     </td>
                     <td className="px-8 py-8">
                       <div className="flex items-center gap-2">
-                        {row.verification === 'Facial' ? (
+                        {row.verificationType === 'Facial' ? (
                           <ScanFace className="text-primary" size={16} />
                         ) : (
                           <Globe className="text-success" size={16} />
                         )}
                         <span className="text-[0.625rem] font-black uppercase text-text-muted">
-                          {row.verification} ID
+                          {row.verificationType} ID
                         </span>
                       </div>
                     </td>
@@ -316,7 +316,7 @@ const Attendance: React.FC = () => {
                 attendanceRecords.map((record, idx) => (
                   <tr key={idx} className="group hover:bg-muted-bg/30">
                     <td className="px-6 py-4 sticky left-0 bg-surface group-hover:bg-muted-bg/30 font-black text-sm text-text-primary z-10 border-r border-border">
-                      {record.name}
+                      {record.employeeName}
                     </td>
                     {Array.from({ length: 31 }, (_, i) => {
                       const random = Math.random();
