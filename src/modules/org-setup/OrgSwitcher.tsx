@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Check, Building2 } from 'lucide-react';
-import { api } from '../../services/api';
-import { OrganizationProfile } from '../../types';
-import { useOrgStore } from '../../store/orgStore';
+import { ChevronDown, Check, Building } from 'lucide-react';
+import { OrganizationProfile } from '@/types';
+import { useOrgStore } from '@/store/orgStore';
 
 interface OrgSwitcherProps {
   currentOrgId?: string;
@@ -13,14 +12,18 @@ const OrgSwitcher: React.FC<OrgSwitcherProps> = ({ currentOrgId, onSwitch }) => 
   const [isOpen, setIsOpen] = useState(false);
   const [organizations, setOrganizations] = useState<OrganizationProfile[]>([]);
   const [loading, setLoading] = useState(false);
-  const { profile } = useOrgStore();
+  const {
+    profile,
+    fetchOrganizations: storeFetchOrganizations,
+    organizations: storeOrganizations,
+  } = useOrgStore();
 
   useEffect(() => {
     const fetchOrgs = async () => {
       setLoading(true);
       try {
-        const data = await api.getOrganizations();
-        setOrganizations(data);
+        const data = await storeFetchOrganizations?.();
+        setOrganizations(data || storeOrganizations || []);
       } catch (error) {
         console.error('Failed to fetch organizations', error);
       } finally {
@@ -31,7 +34,7 @@ const OrgSwitcher: React.FC<OrgSwitcherProps> = ({ currentOrgId, onSwitch }) => 
     if (isOpen && organizations.length === 0) {
       fetchOrgs();
     }
-  }, [isOpen]);
+  }, [isOpen, storeFetchOrganizations, storeOrganizations, profile, organizations.length]);
 
   const activeOrg = organizations.find((o) => o.id === currentOrgId) || profile;
 
@@ -45,7 +48,7 @@ const OrgSwitcher: React.FC<OrgSwitcherProps> = ({ currentOrgId, onSwitch }) => 
           {activeOrg?.logo ? (
             <img src={activeOrg.logo} alt="" className="w-full h-full object-cover rounded-full" />
           ) : (
-            <Building2 size={12} className="text-primary" />
+            <Building size={12} className="text-primary" />
           )}
         </div>
 
@@ -99,7 +102,7 @@ const OrgSwitcher: React.FC<OrgSwitcherProps> = ({ currentOrgId, onSwitch }) => 
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
-                        <Building2 size={16} />
+                        <Building size={16} />
                       )}
                     </div>
 

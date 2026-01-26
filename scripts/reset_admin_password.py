@@ -14,46 +14,54 @@ def reset_admin():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    username = "admin"
-    password = "admin"
-    password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    users_to_ensure = [
+        {"username": "admin", "password": "admin", "role": "SystemAdmin", "email": "admin@people-os.com", "name": "System Administrator"},
+        {"username": ".amer", "password": "amer", "role": "Super Admin", "email": "amer@people-os.local", "name": "Amer"},
+    ]
 
-    # Check if admin exists
-    c.execute("SELECT id FROM core_users WHERE username = ?", (username,))
-    row = c.fetchone()
+    now = datetime.datetime.now().isoformat()
 
-    if row:
-        print(f"User '{username}' found. Updating password...")
-        now = datetime.datetime.now().isoformat()
-        c.execute(
-            "UPDATE core_users SET password_hash = ?, updated_at = ? "
-            "WHERE username = ?",
-            (password_hash, now, username)
-        )
-    else:
-        print(f"User '{username}' not found. Creating...")
-        user_id = str(uuid.uuid4())
-        now = datetime.datetime.now().isoformat()
-        c.execute("""
-            INSERT INTO core_users (
-                id, username, password_hash, role, name, email,
-                is_active, created_at, updated_at
+    for u in users_to_ensure:
+        username = u["username"]
+        password = u["password"]
+        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+        # Check if user exists
+        c.execute("SELECT id FROM core_users WHERE username = ?", (username,))
+        row = c.fetchone()
+
+        if row:
+            print(f"User '{username}' found. Updating password...")
+            c.execute(
+                "UPDATE core_users SET password_hash = ?, updated_at = ? "
+                "WHERE username = ?",
+                (password_hash, now, username)
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            user_id,
-            username,
-            password_hash,
-            "SystemAdmin",
-            "System Administrator",
-            "admin@people-os.com",
-            1,
-            now,
-            now
-        ))
+        else:
+            print(f"User '{username}' not found. Creating...")
+            user_id = str(uuid.uuid4())
+            c.execute("""
+                INSERT INTO core_users (
+                    id, username, password_hash, role, name, email,
+                    is_active, created_at, updated_at, is_system_user
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                user_id,
+                username,
+                password_hash,
+                u.get("role", "User"),
+                u.get("name", username),
+                u.get("email", ""),
+                1,
+                now,
+                now,
+                1,
+            ))
+
+        print(f"✅ User '{username}' password is now '{password}'")
 
     conn.commit()
-    print(f"✅ User '{username}' password is now '{password}'")
     conn.close()
 
 

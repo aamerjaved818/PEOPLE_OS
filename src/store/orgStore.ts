@@ -29,7 +29,7 @@ import {
   DepartmentStat,
   AttendanceStat,
 } from '../types';
-import { ROLE_PERMISSIONS as INITIAL_ROLE_PERMISSIONS } from '../types';
+import { DEFAULT_ROLE_PERMISSIONS as INITIAL_ROLE_PERMISSIONS } from '@/config/permissions';
 interface OrgState {
   // State and actions defined below
 
@@ -95,6 +95,8 @@ interface OrgState {
   // Stats & UI State
   // Master Data
   profile: OrganizationProfile;
+  organizations: OrganizationProfile[];
+  currentOrganization: OrganizationProfile | null;
   grades: Grade[];
   designations: Designation[];
   jobLevels: JobLevel[];
@@ -120,6 +122,7 @@ interface OrgState {
 
   // Actions
   fetchProfile: (orgId?: string) => Promise<void>;
+  fetchOrganizations: (force?: boolean) => Promise<OrganizationProfile[]>;
   // Lazy Loading Actions
   fetchDepartments: () => Promise<void>;
   fetchGrades: () => Promise<void>;
@@ -223,6 +226,13 @@ interface OrgState {
   fetchAuditLogs: (skip?: number, limit?: number) => Promise<void>;
 }
 
+// Debounce control for profile fetch to prevent rapid repeated network calls
+let _profileDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+let _profileDebounceResolvers: Array<() => void> = [];
+// Debounce control for organizations list fetch
+let _orgsDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+let _orgsDebounceResolvers: Array<(orgs: OrganizationProfile[]) => void> = [];
+
 export const useOrgStore = create<OrgState>()(
   persist(
     (set, get) => ({
@@ -234,7 +244,9 @@ export const useOrgStore = create<OrgState>()(
         taxYearEnd: '',
         country: '',
       },
+      currentOrganization: null,
       plants: [],
+      organizations: [],
       departments: [],
       grades: [],
       designations: [],
@@ -296,6 +308,15 @@ export const useOrgStore = create<OrgState>()(
       rolePermissions: INITIAL_ROLE_PERMISSIONS,
 
       togglePermission: async (role, permission) => {
+        // SECURITY: Protect system roles from permission modification
+        if (role === 'Root' || role === 'Super Admin') {
+          console.warn(
+            `⚠️ Attempted to modify permissions for system role "${role}" - Operation blocked.`
+          );
+          Logger.warn(`Security: Blocked attempt to modify ${role} role permissions`);
+          return; // Silently block - system roles have fixed full access
+        }
+
         const currentPerms = get().rolePermissions[role] || [];
         const hasPerm = currentPerms.includes(permission);
 
@@ -353,10 +374,21 @@ export const useOrgStore = create<OrgState>()(
             safeFetch(api.getUsers(), 'users'),
           ]);
 
+          // Map users data to frontend format
+          const mappedUsers = users
+            ? users.map((u: any) => ({
+                ...u,
+                name: u.name || u.username || 'Unknown',
+                email: u.email || `${u.username}@system.local`,
+                userType: u.isSystemUser ? 'SystemAdmin' : 'OrgUser',
+                isSystemUser: u.isSystemUser || false,
+              }))
+            : null;
+
           set((state) => ({
             systemFlags: systemFlags ? { ...state.systemFlags, ...systemFlags } : state.systemFlags,
             payrollSettings: payrollSettings || state.payrollSettings,
-            users: users || state.users,
+            users: mappedUsers || state.users,
           }));
 
           // Phases 2 & 3: Structural & Operational (Merged for performance)
@@ -443,6 +475,7 @@ export const useOrgStore = create<OrgState>()(
           banks: [],
           shifts: [],
           users: [],
+          currentOrganization: null,
           employees: [],
           loadingEntities: {},
           errorEntities: {},
@@ -450,97 +483,147 @@ export const useOrgStore = create<OrgState>()(
         });
       },
 
-      fetchProfile: async (orgId?: string) => {
-        const { api } = await import('../services/api');
-        const startTime = performance.now();
-        console.info(`[fetchProfile] Starting profile fetch... orgId=${orgId || 'auto'}`);
-
-        try {
-          // 1. Determine which ID to use
-          let targetId = orgId;
-
-          // If no specific ID requested, check storage
-          if (!targetId) {
-            targetId = localStorage.getItem('selected_org_id') || undefined;
-          }
-          console.info(
-            `[fetchProfile] Resolved targetId: ${targetId}, localStorage value: ${localStorage.getItem('selected_org_id')}`
-          );
-
-          // 2. Fetch Logic
-          let org: OrganizationProfile | null = null;
-
-          if (targetId) {
-            // Fetch specific org
-            try {
-              org = await api.getOrganizationById(targetId);
-            } catch (e) {
-              console.warn(
-                `[fetchProfile] Failed to fetch persisted org ${targetId}, falling back to list default`
-              );
-              // Fallback: If specific ID fails (deleted?), fetch list and take first
-              const orgs = await api.getOrganizations();
-              if (orgs.length > 0) {
-                org = orgs[0];
-                targetId = org.id; // Correct our target
-              }
-            }
-          } else {
-            // No ID known at all - fetch list and take first
-            const orgs = await api.getOrganizations();
-            if (orgs.length > 0) {
-              org = orgs[0];
-              targetId = org.id;
-            }
+      // Debounced fetchProfile to avoid rapid repeated network calls (returns a Promise)
+      fetchProfile: (orgId?: string) => {
+        return new Promise<void>((resolve) => {
+          // Clear any existing timer
+          if (_profileDebounceTimer) {
+            clearTimeout(_profileDebounceTimer);
           }
 
-          const duration = performance.now() - startTime;
+          // Queue resolver to be called when the actual fetch completes
+          _profileDebounceResolvers.push(resolve);
 
-          if (org) {
+          // Schedule the actual fetch after 300ms of inactivity
+          _profileDebounceTimer = setTimeout(async () => {
+            _profileDebounceTimer = null;
+            const resolvers = [..._profileDebounceResolvers];
+            _profileDebounceResolvers = [];
+
+            const { api } = await import('../services/api');
+            const startTime = performance.now();
             console.info(
-              `[fetchProfile] Received org '${org.name || org.id}' in ${duration.toFixed(0)}ms`,
-              org
+              `[fetchProfile] (debounced) Starting profile fetch... orgId=${orgId || 'auto'}`
             );
-            // 3. Update State & Persistence
-            set({ profile: org });
-            if (targetId) {
-              localStorage.setItem('selected_org_id', targetId);
 
-              // CRITICAL: If this was an explicit switch (orgId passed), refresh all data
-              if (orgId) {
-                get().resetOrganization();
-                // Small delay to allow state clear to propagate/render before fetch
-                setTimeout(() => get().fetchMasterData(), 50);
+            try {
+              // 1. Determine which ID to use
+              let targetId = orgId;
+
+              if (!targetId) {
+                targetId = localStorage.getItem('selected_org_id') || undefined;
               }
-            }
-          } else {
-            console.warn(
-              `[fetchProfile] Could not resolve any organization after ${duration.toFixed(0)}ms`
-            );
 
-            // Fallback: try localStorage cache of full profile (legacy backup)
-            const stored = localStorage.getItem('org_profile');
-            if (stored) {
-              try {
-                const parsed = JSON.parse(stored);
-                console.info('[fetchProfile] Using cached localStorage org_profile:', parsed);
-                set({ profile: parsed });
-              } catch (e) {
-                console.warn(
-                  '[fetchProfile] Failed to parse cached org_profile from localStorage:',
-                  e
+              // 2. Fetch Logic
+              let org: OrganizationProfile | null = null;
+
+              if (targetId) {
+                try {
+                  org = await api.getOrganizationById(targetId);
+                } catch (e) {
+                  console.warn(
+                    `[fetchProfile] Failed to fetch persisted org ${targetId}, falling back to list default`
+                  );
+                  try {
+                    const orgs = await api.getOrganizations();
+                    if (orgs && orgs.length > 0) {
+                      org = orgs[0];
+                      targetId = org.id;
+                    }
+                  } catch (fetchError) {
+                    console.error('[fetchProfile] Failed to fetch organizations list:', fetchError);
+                  }
+                }
+              } else {
+                try {
+                  const orgs = await api.getOrganizations();
+                  if (orgs && orgs.length > 0) {
+                    org = orgs[0];
+                    targetId = org.id;
+                  }
+                } catch (fetchError) {
+                  console.error('[fetchProfile] Failed to fetch organizations:', fetchError);
+                }
+              }
+
+              const duration = performance.now() - startTime;
+
+              if (org) {
+                console.info(
+                  `[fetchProfile] Received org '${org.name || org.id}' in ${duration.toFixed(0)}ms`,
+                  org
                 );
+                set({ profile: org });
+                if (targetId) {
+                  localStorage.setItem('selected_org_id', targetId);
+
+                  if (orgId) {
+                    get().resetOrganization();
+                    setTimeout(() => get().fetchMasterData(), 50);
+                  }
+                }
+              } else {
+                console.warn(
+                  `[fetchProfile] Could not resolve any organization after ${duration.toFixed(0)}ms`
+                );
+                const stored = localStorage.getItem('org_profile');
+                if (stored) {
+                  try {
+                    const parsed = JSON.parse(stored);
+                    set({ profile: parsed, currentOrganization: parsed });
+                  } catch (e) {
+                    console.warn(
+                      '[fetchProfile] Failed to parse cached org_profile from localStorage:',
+                      e
+                    );
+                  }
+                }
               }
+            } catch (e) {
+              console.error('[fetchProfile] Error during debounced fetchProfile', e);
+            } finally {
+              // Resolve all queued promises so callers can proceed
+              resolvers.forEach((r) => r());
             }
+          }, 300);
+        });
+      },
+
+      // Debounced fetch for organizations list (returns array)
+      fetchOrganizations: (force = false) => {
+        return new Promise<OrganizationProfile[]>((resolve) => {
+          // If we already have cached organizations and not forcing, return immediately
+          const cached = get().organizations;
+          if (cached && cached.length > 0 && !force) {
+            resolve(cached);
+            return;
           }
-        } catch (e) {
-          const errName = e instanceof Error ? e.name : 'Unknown';
-          const errMsg = e instanceof Error ? e.message : String(e);
-          console.error(
-            `[fetchProfile] Error calling api.getOrganization: ${errName} - ${errMsg}`,
-            e
-          );
-        }
+
+          // Queue resolver
+          _orgsDebounceResolvers.push(resolve);
+
+          if (_orgsDebounceTimer) {
+            clearTimeout(_orgsDebounceTimer);
+          }
+
+          _orgsDebounceTimer = setTimeout(async () => {
+            _orgsDebounceTimer = null;
+            const resolvers = [..._orgsDebounceResolvers];
+            _orgsDebounceResolvers = [];
+
+            try {
+              const { api } = await import('../services/api');
+              const orgs = (await api.getOrganizations()) || [];
+              // Update local cache
+              set({ organizations: orgs });
+              resolvers.forEach((r) => r(orgs));
+            } catch (e) {
+              console.error('[fetchOrganizations] Failed to fetch organizations', e);
+              const fallback: OrganizationProfile[] = [];
+              resolvers.forEach((r) => r(fallback));
+            }
+          }, 300);
+        });
       },
 
       // --- Lazy Loading Actions ---
@@ -846,7 +929,7 @@ export const useOrgStore = create<OrgState>()(
           }
 
           if (savedProfile) {
-            set({ profile: savedProfile });
+            set({ profile: savedProfile, currentOrganization: savedProfile });
             Logger.info('Profile saved successfully:', { name: savedProfile.name });
             // Update local storage explicitly
             localStorage.setItem('org_profile', JSON.stringify(savedProfile));
@@ -1443,9 +1526,11 @@ export const useOrgStore = create<OrgState>()(
               employeeId: parsed.employeeId || '',
               department: '',
               profileStatus: parsed.status === 'Active' ? 'Active' : 'Inactive',
-              userType: parsed.role || 'OrgUser',
+              userType: parsed.role === 'Root' || parsed.isSystemUser ? 'SystemAdmin' : 'OrgUser',
               status: parsed.status || 'Active',
               lastLogin: new Date().toISOString(),
+              isSystemUser: parsed.isSystemUser || false,
+              organizationId: parsed.organizationId || parsed.organization_id || '',
             };
             set({ currentUser: user });
             // Don't return, allow email check to act as backup or sync
@@ -1473,9 +1558,11 @@ export const useOrgStore = create<OrgState>()(
                 employeeId: found.employeeId || '',
                 department: '',
                 profileStatus: found.status === 'Active' ? 'Active' : 'Inactive',
-                userType: found.role || 'OrgUser',
+                userType: found.role === 'Root' || found.isSystemUser ? 'SystemAdmin' : 'OrgUser',
                 status: found.status || 'Active',
                 lastLogin: new Date().toISOString(),
+                isSystemUser: found.isSystemUser || false,
+                organizationId: found.organizationId || '',
               };
               set({ currentUser: mappedUser });
             }
@@ -1806,4 +1893,5 @@ export const useOrgStore = create<OrgState>()(
   )
 );
 
-export { ROLE_HIERARCHY, ROLE_PERMISSIONS, type Permission } from '../types';
+export { ROLE_HIERARCHY, DEFAULT_ROLE_PERMISSIONS as ROLE_PERMISSIONS } from '@/config/permissions';
+export type { Permission } from '@/types';

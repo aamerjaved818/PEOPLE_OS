@@ -62,6 +62,7 @@ class AILayerAnalyzer:
             and ".venv" not in str(f)
             and "audit" not in str(f)
             and "dist" not in str(f)
+            and "tests" not in str(f)
             and ".test." not in str(f)
             and ".spec." not in str(f)
         ]

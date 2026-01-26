@@ -140,6 +140,7 @@ class DBDepartment(Base, PrismaAuditMixin):
     # plant_id removed as Departments are now Organization-wide
     hod_id = Column(String, ForeignKey("core_users.id"), nullable=True)  # Soft Link
     manager_id = Column(String, ForeignKey("core_users.id"), nullable=True)  # Soft Link
+    description = Column(String, nullable=True)
 
     @property
     def is_active(self):
@@ -160,10 +161,18 @@ class DBSubDepartment(Base, PrismaAuditMixin):
     organization_id = Column(
         String, ForeignKey("core_organizations.id"), nullable=False, index=True
     )
-    parent_department_id = Column(
+    department_id = Column(
         String, ForeignKey("core_departments.id"), nullable=False
     )
     manager_id = Column(String, ForeignKey("core_users.id"), nullable=True)
+
+    @property
+    def parent_department_id(self):
+        return self.department_id
+
+    @parent_department_id.setter
+    def parent_department_id(self, value):
+        self.department_id = value
 
     @property
     def isActive(self):
@@ -469,9 +478,9 @@ class DBPlatformEvent(Base):
     event_type = Column(String, index=True, nullable=False)
     domain = Column(String, index=True, nullable=False)
     entity_type = Column(String, index=True, nullable=False)
-    entity_id = Column(String, index=True, nullable=False)
+    entity_id = Column(String, ForeignKey("core_organizations.id"), index=True, nullable=False)
     action = Column(String, index=True, nullable=False)
-    actor_id = Column(String, index=True, nullable=True)
+    actor_id = Column(String, ForeignKey("core_users.id"), index=True, nullable=True)
     actor_type = Column(String, default="human")
     organization_id = Column(
         String, ForeignKey("core_organizations.id"), index=True, nullable=True
@@ -543,4 +552,7 @@ class DBPlatformIncident(Base, PrismaAuditMixin):
     detected_at = Column(DateTime, server_default=func.now())
     resolved_at = Column(DateTime, nullable=True)
     environment = Column(String, index=True, nullable=False)
-    related_migration_id = Column(String, nullable=True)
+    related_migration_id = Column(String, ForeignKey("platform_migrations.id"), nullable=True)
+
+    # Relationships
+    related_migration = relationship("DBPlatformMigration")

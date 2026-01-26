@@ -5,7 +5,7 @@ import { formatDate, parseDisplayDateToISO } from '@/utils/formatting';
 import { Calendar } from 'lucide-react';
 
 const inputVariants = cva(
-  'w-full bg-surface border border-border rounded-xl py-3.5 text-[0.8rem] font-black transition-all text-text-primary placeholder:text-text-muted outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5',
+  'field-surface w-full py-3.5 text-[0.8rem] font-bold transition-all text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:ring-4 focus:ring-primary/5',
   {
     variants: {
       hasIcon: {

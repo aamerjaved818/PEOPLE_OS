@@ -18,11 +18,11 @@ import {
   ShieldCheck,
   FileText,
 } from 'lucide-react';
-import { Course } from '../../types';
-import { api } from '../../services/api';
-import { HorizontalTabs } from '../../components/ui/HorizontalTabs';
-import { useSearch } from '../../hooks/useSearch';
-import { SearchInput } from '../../components/ui/SearchInput';
+import { Course } from '@/types';
+import { api } from '@/services/api';
+import { HorizontalTabs } from '@/components/ui/HorizontalTabs';
+import { useSearch } from '@/hooks/useSearch';
+import { SearchInput } from '@/components/ui/SearchInput';
 
 type LearningTab = 'ecosystem' | 'discover' | 'matrix' | 'vault';
 
@@ -97,7 +97,7 @@ const LearningModule: React.FC = () => {
   };
 
   const getIcon = (iconName: string | LucideIcon | undefined | null): LucideIcon => {
-    if (!iconName) return BookOpen;
+    if (!iconName) {return BookOpen;}
 
     if (typeof iconName === 'string' && iconMap[iconName]) {
       return iconMap[iconName];

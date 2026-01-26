@@ -8,6 +8,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Accessibility Utilities */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 :root {
   /* Primitive Tokens - Refined Typography */
   --font-sans: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -68,8 +81,8 @@
   --bg-elevated: #1e293b;
 
   --text-primary: #f8fafc; /* Slate 50 */
-  --text-secondary: #cbd5e1; /* Slate 300 */
-  --text-muted: #64748b; /* Slate 500 */
+  --text-secondary: #e2e8f0; /* Slate 200 - Brighter for visibility */
+  --text-muted: #94a3b8; /* Slate 400 - Brighter for visibility */
 
   --border-default: rgba(51, 65, 85, 0.5); /* Slate 700/50 */
   --border-strong: #475569;
@@ -228,6 +241,80 @@ body.theme-cyber {
   --primary-soft: #1e3a8a;
 }
 
+/* Navy (Deep Navy) */
+body.theme-navy {
+  --primary: #0b2545; /* deep navy */
+  --primary-hover: #061834;
+  --primary-soft: #e9f0fb;
+  --vibrant-purple: rgba(11, 37, 69, 0.12);
+  --shadow-sm: 0 2px 8px -2px rgba(11, 37, 69, 0.08);
+}
+
+.dark body.theme-navy {
+  --primary: #1e3a63;
+  --primary-hover: #0b2545;
+  --primary-soft: #07102a;
+}
+
+/* Gold (Warm Metallic) */
+body.theme-gold {
+  --primary: #d4af37; /* gold */
+  --primary-hover: #b58924;
+  --primary-soft: #fff8e6;
+  --vibrant-purple: rgba(212, 175, 55, 0.08);
+  --shadow-sm: 0 2px 8px -2px rgba(212, 175, 55, 0.08);
+}
+
+.dark body.theme-gold {
+  --primary: #ffd66b;
+  --primary-hover: #d4af37;
+  --primary-soft: #3b2b07;
+}
+
+/* DeepPink (Energetic Pink) */
+body.theme-deeppink {
+  --primary: #ff1493; /* deep pink */
+  --primary-hover: #e6007a;
+  --primary-soft: #ffe6f2;
+  --vibrant-purple: rgba(255, 20, 147, 0.08);
+  --shadow-sm: 0 2px 8px -2px rgba(255, 20, 147, 0.08);
+}
+
+.dark body.theme-deeppink {
+  --primary: #ff63b6;
+  --primary-hover: #ff1493;
+  --primary-soft: #2b0716;
+}
+
+/* Fuchsia (Neon) */
+body.theme-fuchsia {
+  --primary: #d946ef; /* fuchsia 600 */
+  --primary-hover: #c026d3;
+  --primary-soft: #f6e6fb;
+  --vibrant-purple: rgba(217, 70, 239, 0.08);
+  --shadow-sm: 0 2px 8px -2px rgba(217, 70, 239, 0.08);
+}
+
+.dark body.theme-fuchsia {
+  --primary: #f0abfc;
+  --primary-hover: #d946ef;
+  --primary-soft: #3a133a;
+}
+
+/* Orange (Warm & Bright) */
+body.theme-orange {
+  --primary: #f97316; /* orange-500 */
+  --primary-hover: #ea580c;
+  --primary-soft: #fff4e6;
+  --vibrant-purple: rgba(249, 115, 22, 0.08);
+  --shadow-sm: 0 2px 8px -2px rgba(249, 115, 22, 0.08);
+}
+
+.dark body.theme-orange {
+  --primary: #fb923c;
+  --primary-hover: #f97316;
+  --primary-soft: #3a1906;
+}
 /* Hide Number Input Spinners */
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
@@ -237,4 +324,239 @@ input[type='number']::-webkit-outer-spin-button {
 
 input[type='number'] {
   -moz-appearance: textfield;
+}
+
+/* --- Premium Glassmorphic Enhancements --- */
+/* define a few convenience tokens used by the glass styles */
+:root {
+  --surface: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.45));
+  --border: rgba(255, 255, 255, 0.18);
+  --vibrant-purple: rgba(99, 102, 241, 0.12);
+  --shadow-card: 0 10px 30px rgba(2, 6, 23, 0.08), 0 2px 8px rgba(79, 70, 229, 0.06);
+  --transition-base: 250ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* Dynamic animated backdrop (subtle, low-cost) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.06) 0%, transparent 20%),
+    radial-gradient(circle at 90% 10%, rgba(14, 165, 233, 0.05) 0%, transparent 22%),
+    radial-gradient(circle at 85% 90%, rgba(16, 185, 129, 0.04) 0%, transparent 26%);
+  mix-blend-mode: overlay;
+  animation: drift 18s linear infinite;
+  filter: blur(18px) saturate(1.05);
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-6%, 2%, 0) scale(1.02);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* Glass card utility */
+.glass-card {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-surface, rgba(255, 255, 255, 0.72));
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px) saturate(1.05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.05);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
+  overflow: hidden;
+}
+
+.glass-card:hover,
+.hover-float:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow:
+    0 18px 50px rgba(2, 6, 23, 0.18),
+    0 6px 22px rgba(79, 70, 229, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Subtle highlight stripe */
+.glass-card::after {
+  content: '';
+  position: absolute;
+  left: -30%;
+  top: -40%;
+  width: 60%;
+  height: 200%;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+  transform: rotate(-18deg);
+  pointer-events: none;
+}
+
+/* Inputs - frosted focus states */
+.field-surface {
+  /* Use semantic tokens so inputs respect theme (light/dark and theme classes) */
+  background: var(--bg-surface, rgba(255, 255, 255, 0.65));
+  border: 1px solid var(--border-default, rgba(15, 23, 42, 0.06));
+  color: var(--text-primary);
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  transition:
+    box-shadow var(--transition-base),
+    transform var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.field-surface::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.field-surface:focus-visible,
+.field-surface:focus,
+.field-surface[data-state='open'] {
+  outline: none;
+  box-shadow:
+    0 8px 30px rgba(2, 6, 23, 0.08),
+    0 0 0 2px var(--primary-soft);
+  transform: translateY(-1px);
+  border-color: var(--primary);
+}
+
+/* Fancy primary button with verifying animation */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    background-color var(--transition-base);
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+  color: var(--primary-foreground);
+  box-shadow: 0 8px 30px rgba(79, 70, 229, 0.16);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 50px rgba(79, 70, 229, 0.18);
+}
+
+/* Verifying state: add class 'is-verifying' to a button to show spinner and subtle pulse */
+.btn.is-verifying {
+  pointer-events: none;
+  position: relative;
+}
+
+.btn.is-verifying::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  position: absolute;
+  left: 14px;
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Small verifying pulse for text if spinner present */
+.btn.is-verifying .label {
+  opacity: 0.92;
+  animation: pulse-text 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+  0% {
+    transform: translateY(0);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translateY(-2px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.95;
+  }
+}
+
+/* Utility: soft glow on hover for icons and cards */
+.glow-hover:hover {
+  box-shadow:
+    0 8px 30px rgba(79, 70, 229, 0.12),
+    0 0 28px rgba(79, 70, 229, 0.06);
+}
+
+/* Base form controls - make inputs, selects and textareas theme-aware by default
+   Excludes purely decorative input types (checkbox, radio, file, range, hidden) */
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not(
+    [type='hidden']
+  ),
+textarea,
+select {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  transition:
+    box-shadow var(--transition-base),
+    border-color var(--transition-base),
+    transform var(--transition-base);
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 8px 30px rgba(2, 6, 23, 0.06);
+  transform: translateY(-1px);
+}
+
+/* Accessibility: reduce-motion prefers */
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+  .glass-card,
+  .btn,
+  .input-frost {
+    transition: none;
+  }
+  .btn.is-verifying::after {
+    animation: none;
+  }
 }

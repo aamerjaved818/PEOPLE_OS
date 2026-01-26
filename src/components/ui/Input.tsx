@@ -3,12 +3,12 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const inputVariants = cva(
-  'w-full bg-elevated border border-border rounded-md py-3 text-[0.75rem] outline-none font-bold transition-all text-text-primary placeholder:text-text-muted focus:border-primary/50 focus:bg-surface',
+  'field-surface w-full text-[0.875rem] outline-none font-bold transition-all text-text-primary placeholder:text-text-muted',
   {
     variants: {
       hasIcon: {
-        true: 'pl-12 pr-6',
-        false: 'px-6',
+        true: '!pl-12 pr-6',
+        false: 'px-4',
       },
       hasError: {
         true: 'border-danger/50',

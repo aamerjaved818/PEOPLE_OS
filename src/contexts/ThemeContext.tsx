@@ -39,6 +39,25 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('people_os_theme', theme);
   }, [theme]);
 
+  // Sync theme and config across tabs/windows
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key) {return;}
+      if (e.key === 'people_os_theme') {
+        if (e.newValue === 'dark' || e.newValue === 'light') {
+          setTheme(e.newValue as Theme);
+        }
+      }
+      if (e.key === 'PeopleOS_config') {
+        // Broadcast a custom event so app components can react
+        window.dispatchEvent(new Event('PeopleOS_config_updated'));
+      }
+    };
+
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };

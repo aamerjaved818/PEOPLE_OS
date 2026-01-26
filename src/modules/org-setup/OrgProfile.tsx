@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Building2, Globe, Mail, MapPin, Phone, Save, Upload, Lock } from 'lucide-react';
+import { Building, Globe, Mail, MapPin, Phone, Save, Upload, Lock } from 'lucide-react';
 import { useOrgStore } from '@/store/orgStore';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -54,7 +54,7 @@ const OrgProfile: React.FC = () => {
           <div className="flex items-center gap-6">
             <div>
               <h3 className="font-black text-sm text-vibrant uppercase tracking-wider flex items-center gap-3">
-                <Building2 size={20} className="text-primary" />
+                <Building size={20} className="text-primary" />
                 Company Profile
               </h3>
               <p className="text-[0.625rem] text-text-muted font-bold mt-1.5 uppercase tracking-widest">
@@ -201,7 +201,7 @@ const OrgProfile: React.FC = () => {
                     <Lock size={12} className="text-text-muted/70" />
                   </label>
                   <div className="relative">
-                    <Building2 className="absolute left-3.5 top-3.5 text-text-muted" size={18} />
+                    <Building className="absolute left-3.5 top-3.5 text-text-muted" size={18} />
                     <input
                       {...register('code', { required: true })}
                       readOnly
@@ -221,7 +221,7 @@ const OrgProfile: React.FC = () => {
                     <Lock size={12} className="text-primary/70" />
                   </label>
                   <div className="relative">
-                    <Building2 className="absolute left-3.5 top-3.5 text-text-muted" size={18} />
+                    <Building className="absolute left-3.5 top-3.5 text-text-muted" size={18} />
                     <input
                       {...register('name', { required: true })}
                       readOnly

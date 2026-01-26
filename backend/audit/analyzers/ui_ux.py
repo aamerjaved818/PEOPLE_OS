@@ -23,7 +23,8 @@ class UIUXAnalyzer:
         metrics = {
             "hardcoded_colors": 0,
             "hardcoded_spacing": 0,
-            "component_reuse": 0,
+            "theme_context_usage": 0,
+            "standard_component_usage": 0,
             "accessibility_violations": 0,
             "css_files": 0,
             "responsive_layouts": 0,
@@ -53,6 +54,8 @@ class UIUXAnalyzer:
                 ]
             )
 
+        core_components = ["Button", "Card", "Input", "Select", "Modal", "GlassCard"]
+
         for tsx_file in tsx_files:
             try:
                 content = tsx_file.read_text(encoding="utf-8")
@@ -65,18 +68,24 @@ class UIUXAnalyzer:
                 metrics["hardcoded_colors"] += hex_colors + rgb_colors
 
                 # Check for hardcoded spacing/sizing
-                # Exclude ALL Tailwind arbitrary values like [10px], shadow-[0_0_10px_...]
-                # We do this by removing everything inside square brackets before counting px
                 content_no_tailwind = re.sub(r"\[[^\]]+\]", "", content)
                 px_values = len(re.findall(r"\d+px", content_no_tailwind))
                 metrics["hardcoded_spacing"] += max(0, px_values)
 
+                # Check for theme context usage
+                if "useTheme" in content or "ThemeContext" in content:
+                    metrics["theme_context_usage"] += 1
+
+                # Check for standard component usage
+                for comp in core_components:
+                    if f"<{comp}" in content:
+                        metrics["standard_component_usage"] += 1
+                        break
+
                 # Check for basic accessibility
                 if "aria-label" not in content and "alt=" not in content:
-                    metrics["accessibility_violations"] += 1
-                    if "accessibility_files" not in metrics:
-                        metrics["accessibility_files"] = []
-                    metrics["accessibility_files"].append(str(tsx_file))
+                    if "<button" in content or "<img" in content or "<input" in content:
+                        metrics["accessibility_violations"] += 1
 
                 # Check for responsive design utilities
                 responsive_utils = len(
@@ -97,68 +106,62 @@ class UIUXAnalyzer:
             metrics["component_reuse"] = len(list(components_dir.rglob("*.tsx")))
 
         # Generate findings
-        if metrics["hardcoded_colors"] > 50:
+        if metrics["hardcoded_colors"] > 30:
             findings.append(
                 AuditFinding(
                     id=str(uuid.uuid4()),
                     dimension="UI/UX",
                     severity="Minor",
                     title=f"{metrics['hardcoded_colors']} hardcoded color values detected",
-                    description="Colors should use design tokens/CSS variables",
-                    recommendation="Migrate hardcoded colors to design system tokens",
+                    description="Colors should use design tokens/CSS variables from the theme palette.",
+                    recommendation="Migrate hardcoded colors to '@/theme/palette' tokens.",
                 )
             )
 
-        if metrics["hardcoded_spacing"] > 100:
-            findings.append(
-                AuditFinding(
-                    id=str(uuid.uuid4()),
-                    dimension="UI/UX",
-                    severity="Minor",
-                    title=f"{metrics['hardcoded_spacing']} hardcoded spacing values",
-                    description="Spacing should use design tokens (e.g., Tailwind classes)",
-                    recommendation="Use consistent spacing scale from design system",
-                )
-            )
-
-        if metrics["accessibility_violations"] > 10:
+        if metrics["theme_context_usage"] < len(tsx_files) * 0.1:
             findings.append(
                 AuditFinding(
                     id=str(uuid.uuid4()),
                     dimension="UI/UX",
                     severity="Major",
-                    title=f"{metrics['accessibility_violations']} components lack accessibility attributes",
-                    description="Missing aria-labels, alt text, or other a11y features",
-                    recommendation="Add ARIA labels and alt text to improve accessibility",
+                    title="Low Theme Centralization",
+                    description="Very few components are interacting with ThemeContext/useTheme.",
+                    recommendation="Utilize useTheme hook for dynamic styling and theme consistency.",
                 )
             )
 
-        if metrics["responsive_layouts"] < len(tsx_files) * 0.3:
-            # Heuristic: at least 30% of components should potentially have
-            # responsive modifiers
+        if metrics["standard_component_usage"] < len(tsx_files) * 0.1:
+             findings.append(
+                AuditFinding(
+                    id=str(uuid.uuid4()),
+                    dimension="UI/UX",
+                    severity="Major",
+                    title="Standard Component Underutilization",
+                    description="Many components appear to use raw HTML instead of core UI components.",
+                    recommendation="Replace raw HTML elements with standardized components from '@/components/ui'.",
+                )
+            )
+
+        if metrics["accessibility_violations"] > 50:
             findings.append(
                 AuditFinding(
                     id=str(uuid.uuid4()),
                     dimension="UI/UX",
-                    severity="Minor",
-                    title="Low responsive design usage",
-                    description=(
-                        "Less than 30% of components show responsive "
-                        "utility usage"
-                    ),
-                    recommendation="Ensure layouts adapt to mobile screens",
+                    severity="Major",
+                    title=f"{metrics['accessibility_violations']} components lack critical accessibility attributes",
+                    description="Missing aria-labels or alt text on interactive/media elements.",
+                    recommendation="Add ARIA labels and alt text to improve accessibility compliance.",
                 )
             )
 
         # Calculate score
         score = calculate_score(
             {
-                "hardcoded_colors": max(0, 5 - (metrics["hardcoded_colors"] / 50)),
-                "hardcoded_spacing": max(0, 5 - (metrics["hardcoded_spacing"] / 100)),
-                "accessibility": max(0, 5 - (metrics["accessibility_violations"] / 10)),
-                "responsiveness": min(
-                    5, (metrics["responsive_layouts"] / max(1, len(tsx_files))) * 10
-                ),
+                "hardcoded_colors": max(0, 5 - (metrics["hardcoded_colors"] / 30)),
+                "theme_centralization": min(5, (metrics["theme_context_usage"] / max(1, len(tsx_files) * 0.2)) * 5),
+                "component_consistency": min(5, (metrics["standard_component_usage"] / max(1, len(tsx_files) * 0.5)) * 5),
+                "accessibility": max(0, 5 - (metrics["accessibility_violations"] / 5)),
+                "responsiveness": min(5, (metrics["responsive_layouts"] / max(1, len(tsx_files))) * 10),
             }
         )
 

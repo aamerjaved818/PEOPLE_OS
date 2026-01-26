@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Building2, Building, Users, Factory, Briefcase, Network } from 'lucide-react';
+import { Building, Users, Factory, Briefcase, Network } from 'lucide-react';
 import { HorizontalTabs } from '@/components/ui/HorizontalTabs';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { DetailLayout } from '@/components/layout/DetailLayout';
 
 // Components
@@ -12,7 +13,10 @@ import JobLevelManagement from './JobLevelManagement';
 import HierarchyChart from './HierarchyChart';
 import LeadershipManagement from './LeadershipManagement';
 
+import { useTheme } from '@/contexts/ThemeContext';
+
 const OrganizationSetup: React.FC = () => {
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('profile');
 
   // Define tabs with RBAC checks if necessary
@@ -20,7 +24,7 @@ const OrganizationSetup: React.FC = () => {
     {
       id: 'profile',
       label: 'Company Profile',
-      icon: Building2,
+      icon: Building,
     },
     {
       id: 'hierarchy',
@@ -59,18 +63,7 @@ const OrganizationSetup: React.FC = () => {
       aria-label="Organization Setup"
       className="animate-in fade-in duration-500"
       containerClassName="max-w-[1600px]"
-      header={
-        <div className="max-w-[1600px] mx-auto px-6 pt-6 pb-2">
-          <div className="flex flex-col items-center justify-center text-center">
-            <h1 className="text-3xl font-black text-text-primary uppercase tracking-tighter">
-              Organization Setup
-            </h1>
-            <p className="text-text-muted font-medium mt-2">
-              Manage your company structure and settings.
-            </p>
-          </div>
-        </div>
-      }
+      header={<div className="h-6" />}
       tabs={
         <div className="max-w-[1600px] mx-auto px-6 pb-0">
           <HorizontalTabs
@@ -96,4 +89,10 @@ const OrganizationSetup: React.FC = () => {
   );
 };
 
-export default OrganizationSetup;
+const OrganizationSetupWithBoundary: React.FC = () => (
+  <ErrorBoundary>
+    <OrganizationSetup />
+  </ErrorBoundary>
+);
+
+export default OrganizationSetupWithBoundary;

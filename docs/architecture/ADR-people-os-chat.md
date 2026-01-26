@@ -1,0 +1,1 @@
+# ADR: AI Assistant Module

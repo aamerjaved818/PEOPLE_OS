@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @page {
+        size: A4;
+        margin: 2cm;
+      }
+      body {
+        font-family: 'Times New Roman', serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .letterhead {
+        text-align: center;
+        border-bottom: 3px solid #2563eb;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+      .company-name {
+        font-size: 28px;
+        font-weight: bold;
+        color: #2563eb;
+        margin-bottom: 5px;
+      }
+      .company-details {
+        font-size: 12px;
+        color: #666;
+      }
+      .date {
+        text-align: right;
+        margin: 20px 0;
+        font-size: 14px;
+      }
+      .subject {
+        font-weight: bold;
+        margin: 20px 0;
+        font-size: 16px;
+        text-decoration: underline;
+      }
+      .content {
+        text-align: justify;
+        font-size: 14px;
+        margin: 20px 0;
+      }
+      .info-box {
+        background: #f8f9fa;
+        border-left: 4px solid #2563eb;
+        padding: 15px;
+        margin: 20px 0;
+      }
+      .signature-section {
+        margin-top: 60px;
+      }
+      .signature-line {
+        border-top: 1px solid #333;
+        width: 200px;
+        margin-top: 80px;
+      }
+      .footer {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        font-size: 11px;
+        color: #666;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="letterhead">
+      <div class="company-name">{{ organization.name }}</div>
+      <div class="company-details">
+        {{ organization.address }}<br />
+        Email: {{ organization.email }} | Phone: {{ organization.phone }}
+      </div>
+    </div>
+
+    <div class="date">Date: {{ current_date }}</div>
+
+    <div class="subject">SUBJECT: EMPLOYMENT VERIFICATION</div>
+
+    <div class="content">
+      <p>
+        This letter is to verify the employment status of <strong>{{ employee.name }}</strong> with
+        {{ organization.name }}.
+      </p>
+
+      <div class="info-box">
+        <p style="margin: 5px 0"><strong>Employee Name:</strong> {{ employee.name }}</p>
+        <p style="margin: 5px 0"><strong>Employee Code:</strong> {{ employee.employee_code }}</p>
+        <p style="margin: 5px 0"><strong>Designation:</strong> {{ employee.designation }}</p>
+        <p style="margin: 5px 0"><strong>Department:</strong> {{ employee.department }}</p>
+        <p style="margin: 5px 0"><strong>Date of Joining:</strong> {{ employee.join_date }}</p>
+        <p style="margin: 5px 0"><strong>Employment Status:</strong> {{ employee.status }}</p>
+      </div>
+
+      <p>
+        {{ employee.name }} is currently employed with our organization in good standing. The
+        employee has been performing duties as {{ employee.designation }} with professionalism and
+        dedication.
+      </p>
+
+      <p>
+        This letter is issued as proof of employment for {{ purpose or 'verification purposes' }}.
+      </p>
+
+      <p>
+        Should you require any additional information or clarification, please do not hesitate to
+        contact us at the above-mentioned contact details.
+      </p>
+    </div>
+
+    <div class="signature-section">
+      <p>Sincerely,</p>
+      <div class="signature-line"></div>
+      <p>
+        <strong>Human Resources Department</strong><br />
+        {{ organization.name }}
+      </p>
+    </div>
+
+    <div class="footer">
+      This is an official employment verification letter issued by {{ organization.name }}.
+    </div>
+  </body>
+</html>

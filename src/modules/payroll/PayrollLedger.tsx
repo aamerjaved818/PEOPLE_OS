@@ -1,8 +1,8 @@
 import React from 'react';
 import { Search, Fingerprint, ArrowUpRight, FileText, FileSpreadsheet } from 'lucide-react';
-import { VibrantBadge } from '../../components/ui/VibrantBadge';
-import { formatCurrency } from '../../utils/formatting';
-// import { exportToExcel, exportToPDF } from '../../utils/exportUtils'; // Lazy loaded
+import { VibrantBadge } from '@/components/ui/VibrantBadge';
+import { formatCurrency } from '@/utils/formatting';
+// import { exportToExcel, exportToPDF } from '@/utils/exportUtils'; // Lazy loaded
 
 interface PayrollLedgerProps {
   ledger: any[];
@@ -42,7 +42,7 @@ const PayrollLedger: React.FC<PayrollLedgerProps> = ({
           <div className="flex gap-2">
             <button
               onClick={async () => {
-                const { exportToPDF } = await import('../../utils/exportUtils');
+                const { exportToPDF } = await import('@/utils/exportUtils');
                 const headers = [
                   'ID',
                   'Name',
@@ -69,7 +69,7 @@ const PayrollLedger: React.FC<PayrollLedgerProps> = ({
             </button>
             <button
               onClick={async () => {
-                const { exportToExcel } = await import('../../utils/exportUtils');
+                const { exportToExcel } = await import('@/utils/exportUtils');
                 const data = ledger.map((tx) => ({
                   ID: tx.id,
                   Name: tx.name,

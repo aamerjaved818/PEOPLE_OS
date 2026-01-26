@@ -1,6 +1,6 @@
 import pytest
 
-from backend.utils import (format_from_db, format_to_db, validate_date,
+from backend.shared.utils import (format_from_db, format_to_db, validate_date,
                            validate_time)
 
 

@@ -17,8 +17,8 @@ def enforce_clean_db_state():
     # Authorized database
     auth_db = getattr(settings, "DB_FILE", "people_os.db")
 
-    # Legacy patterns to check (and ignore)
-    patterns = ["hunzal_hrms.db", "hunzal_hcm.db", "sql_app.db"]
+    # Legacy database patterns to check and remove (database migrations cleanup)
+    patterns = ["sql_app.db"]  # Generic legacy patterns; uses authorized DB from settings
 
     print("--- [STARTUP] Verifying Database Configuration ---")
 
@@ -41,7 +41,8 @@ def enforce_clean_db_state():
 
     # 2. Scan and Ignore others (Optimized)
     found_others = False
-    target_filenames = {"hunzal_hrms.db", "sql_app.db"}
+    # Ensure all known legacy filenames are considered for cleanup
+    target_filenames = {"sql_app.db"}  # Generic legacy database filename
     
     # Use os.walk with extensive pruning to avoid scanning node_modules, .git, etc.
     for root, dirs, files in os.walk(project_root, topdown=True):

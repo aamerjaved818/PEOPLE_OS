@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect } from 'react';
 import { useRBAC } from '@/contexts/RBACContext';
-import { Permission, SystemRole } from '../../types';
-import { useUIStore } from '../../store/uiStore';
+import { Permission, SystemRole } from '@/types';
+import { useUIStore } from '@/store/uiStore';
 
 interface RoleGuardProps {
   children: ReactNode;
@@ -31,11 +31,21 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
   };
 
   useEffect(() => {
-    if (!isAuthorized()) {
+    const authorized = (() => {
+      if (permission && !hasPermission(permission)) {
+        return false;
+      }
+      if (role && !hasRole(role)) {
+        return false;
+      }
+      return true;
+    })();
+
+    if (!authorized) {
       // Redirect using the store action since we handle routing via activeModule
       setActiveModule(redirectTo as any);
     }
-  }, [permission, role, redirectTo]);
+  }, [permission, role, redirectTo, hasPermission, hasRole, setActiveModule]);
 
   if (!isAuthorized()) {
     return null; // Don't render restricted content while redirecting

@@ -1,0 +1,8 @@
+'CandidateCreate' object has no attribute 'positionApplied'
+Traceback (most recent call last):
+  File "D:\Project\PEOPLE_OS\backend\crud.py", line 856, in create_candidate
+    position_applied=candidate.positionApplied,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Aamer\AppData\Roaming\Python\Python312\site-packages\pydantic\main.py", line 892, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'CandidateCreate' object has no attribute 'positionApplied'. Did you mean: 'position_applied'?

@@ -3,6 +3,7 @@ Database & Data Integrity Analyzer
 Checks schema normalization, foreign keys, index coverage, migrations.
 """
 
+import os
 import sqlite3
 import uuid
 from pathlib import Path
@@ -17,7 +18,11 @@ class DatabaseAnalyzer:
 
     def __init__(self):
         self.project_root = get_project_root()
-        self.db_path = self.project_root / "backend" / "data" / "people_os.db"
+        
+        # Use environment-aware database path from config
+        # Import here to avoid circular dependency
+        from backend.config import database_config
+        self.db_path = Path(database_config.DB_PATH)
 
     def analyze(self) -> Dict:
         """Run database analysis"""
@@ -61,11 +66,11 @@ class DatabaseAnalyzer:
 
             if not metrics["foreign_keys_enforced"]:
                 # Double check if enabled via code (static analysis)
-                db_py = self.project_root / "backend" / "database.py"
+                db_py = self.project_root / "backend" / "database" / "__init__.py"
                 code_enforced = False
                 if db_py.exists():
                     content = db_py.read_text(encoding="utf-8")
-                    if "PRAGMA foreign_keys=ON" in content:
+                    if 'cursor.execute("PRAGMA foreign_keys=ON")' in content or 'cursor.execute("PRAGMA foreign_keys = ON")' in content:
                         code_enforced = True
                         metrics["foreign_keys_enforced"] = (
                             1  # Credit for code enforcement

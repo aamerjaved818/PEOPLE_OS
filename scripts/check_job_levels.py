@@ -1,28 +1,34 @@
 import sqlite3
 import os
 
-DB_PATH = r'D:\Project\PEOPLE_OS\backend\data\people_os_dev.db'
-
-if not os.path.exists(DB_PATH):
-    print(f"Database not found at {DB_PATH}")
-    exit(1)
-
-conn = sqlite3.connect(DB_PATH)
-cursor = conn.cursor()
+db_path = os.path.join("backend", "data", "people_os_dev.db")
+print(f"Connecting to database at: {db_path}")
 
 try:
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='job_levels'")
-    if not cursor.fetchone():
-        print("Table 'job_levels' does not exist!")
-    else:
-        cursor.execute("SELECT count(*) FROM job_levels")
-        count = cursor.fetchone()[0]
-        print(f"Row count in 'job_levels': {count}")
-        
-        if count > 0:
-            cursor.execute("SELECT * FROM job_levels LIMIT 5")
-            print("Sample data:", cursor.fetchall())
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # 1. Check Schema of hcm_job_levels and hcm_grades (main dependent)
+    tables = ["hcm_job_levels", "hcm_grades"]
+    for table in tables:
+        print(f"\n--- Schema: {table} ---")
+        cursor.execute(f"SELECT sql FROM sqlite_master WHERE type='table' AND name='{table}'")
+        result = cursor.fetchone()
+        if result:
+            print(result[0])
+        else:
+            print(f"Table {table} not found")
+
+    # 2. Check Data in hcm_job_levels
+    print(f"\n--- Data: hcm_job_levels ---")
+    cursor.execute("SELECT id, name, code FROM hcm_job_levels")
+    rows = cursor.fetchall()
+    print(f"{'ID':<30} | {'Name':<20} | {'Code':<10}")
+    print("-" * 65)
+    for row in rows:
+        print(f"{row[0]:<30} | {row[1]:<20} | {row[2]}")
+
+    conn.close()
+
 except Exception as e:
     print(f"Error: {e}")
-finally:
-    conn.close()

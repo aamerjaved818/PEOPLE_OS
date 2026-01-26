@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Users, Building2, Factory, Crown, Briefcase, MapPin } from 'lucide-react';
+import { Users, Building, Factory, Crown, Briefcase, MapPin } from 'lucide-react';
 import { useOrgStore } from '@/store/orgStore';
 import { useToast } from '@/components/ui/Toast';
 import { DataExportButton } from '@/components/common/DataExportButton';
@@ -173,7 +173,7 @@ const LeadershipManagement: React.FC = () => {
       {profile && (
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-            <Building2 className="w-4 h-4 text-primary" />
+            <Building className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">
               Company Leadership
             </h3>
@@ -188,7 +188,7 @@ const LeadershipManagement: React.FC = () => {
               <div className="lg:col-span-1 space-y-4 border-r border-border/50 pr-8">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary shadow-inner">
-                    <Building2 size={24} />
+                    <Building size={24} />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-text-primary">{profile.name}</h3>

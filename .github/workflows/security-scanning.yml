@@ -1,0 +1,171 @@
+name: Security Scanning & Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r backend/requirements.txt
+        pip install bandit semgrep
+
+    - name: Run OWASP Security Scanner
+      run: |
+        python -m backend.security.security_scanner
+      continue-on-error: true
+
+    - name: Run Bandit Security Scan
+      run: |
+        bandit -r backend/ -f json -o bandit-report.json --silent || true
+
+    - name: Run Semgrep Analysis
+      run: |
+        semgrep --config p/security-audit backend/ --json -o semgrep-report.json || true
+
+    - name: Generate Security Report
+      run: |
+        python -c "
+import asyncio
+from backend.security.security_report import SecurityReport
+
+async def main():
+    report = SecurityReport()
+    result = await report.generate_report('backend')
+    report.export_json(result, 'security_report.json')
+    report.export_markdown(result, 'security_report.md')
+    report.export_html(result, 'security_report.html')
+    
+    # Print summary
+    print('\n=== Security Report Summary ===')
+    print(f'Risk Score: {result[\"metrics\"][\"risk_score\"]}/100')
+    print(f'Critical: {result[\"metrics\"][\"critical_count\"]}')
+    print(f'High: {result[\"metrics\"][\"high_count\"]}')
+    print(f'Medium: {result[\"metrics\"][\"medium_count\"]}')
+
+asyncio.run(main())
+" || true
+
+    - name: Upload Security Reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          security_report.*
+          bandit-report.json
+          semgrep-report.json
+
+    - name: Comment PR with Security Report
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          try {
+            const report = JSON.parse(fs.readFileSync('security_report.json', 'utf8'));
+            const comment = `
+## 🛡️ Security Scan Results
+
+**Risk Score:** ${report.metrics.risk_score}/100
+
+| Severity | Count |
+|----------|-------|
+| Critical | ${report.metrics.critical_count} |
+| High | ${report.metrics.high_count} |
+| Medium | ${report.metrics.medium_count} |
+| Low | ${report.metrics.low_count} |
+
+**Scanner Results:**
+- OWASP: ${report.owasp.total_vulnerabilities} vulnerabilities
+- Bandit: ${report.bandit.total_issues} issues
+- Semgrep: ${report.semgrep.total_matches} matches
+
+[View Full Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('Could not post security report comment:', error);
+          }
+
+  tests:
+    runs-on: ubuntu-latest
+    needs: security-scan
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r backend/requirements.txt
+        pip install pytest pytest-asyncio pytest-cov
+
+    - name: Run Tests
+      run: |
+        pytest backend/tests/ -v --cov=backend --cov-report=xml --cov-report=html
+
+    - name: Upload Coverage Reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+
+  dependency-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety
+
+    - name: Check for Known Vulnerabilities
+      run: |
+        safety check --json > safety-report.json || true
+
+    - name: Upload Dependency Reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: dependency-reports
+        path: safety-report.json

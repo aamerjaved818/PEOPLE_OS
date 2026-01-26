@@ -18,7 +18,7 @@ export function useSearch<T>(data: T[], searchKeys: (keyof T)[], initialTerm = '
         return String(val).toLowerCase().includes(lowerTerm);
       })
     );
-  }, [data, searchTerm, JSON.stringify(searchKeys)]);
+  }, [data, searchTerm, searchKeys]);
 
   return { searchTerm, setSearchTerm, filteredData };
 }

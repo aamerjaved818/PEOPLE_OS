@@ -10,6 +10,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from .audit_engine import ReportGenerator, run_system_audit
+from backend.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ def scheduled_audit_job():
     try:
         print("⏰ Running Scheduled System Audit...")
         report = run_system_audit(executed_by="System Scheduler")
-        reports_dir = Path(__file__).parent.parent / "data" / "reports"
+        reports_dir = Path(settings.REPORTS_DIR)
         ReportGenerator.save_report(report, reports_dir)
         print(f"✅ Scheduled Audit Complete. Score: {report.overall_score}")
 

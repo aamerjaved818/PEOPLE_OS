@@ -1,0 +1,155 @@
+version: '3.8'
+
+services:
+  # Redis service for Celery broker and cache
+  redis:
+    image: redis:7-alpine
+    container_name: peopledb-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - peopledb-network
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # PostgreSQL service (optional, for production)
+  postgres:
+    image: postgres:15-alpine
+    container_name: peopledb-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-peopledb}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_password}
+      POSTGRES_DB: ${DB_NAME:-peopledb}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-peopledb}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - peopledb-network
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # FastAPI API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: peopledb-api
+    restart: unless-stopped
+    environment:
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/1
+      DATABASE_URL: postgresql://${DB_USER:-peopledb}:${DB_PASSWORD:-secure_password}@postgres:5432/${DB_NAME:-peopledb}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SENDER_EMAIL: ${SENDER_EMAIL}
+      SENDER_PASSWORD: ${SENDER_PASSWORD}
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      DEBUG: ${DEBUG:-false}
+    ports:
+      - '8000:8000'
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app/backend
+      - ./logs:/app/logs
+      - report_data:/tmp/reports
+    networks:
+      - peopledb-network
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # Celery Worker
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    container_name: peopledb-celery-worker
+    restart: unless-stopped
+    environment:
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/1
+      DATABASE_URL: postgresql://${DB_USER:-peopledb}:${DB_PASSWORD:-secure_password}@postgres:5432/${DB_NAME:-peopledb}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SENDER_EMAIL: ${SENDER_EMAIL}
+      SENDER_PASSWORD: ${SENDER_PASSWORD}
+    depends_on:
+      - redis
+      - postgres
+      - api
+    volumes:
+      - ./backend:/app/backend
+      - ./logs:/app/logs
+      - report_data:/tmp/reports
+    networks:
+      - peopledb-network
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # Celery Beat Scheduler
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    container_name: peopledb-celery-beat
+    restart: unless-stopped
+    environment:
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/1
+      DATABASE_URL: postgresql://${DB_USER:-peopledb}:${DB_PASSWORD:-secure_password}@postgres:5432/${DB_NAME:-peopledb}
+    command: celery -A backend.services.async_tasks beat --loglevel=info
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./backend:/app/backend
+      - ./logs:/app/logs
+    networks:
+      - peopledb-network
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+volumes:
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+  report_data:
+    driver: local
+
+networks:
+  peopledb-network:
+    driver: bridge

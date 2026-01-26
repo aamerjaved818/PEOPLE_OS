@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from backend.audit.audit_engine import run_system_audit
 from backend.audit.report_generator import ReportGenerator
+from backend.config import settings
 
 
 def main():
@@ -26,7 +27,7 @@ def main():
 
         # Generate markdown report
         generator = ReportGenerator()
-        reports_dir = Path("backend/data/reports")
+        reports_dir = Path(settings.REPORTS_DIR)
         report_path = generator.save_report(report, reports_dir)
 
         print("\n" + "=" * 40)

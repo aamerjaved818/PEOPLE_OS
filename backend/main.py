@@ -8,14 +8,19 @@ import traceback
 import uuid
 from typing import List, Optional
 
+
 from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+import jwt
+
+from backend.database import SessionLocal
 
 # Internal Imports
 from backend.audit.scheduler import start_scheduler
@@ -33,48 +38,44 @@ from backend.dependencies import (
 )
 from backend.domains.core import models as core_models
 from backend.domains.hcm import models as hcm_models
+from backend.domains.gen_admin import models as gen_admin_models
 from backend import crud, schemas
+from backend.services import tax_calculator
 
-# Configure Logging
-log_file_path = os.path.join(os.path.dirname(__file__), "people_os.log")
-logging.basicConfig(
-    level=logging.INFO, 
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler(log_file_path)
-    ]
-)
-logger = logging.getLogger(__name__)
+# Configure Logging (use central logging_config)
+from backend.logging_config import logger
 
-# Proxy to maintain 'models.DB...' compatibility during refactor
-class ModelsProxy:
-    def __getattr__(self, name):
-        for module in ["backend.domains.core.models", "backend.domains.hcm.models"]:
-            try:
-                mod = importlib.import_module(module)
-                if hasattr(mod, name):
-                    return getattr(mod, name)
-            except ImportError:
-                continue
-        raise AttributeError(f"Model {name} not found")
-
-models = ModelsProxy()
+from backend.shared.models import models
 
 # API Metadata
 app = FastAPI(
-    title="Hunzal People OS (HCM) API",
-    description="Comprehensive Human Capital Management API with domain-organized endpoints.",
-    version="1.0.0",
+    title="peopleOS eBusiness Suite API",
+    description="peopleOS eBusiness Suite - Comprehensive Human Capital Management API with domain-organized endpoints.",
 )
+
+# Sentry error tracking removed per user request
 
 app.add_middleware(
     CORSMiddleware,
+    # Wildcard origin with allow_credentials=True is invalid in fetch API.
+    # We must whitelist specific origins.
+    # Wildcard exception for fetch API with credentials
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class APIVersionRedirectMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        path = request.scope.get("path", "")
+        if path.startswith("/api/") and not path.startswith("/api/v1/"):
+            request.scope["path"] = "/api/v1" + path[len("/api"):]
+        return await call_next(request)
+
+
+app.add_middleware(APIVersionRedirectMiddleware)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -85,859 +86,215 @@ async def log_requests(request: Request, call_next):
         f"Method: {request.method} Path: {request.url.path} "
         f"Status: {response.status_code} Duration: {duration:.4f}s"
     )
+    # Persist a minimal per-request audit entry (mandatory per-user logs)
+    try:
+        username = "anonymous"
+        organization_id = None
+        # Attempt to extract username from Bearer token
+        auth = request.headers.get("authorization") or request.headers.get("Authorization")
+        if auth and auth.lower().startswith("bearer "):
+            try:
+                token = auth.split(" ", 1)[1]
+                # Reuse secret and algorithm from dependencies
+                from backend.dependencies import SECRET_KEY, ALGORITHM, ROOT_USERNAME
+
+                payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+                sub = payload.get("sub")
+                if sub:
+                    username = sub
+                    if sub != ROOT_USERNAME:
+                        # Resolve organization for non-root users
+                        from backend.domains.core.models import DBUser
+                        db_lookup = SessionLocal()
+                        try:
+                            user = db_lookup.query(DBUser).filter(DBUser.username == sub).first()
+                            if user:
+                                organization_id = user.organization_id
+                        finally:
+                            try:
+                                db_lookup.close()
+                            except Exception:
+                                pass
+            except Exception:
+                # Token decode failed; leave username as anonymous
+                pass
+
+        # Build audit record and persist
+        try:
+            db = SessionLocal()
+            audit_time = datetime.datetime.utcnow().isoformat()
+            details = f"duration={duration:.4f}s; client={request.client.host if request.client else 'unknown'}"
+            audit_payload = schemas.AuditLogCreate(
+                organization_id=organization_id,
+                user=username,
+                action=f"{request.method} {request.url.path}",
+                status=str(response.status_code),
+                time=audit_time,
+                details=details,
+            )
+            crud.create_audit_log(db, audit_payload)
+        except Exception as e:
+            logger.error(f"Failed to persist audit log: {e}")
+        finally:
+            try:
+                db.close()
+            except Exception:
+                pass
+    except Exception:
+        # Ensure that audit failures never block responses
+        logger.exception("Unexpected error while creating audit log")
+
     return response
 
+# Static Files
 UPLOAD_DIR = settings.UPLOAD_DIR
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
+# Security & Limits
+limiter = Limiter(key_func=get_remote_address, default_limits=["1000/minute"])
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# Lifecycle Events
 @app.on_event("startup")
 async def startup_event():
-    """Main application startup sequence"""
-    logger.info("Starting Application Lifecycle...")
+    """System-level application startup sequence"""
+    logger.info("Initializing peopleOS eBusiness internal engines...")
+    
+    # 1. Database Security & Integrity
+    logger.info("[1/4] Verifying Core Database Integrity...")
     try:
         from backend.security.db_enforcer import enforce_clean_db_state
-        logger.info("Verifying Database Configuration...")
         enforce_clean_db_state()
+        logger.info("Database security check passed.")
     except Exception as e:
-        logger.warning(f"DB Enforcement skipped or failed: {e}")
+        logger.warning(f"Database security check degraded or skipped: {e}")
     
-    core_models.Base.metadata.create_all(bind=engine)
-    hcm_models.Base.metadata.create_all(bind=engine)
-    
+    # 2. Domain Model Synchronization
+    logger.info("[2/4] Synchronizing Domain Models...")
     try:
-        start_scheduler()
-        logger.info("Audit Scheduler started successfully.")
+        core_models.Base.metadata.create_all(bind=engine)
+        hcm_models.Base.metadata.create_all(bind=engine)
+        gen_admin_models.Base.metadata.create_all(bind=engine)
+        logger.info("Domain models synced successfully.")
     except Exception as e:
-        logger.error(f"Failed to start Audit Scheduler: {e}")
+        logger.error(f"Critical Failure: Model synchronization failed: {e}")
+        # In a production environment, we might want to exit here
+    
+    # 3. Security & Audit Schedulers
+    logger.info("[3/4] Activating Security & Audit Schedulers...")
+    # DISABLED: May cause startup blocking
+    # try:
+    #     start_scheduler()
+    #     logger.info("Audit engine online.")
+    # except Exception as e:
+    #     logger.error(f"Security Engine Failure: Failed to start Audit Scheduler: {e}")
+    
+    # 4. Data Protection Services
+    logger.info("[4/4] Mounting Data Protection Services...")
+    # DISABLED: May cause startup blocking
+    # try:
+    #     from backend.backup_scheduler import schedule_backups
+    #     schedule_backups()
+    #     logger.info("Backup protocol engaged.")
+    # except Exception as e:
+    #     logger.error(f"Data Protection Failure: Failed to start Backup Scheduler: {e}")
         
-    logger.info("Application Startup Sequence Complete.")
-
-# =================================================================
-# II. CORE: IDENTITY & ACCESS CONTROL
-# =================================================================
-
-@app.get("/api/v1/rbac/permissions", tags=["RBAC"])
-def get_permissions(db: Session = Depends(get_db)):
-    return crud.get_all_role_permissions(db)
-
-@app.post("/api/v1/rbac/permissions", tags=["RBAC"])
-def save_permissions(payload: schemas.RolePermissionCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    return crud.update_role_permissions(db, payload.role, payload.permissions)
-
-@app.post("/api/v1/auth/login", tags=["Authentication"])
-@limiter.limit(auth_config.LOGIN_RATE_LIMIT)
-def login(login_data: schemas.LoginRequest, request: Request, db: Session = Depends(get_db)):
-    user = db.query(models.DBUser).filter(models.DBUser.username == login_data.username).first()
-    if not user or not verify_password(login_data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    access_token = create_access_token(data={"sub": user.username, "role": user.role, "organization_id": user.organization_id})
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "role": user.role,
-            "organization_id": user.organization_id,
-            "employeeId": user.employee_id
-        }
-    }
-
-@app.get("/api/v1/users", response_model=List[schemas.User], tags=["Users"])
-def get_users(
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("SystemAdmin"))
-):
-    return crud.get_users(db)
-
-@app.post("/api/v1/users", response_model=schemas.User, tags=["Users"])
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    try:
-        return crud.create_user(db=db, user=user, creator_id=current_user["id"])
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-@app.put("/api/v1/users/{user_id}", response_model=schemas.User, tags=["Users"])
-def update_user(user_id: str, user: schemas.UserUpdate, db: Session = Depends(get_db), current_user: dict = Depends(check_permission("edit_users"))):
-    return crud.update_user(db, user_id, user, updater_id=current_user["id"])
-
-# =================================================================
-# III. CORE: ORGANIZATION SETUP
-# =================================================================
-
-@app.get("/api/v1/organizations", response_model=List[schemas.OrganizationList], tags=["Organizations"])
-def get_organizations(db: Session = Depends(get_db)):
-    return crud.get_organizations(db)
-
-@app.get("/api/v1/organizations/{org_id}", response_model=schemas.Organization, tags=["Organizations"])
-def get_organization(org_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    org = crud.get_organization(db, org_id)
-    if not org:
-        raise HTTPException(status_code=404, detail="Organization not found")
-    return org
-
-@app.post("/api/v1/organizations", response_model=schemas.Organization, tags=["Organizations"])
-def create_organization(org: schemas.OrganizationCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    # Basic check for uniqueness handled by DB constraint, but let's be explicit if needed
-    # The frontend Root check is the primary guard, backend allows SystemAdmin for now for flexibility
-    return crud.create_organization(db, org, user_id=current_user["id"])
-
-@app.put("/api/v1/organizations/{org_id}", response_model=schemas.Organization, tags=["Organizations"])
-def update_organization(org_id: str, org: schemas.OrganizationCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    return crud.update_organization(db, org_id, org, user_id=current_user["id"])
-
-@app.delete("/api/v1/organizations/{org_id}", tags=["System"])
-def delete_organization(
-    org_id: str,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("SystemAdmin")),
-):
-    crud.delete_organization(db, org_id)
-    return {"status": "success", "message": "Organization deleted"}
-
-@app.get("/api/v1/plants", response_model=List[schemas.Plant], tags=["Organizations"])
-def get_plants(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    return crud.get_plants(db, organization_id=current_user.get("organization_id"))
-
-@app.post("/api/v1/plants", response_model=schemas.Plant, tags=["Organizations"])
-def create_plant(plant: schemas.PlantCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not plant.organization_id:
-        plant.organization_id = current_user.get("organization_id")
-    return crud.create_plant(db, plant, user_id=current_user["id"])
-
-@app.put("/api/v1/plants/{plant_id}", response_model=schemas.Plant, tags=["Organizations"])
-def update_plant(plant_id: str, plant: schemas.PlantCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not plant.organization_id:
-        plant.organization_id = current_user.get("organization_id")
-    return crud.update_plant(db, plant_id, plant, user_id=current_user["id"])
-
-@app.delete("/api/v1/plants/{plant_id}", tags=["Organizations"])
-async def delete_plant(plant_id: str, db: Session = Depends(get_db), current_user: models.DBUser = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if crud.delete_plant(db, plant_id):
-        return {"message": "Plant deleted successfully"}
-    raise HTTPException(status_code=404, detail="Plant not found")
-
-@app.get("/api/v1/plants/{plant_id}/next-code", tags=["Organizations"])
-async def get_plant_next_code(plant_id: str, db: Session = Depends(get_db), current_user: models.DBUser = Depends(get_current_user)):
-    code = crud.get_next_employee_code(db, plant_id, peek=True)
-    return {"nextCode": code}
-
-@app.get("/api/v1/departments", response_model=List[schemas.Department], tags=["Organizations"])
-def get_departments(db: Session = Depends(get_db)):
-    return crud.get_departments(db)
-
-@app.post("/api/v1/departments", response_model=schemas.Department, tags=["Organizations"])
-def create_department(dept: schemas.DepartmentCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not dept.organization_id:
-        dept.organization_id = current_user.get("organization_id")
-    return crud.create_department(db, dept, user_id=current_user["id"])
-
-@app.put("/api/v1/departments/{dept_id}", response_model=schemas.Department, tags=["Organizations"])
-def update_department(dept_id: str, dept: schemas.DepartmentCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not dept.organization_id:
-        dept.organization_id = current_user.get("organization_id")
-    return crud.update_department(db, dept_id, dept, user_id=current_user["id"])
-
-@app.delete("/api/v1/departments/{dept_id}", tags=["Organizations"])
-def delete_department(dept_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    crud.delete_department(db, dept_id)
-    return {"status": "success", "message": "Department deleted"}
-
-@app.get("/api/v1/sub-departments", response_model=List[schemas.SubDepartment], tags=["Organizations"])
-def get_sub_departments(db: Session = Depends(get_db)):
-    return crud.get_sub_departments(db)
-
-@app.post("/api/v1/sub-departments", response_model=schemas.SubDepartment, tags=["Organizations"])
-def create_sub_department(sub: schemas.SubDepartmentCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not sub.organization_id:
-        sub.organization_id = current_user.get("organization_id")
-    return crud.create_sub_department(db, sub, user_id=current_user["id"])
-
-@app.put("/api/v1/sub-departments/{sub_id}", response_model=schemas.SubDepartment, tags=["Organizations"])
-def update_sub_department(sub_id: str, sub: schemas.SubDepartmentCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not sub.organization_id:
-        sub.organization_id = current_user.get("organization_id")
-    return crud.update_sub_department(db, sub_id, sub, user_id=current_user["id"])
-
-@app.delete("/api/v1/sub-departments/{sub_id}", tags=["Organizations"])
-def delete_sub_department(sub_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    crud.delete_sub_department(db, sub_id)
-    return {"status": "success", "message": "Sub-Department deleted"}
-
-@app.get("/api/v1/grades", response_model=List[schemas.Grade], tags=["Organizations"])
-def get_grades(db: Session = Depends(get_db)):
-    return crud.get_grades(db)
-
-@app.post("/api/v1/grades", response_model=schemas.Grade, tags=["Organizations"])
-def create_grade(grade: schemas.GradeCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not grade.organization_id:
-        grade.organization_id = current_user.get("organization_id")
-    return crud.create_grade(db, grade, user_id=current_user["id"])
-
-@app.put("/api/v1/grades/{grade_id}", response_model=schemas.Grade, tags=["Organizations"])
-def update_grade(grade_id: str, grade: schemas.GradeCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    return crud.update_grade(db, grade_id, grade, user_id=current_user["id"])
-
-@app.delete("/api/v1/grades/{grade_id}", tags=["Organizations"])
-def delete_grade(grade_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    crud.delete_grade(db, grade_id)
-    return {"status": "success", "message": "Grade deleted"}
-
-
-@app.get("/api/v1/designations", response_model=List[schemas.Designation], tags=["Organizations"])
-def get_designations(db: Session = Depends(get_db)):
-    return crud.get_designations(db)
-
-@app.post("/api/v1/designations", response_model=schemas.Designation, tags=["Organizations"])
-def create_designation(desig: schemas.DesignationCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not desig.organization_id:
-        desig.organization_id = current_user.get("organization_id")
-    return crud.create_designation(db, desig, user_id=current_user["id"], org_id=current_user.get("organization_id"))
-
-@app.put("/api/v1/designations/{desig_id}", response_model=schemas.Designation, tags=["Organizations"])
-def update_designation(desig_id: str, desig: schemas.DesignationCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not desig.organization_id:
-        desig.organization_id = current_user.get("organization_id")
-    return crud.update_designation(db, desig_id, desig, user_id=current_user["id"])
-
-@app.delete("/api/v1/designations/{desig_id}", tags=["Organizations"])
-def delete_designation(desig_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    crud.delete_designation(db, desig_id)
-    return {"status": "success", "message": "Designation deleted"}
-
-@app.get("/api/v1/shifts", response_model=List[schemas.Shift], tags=["Organizations"])
-def get_shifts(db: Session = Depends(get_db)):
-    return crud.get_shifts(db)
-
-@app.post("/api/v1/shifts", response_model=schemas.Shift, tags=["Organizations"])
-def create_shift(shift: schemas.ShiftCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not shift.organization_id:
-        shift.organization_id = current_user.get("organization_id")
-    return crud.create_shift(db, shift, user_id=current_user["id"])
-
-@app.put("/api/v1/shifts/{shift_id}", response_model=schemas.Shift, tags=["Organizations"])
-def update_shift(shift_id: str, shift: schemas.ShiftCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not shift.organization_id:
-        shift.organization_id = current_user.get("organization_id")
-    return crud.update_shift(db, shift_id, shift, user_id=current_user["id"])
-
-@app.delete("/api/v1/shifts/{shift_id}", tags=["Organizations"])
-def delete_shift(shift_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    crud.delete_shift(db, shift_id)
-    return {"status": "success", "message": "Shift deleted"}
-
-@app.get("/api/v1/positions", response_model=List[schemas.Position], tags=["Organizations"])
-def get_positions(db: Session = Depends(get_db)):
-    return crud.get_positions(db)
-
-@app.post("/api/v1/positions", response_model=schemas.Position, tags=["Organizations"])
-def create_position(position: schemas.PositionCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not position.organization_id:
-        position.organization_id = current_user.get("organization_id")
-    return crud.create_position(db, position, user_id=current_user["id"])
-
-@app.put("/api/v1/positions/{position_id}", response_model=schemas.Position, tags=["Organizations"])
-def update_position(position_id: str, position: schemas.PositionCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not position.organization_id:
-        position.organization_id = current_user.get("organization_id")
-    return crud.update_position(db, position_id, position, user_id=current_user["id"])
-
-@app.delete("/api/v1/positions/{position_id}", tags=["Organizations"])
-def delete_position(position_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    crud.delete_position(db, position_id)
-    return {"status": "success", "message": "Position deleted"}
-
-@app.get("/api/v1/holidays", response_model=List[schemas.Holiday], tags=["Organizations"])
-def get_holidays(db: Session = Depends(get_db)):
-    return crud.get_holidays(db)
-
-@app.post("/api/v1/holidays", response_model=schemas.Holiday, tags=["Organizations"])
-def create_holiday(holiday: schemas.HolidayCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not holiday.organization_id:
-        holiday.organization_id = current_user.get("organization_id")
-    return crud.create_holiday(db, holiday, user_id=current_user["id"])
-
-@app.put("/api/v1/holidays/{holiday_id}", response_model=schemas.Holiday, tags=["Organizations"])
-def update_holiday(holiday_id: str, holiday: schemas.HolidayCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not holiday.organization_id:
-        holiday.organization_id = current_user.get("organization_id")
-    return crud.update_holiday(db, holiday_id, holiday, user_id=current_user["id"])
-
-@app.delete("/api/v1/holidays/{holiday_id}", tags=["Organizations"])
-def delete_holiday(holiday_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    crud.delete_holiday(db, holiday_id)
-    return {"status": "success", "message": "Holiday deleted"}
-
-@app.get("/api/v1/banks", response_model=List[schemas.Bank], tags=["Organizations"])
-def get_banks(db: Session = Depends(get_db)):
-    return crud.get_banks(db)
-
-@app.post("/api/v1/banks", response_model=schemas.Bank, tags=["Organizations"])
-def create_bank(bank: schemas.BankCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not bank.organization_id:
-        bank.organization_id = current_user.get("organization_id")
-    return crud.create_bank(db, bank, user_id=current_user["id"])
-
-@app.put("/api/v1/banks/{bank_id}", response_model=schemas.Bank, tags=["Organizations"])
-def update_bank(bank_id: str, bank: schemas.BankCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not bank.organization_id:
-        bank.organization_id = current_user.get("organization_id")
-    return crud.update_bank(db, bank_id, bank, user_id=current_user["id"])
-
-@app.delete("/api/v1/banks/{bank_id}", tags=["Organizations"])
-def delete_bank(bank_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    crud.delete_bank(db, bank_id)
-    return {"status": "success", "message": "Bank deleted"}
-
-@app.get("/api/v1/employment-levels", response_model=List[schemas.EmploymentLevel], tags=["Organizations"])
-def get_employment_levels(db: Session = Depends(get_db)):
-    return crud.get_employment_levels(db)
-
-@app.post("/api/v1/employment-levels", response_model=schemas.EmploymentLevel, tags=["Organizations"])
-def create_employment_level(level: schemas.EmploymentLevelCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not level.organization_id:
-        level.organization_id = current_user.get("organization_id")
-    return crud.create_employment_level(db, level, user_id=current_user["id"])
-
-@app.put("/api/v1/employment-levels/{level_id}", response_model=schemas.EmploymentLevel, tags=["Organizations"])
-def update_employment_level(level_id: str, level: schemas.EmploymentLevelCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not level.organization_id:
-        level.organization_id = current_user.get("organization_id")
-    return crud.update_employment_level(db, level_id, level, user_id=current_user["id"])
-
-@app.delete("/api/v1/employment-levels/{level_id}", tags=["Organizations"])
-def delete_employment_level(level_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    crud.delete_employment_level(db, level_id)
-    return {"status": "success", "message": "Employment Level deleted"}
-
-@app.get("/api/v1/job-levels", response_model=List[schemas.JobLevel], tags=["Organizations"])
-def get_job_levels(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    return crud.get_job_levels(db, organization_id=current_user.get("organization_id"))
-
-@app.post("/api/v1/job-levels", response_model=schemas.JobLevel, tags=["Organizations"])
-def create_job_level(level: schemas.JobLevelCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not level.organization_id:
-        level.organization_id = current_user.get("organization_id")
-    return crud.create_job_level(db, level, user_id=current_user["id"])
-
-@app.put("/api/v1/job-levels/{level_id}", response_model=schemas.JobLevel, tags=["Organizations"])
-def update_job_level(level_id: str, level: schemas.JobLevelCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if not level.organization_id:
-        level.organization_id = current_user.get("organization_id")
-    return crud.update_job_level(db, level_id, level, user_id=current_user["id"])
-
-@app.delete("/api/v1/job-levels/{level_id}", tags=["Organizations"])
-async def delete_job_level(level_id: str, db: Session = Depends(get_db), current_user: models.DBUser = Depends(requires_role("SystemAdmin", "Business Admin"))):
-    if crud.delete_job_level(db, level_id):
-        return {"message": "Job Level deleted successfully"}
-    raise HTTPException(status_code=404, detail="Job Level not found")
-
-# =================================================================
-# IV. BUSINESS: HUMAN RESOURCES
-# =================================================================
-
-@app.get("/api/v1/employees", response_model=List[schemas.Employee], tags=["Employees"])
-def get_employees(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: dict = Depends(check_permission("view_employees"))):
-    return crud.get_employees(db, skip=skip, limit=limit, organization_id=current_user.get("organization_id"))
-
-@app.post("/api/v1/employees", response_model=schemas.Employee, tags=["Employees"])
-def create_employee(employee: schemas.EmployeeCreate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    if not employee.organization_id:
-        employee.organization_id = current_user.get("organization_id")
-    return crud.create_employee(db, employee, user_id=current_user["id"])
-
-@app.get("/api/v1/employees/{employee_id}", response_model=schemas.Employee, tags=["Employees"])
-def read_employee(employee_id: str, db: Session = Depends(get_db)):
-    return crud.get_employee(db, employee_id=employee_id)
-
-@app.put("/api/v1/employees/{employee_id}", response_model=schemas.Employee, tags=["Employees"])
-def update_employee(employee_id: str, employee: schemas.EmployeeCreate, db: Session = Depends(get_db), current_user: dict = Depends(check_permission("edit_employee"))):
-    return crud.update_employee(db, employee_id, employee, user_id=current_user["id"])
-
-@app.delete("/api/v1/employees/{employee_id}", tags=["Employees"])
-def delete_employee(employee_id: str, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    crud.delete_employee(db, employee_id)
-    return {"status": "success", "message": "Employee deleted"}
-
-@app.post("/api/v1/jobs", response_model=schemas.JobVacancy, tags=["Recruitment"])
-def create_job_vacancy(job: schemas.JobVacancyCreate, db: Session = Depends(get_db), current_user: dict = Depends(check_permission("manage_recruitment"))):
-    return crud.create_job_vacancy(db, job, user_id=current_user["id"])
-
-@app.get("/api/v1/jobs", response_model=List[schemas.JobVacancy], tags=["Recruitment"])
-def get_job_vacancies(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud.get_job_vacancies(db, skip=skip, limit=limit)
-
-@app.post("/api/v1/candidates", response_model=schemas.Candidate, tags=["Recruitment"])
-def create_candidate(candidate: schemas.CandidateCreate, db: Session = Depends(get_db), current_user: dict = Depends(check_permission("manage_recruitment"))):
-    return crud.create_candidate(db, candidate, user_id=current_user["id"])
-
-@app.get("/api/v1/candidates", response_model=List[schemas.Candidate], tags=["Recruitment"])
-def get_candidates(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud.get_candidates(db, skip=skip, limit=limit)
-
-@app.post("/api/v1/performance-reviews", response_model=schemas.PerformanceReview, tags=["Performance"])
-def create_performance_review(review: schemas.PerformanceReviewCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    return crud.create_performance_review(db, review, user_id=current_user["id"])
-
-# =================================================================
-# V. SYSTEM: GOVERNANCE & AUDITING
-# =================================================================
-
-@app.get("/api/v1/system/flags", response_model=schemas.SystemFlags, tags=["System"])
-def read_system_flags(db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    org_id = current_user.get("organization_id") or "system-default"
-    return crud.get_system_flags(db, org_id)
-
-@app.post("/api/v1/system/flags", response_model=schemas.SystemFlags, tags=["System"])
-def update_system_flags(flags_update: schemas.SystemFlagsUpdate, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    org_id = current_user.get("organization_id") or "system-default"
-    return crud.update_system_flags(db, org_id, flags_update, current_user.get("id"))
-
-@app.get("/api/v1/audit-logs", response_model=List[schemas.AuditLog], tags=["System"])
-def get_audit_logs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: dict = Depends(check_permission("view_audit_logs"))):
-    return crud.get_audit_logs(db, skip=skip, limit=limit)
-
-@app.post("/api/v1/system/audit/run", tags=["System"])
-async def run_audit_endpoint(
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("SystemAdmin"))
-):
-    from backend.audit.audit_engine import run_system_audit
-    report = run_system_audit(executed_by=current_user["id"])
-    return {"status": "success", "report_id": report.id, "overall_score": report.overall_score}
-
-@app.get("/api/v1/system/api-keys", response_model=schemas.ApiKeyList, tags=["System"])
-def list_api_keys(
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("SystemAdmin"))
-):
-    org_id = get_user_org(current_user)
-    keys = crud.get_api_keys(db, org_id)
-    return {"keys": keys, "total": len(keys)}
-
-@app.post(
-    "/api/v1/system/webhooks",
-    response_model=schemas.WebhookResponse,
-    tags=["System"]
+    logger.info("Application Startup Sequence Complete. All systems operational.")
+
+    # Launch a local PowerShell log tail window on Windows so the user sees logs in real-time
+    # DISABLED: This may cause startup issues on some systems
+    # try:
+    #     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    #     logs_dir = os.path.join(project_root, "logs")
+    #     os.makedirs(logs_dir, exist_ok=True)
+    #     log_path = os.path.join(logs_dir, "people_os.log")
+    #     # Ensure file exists
+    #     open(log_path, "a", encoding="utf-8").close()
+    #
+    #     if os.name == "nt":
+    #         try:
+    #             import subprocess
+    #
+    #             cmd = [
+    #                 "powershell",
+    #                 "-NoExit",
+    #                 "-Command",
+    #                 f"Get-Content -Path \"{log_path}\" -Wait -Tail 200",
+    #             ]
+    #             subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE)
+    #             logger.info("Launched PowerShell log tail window.")
+    #         except Exception as e:
+    #             logger.warning(f"Could not launch PowerShell log tail window: {e}")
+    #     else:
+    #         logger.info("Log tail window only supported on Windows; skip launching tail.")
+    # except Exception as e:
+    #     logger.warning(f"Failed to prepare log tail window: {e}")
+
+
+# Include Modular Routers
+from backend.routers import (
+    auth_router,
+    core_org_router,
+    hcm_employees_router,
+    hcm_attendance_router,
+    hcm_payroll_router,
+    self_service_router,
+    system_router,
+    hcm_overtime_router,
+    gen_admin_router,
+    hcm_onboarding_router,
+    hcm_offboarding_router,
+    hcm_performance_router,
+    hcm_learning_router,
+    hcm_benefits_router,
+    hcm_expenses_router,
+    hcm_rewards_router,
+    hcm_promotions_router,
 )
-@limiter.limit("10/minute")
-def create_webhook(
-    webhook_data: schemas.WebhookCreate,
-    request: Request,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("SystemAdmin"))
-):
-    org_id = get_user_org(current_user)
-    return crud.create_webhook(db, org_id, webhook_data, current_user["id"])
 
+app.include_router(auth_router, prefix="/api/v1")
+app.include_router(core_org_router, prefix="/api/v1")
+app.include_router(hcm_employees_router, prefix="/api/v1")
+app.include_router(hcm_attendance_router, prefix="/api/v1")
+app.include_router(hcm_payroll_router, prefix="/api/v1")
+app.include_router(self_service_router, prefix="/api/v1")
+app.include_router(system_router, prefix="/api/v1")
+app.include_router(hcm_overtime_router, prefix="/api/v1")
+app.include_router(gen_admin_router, prefix="/api/v1")
+app.include_router(hcm_onboarding_router, prefix="/api/v1")
+app.include_router(hcm_offboarding_router, prefix="/api/v1")
+app.include_router(hcm_performance_router, prefix="/api/v1")
+app.include_router(hcm_learning_router, prefix="/api/v1")
+app.include_router(hcm_benefits_router, prefix="/api/v1")
+app.include_router(hcm_expenses_router, prefix="/api/v1")
+app.include_router(hcm_rewards_router, prefix="/api/v1")
+app.include_router(hcm_promotions_router, prefix="/api/v1")
 
-@app.get(
-    "/api/v1/system/webhooks",
-    response_model=List[schemas.WebhookResponse],
-    tags=["System"]
-)
-def list_webhooks(
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("SystemAdmin"))
-):
-    org_id = get_user_org(current_user)
-    return crud.get_webhooks(db, org_id)
+@app.get("/api/v1", tags=["System"])
+def read_root():
+    return {"message": "peopleOS eBusiness Suite API Operating Normally"}
 
-
-@app.delete("/api/v1/system/webhooks/{webhook_id}", tags=["System"])
-def delete_webhook(
-    webhook_id: str,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("SystemAdmin"))
-):
-    return crud.delete_webhook(db, webhook_id)
-
-# ===== Background Job Endpoints =====
-
-@app.post(
-    "/api/v1/system/background-jobs",
-    response_model=schemas.BackgroundJobResponse,
-    tags=["System"]
-)
-@limiter.limit("10/minute")
-def create_background_job(
-    job_data: schemas.BackgroundJobCreate,
-    request: Request,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("SystemAdmin"))
-):
-    org_id = get_user_org(current_user)
-    return crud.create_background_job(db, org_id, job_data, current_user["id"])
-
-
-@app.get(
-    "/api/v1/system/background-jobs",
-    response_model=List[schemas.BackgroundJobResponse],
-    tags=["System"]
-)
-def get_background_jobs(db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    org_id = get_user_org(current_user)
-    return crud.get_background_jobs(db, org_id)
-
-
-# ===== HCM / Employee Endpoints =====
-
-@app.get("/api/v1/hcm/plants/{plant_id}/next-code", tags=["HCM"])
-def get_next_employee_code_endpoint(
-    plant_id: str,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(check_permission("edit_employee"))
-):
-    """Generate the next available employee code for a plant."""
-    return {"next_code": crud.get_next_employee_code(db, plant_id, peek=True)}
-
-
-# ===== System Maintenance Endpoints =====
-
-@app.post("/api/v1/system/restore", tags=["System"])
-async def restore_system(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("SystemAdmin"))
-):
-    """Restore system from a SQLite backup file."""
-    if "sqlite" not in settings.DATABASE_URL:
-        raise HTTPException(status_code=501, detail="Restore only supported for SQLite")
-    
-    # Save uploaded file to temp location
-    temp_path = f"restore_{uuid.uuid4()}.db"
-    with open(temp_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    
-    # Verify magic header (SQLite format 3)
-    with open(temp_path, "rb") as f:
-        header = f.read(16)
-        if header != b"SQLite format 3\x00":
-            os.remove(temp_path)
-            raise HTTPException(status_code=400, detail="Invalid SQLite database file")
-
-    # Perform swap (Basic implementation)
-    try:
-        # Close DB connection if possible or just swap file (dangerous in prod)
-        # For POC/Dev: rename current to backup, rename new to current
-        current_db = settings.DB_PATH
-        backup_path = f"{current_db}.bak_{int(time.time())}"
-        
-        shutil.copy2(current_db, backup_path)
-        shutil.move(temp_path, current_db)
-        
-        logger.info(f"System restored from {file.filename}. Backup saved to {backup_path}")
-        return {"status": "success", "message": "System restored successfully. Please restart the server."}
-    except Exception as e:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-        raise HTTPException(status_code=500, detail=f"Restore failed: {str(e)}")
-
-@app.post("/api/v1/system/maintenance/backups", tags=["System"])
-def create_backup(current_user: dict = Depends(requires_role("SystemAdmin"))):
-    """Create a new database backup."""
-    try:
-        current_db = settings.DB_PATH
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_filename = f"people_os.db.bak_{timestamp}"
-        data_dir = os.path.dirname(current_db)
-        backup_path = os.path.join(data_dir, backup_filename)
-        
-        shutil.copy2(current_db, backup_path)
-        
-        return {
-            "status": "success", 
-            "message": "Backup created successfully", 
-            "filename": backup_filename,
-            "path": backup_path
-        }
-    except Exception as e:
-        logger.error(f"Backup failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Backup generation failed: {str(e)}")
-
-@app.get("/api/v1/system/maintenance/backups", tags=["System"])
-def get_backups(current_user: dict = Depends(requires_role("SystemAdmin"))):
-    """List available database backups."""
-    data_dir = os.path.dirname(settings.DB_PATH)
-    backups = []
-    for f in os.listdir(data_dir):
-        if f.startswith("people_os.db.bak") or f.endswith(".bak"):
-            path = os.path.join(data_dir, f)
-            stat = os.stat(path)
-            backups.append({
-                "filename": f,
-                "size": stat.st_size,
-                "created_at": datetime.datetime.fromtimestamp(stat.st_ctime).isoformat()
-            })
-    return sorted(backups, key=lambda x: x["created_at"], reverse=True)
-
-@app.post("/api/v1/system/maintenance/restore/{filename}", tags=["System"])
-def restore_from_server_backup(
-    filename: str,
-    current_user: dict = Depends(requires_role("SystemAdmin"))
-):
-    """Restore from a server-side backup file."""
-    data_dir = os.path.dirname(settings.DB_PATH)
-    backup_path = os.path.join(data_dir, filename)
-    
-    if not os.path.exists(backup_path):
-        raise HTTPException(status_code=404, detail="Backup file not found")
-        
-    try:
-        current_db = settings.DB_PATH
-        # Safety backup of current state
-        safety_path = f"{current_db}.bak_pre_restore_{int(time.time())}"
-        shutil.copy2(current_db, safety_path)
-        
-        # Restore
-        shutil.copy2(backup_path, current_db)
-        return {"status": "success", "message": f"Restored from {filename}"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/api/v1/system/maintenance/flush-cache", tags=["System"])
-def flush_cache(current_user: dict = Depends(requires_role("SystemAdmin"))):
-    # Stub for cache flushing
-    return {"status": "success", "message": "Cache flushed successfully"}
-
-@app.post("/api/v1/system/maintenance/optimize-db", tags=["System"])
-def optimize_db_endpoint(db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    try:
-        db.execute(text("VACUUM"))
-        return {"status": "success", "message": "Database optimized (VACUUM completed)"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/api/v1/system/maintenance/rotate-logs", tags=["System"])
-def rotate_logs_endpoint(current_user: dict = Depends(requires_role("SystemAdmin"))):
-    # Stub for log rotation
-    return {"status": "success", "message": "Logs rotated successfully"}
-
-# =================================================================
-# VI. SYSTEM: AI & INTELLIGENCE
-# =================================================================
-
-@app.get("/api/v1/ai/config", response_model=schemas.AIConfigurationResponse, tags=["AI"])
-def get_ai_configuration(db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    org_id = current_user.get("organization_id") or "org-1"
-    return crud.get_ai_config(db, org_id)
-
-@app.post("/api/v1/ai/predict/attrition", tags=["AI"])
-def predict_attrition(request: schemas.AttritionPredictionRequest, db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
-    employee = crud.get_employee(db, request.employee_id)
-    if not employee: raise HTTPException(status_code=404, detail="Employee not found")
-    risk = "Medium" if employee.status == "Probation" else "Low"
-    return {"employeeId": request.employee_id, "attritionRisk": risk, "riskScore": 0.4 if risk == "Medium" else 0.2}
-
-# =================================================================
-# VII. HCM MODULES
-# =================================================================
-
-@app.get("/api/v1/hcm/attendance", response_model=List[schemas.Attendance], tags=["Attendance"])
-def get_attendance_records(
-    employee_id: Optional[str] = None,
-    date_from: Optional[str] = None,
-    date_to: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    return crud.get_attendance_records(
-        db, employee_id=employee_id, date_from=date_from,
-        date_to=date_to, skip=skip, limit=limit
-    )
-
-
-@app.post("/api/v1/hcm/attendance", response_model=schemas.Attendance, tags=["Attendance"])
-def create_attendance(
-    attendance: schemas.AttendanceCreate,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    return crud.create_attendance_record(
-        db, attendance, user_id=current_user["id"]
-    )
-
-
-@app.put("/api/v1/hcm/attendance/{record_id}", response_model=schemas.Attendance, tags=["Attendance"])
-def update_attendance(
-    record_id: int,
-    attendance: schemas.AttendanceCreate,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    return crud.update_attendance_record(
-        db, record_id, attendance, user_id=current_user["id"]
-    )
-
-
-@app.delete("/api/v1/hcm/attendance/{record_id}", tags=["Attendance"])
-def delete_attendance(
-    record_id: int,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    crud.delete_attendance_record(db, record_id)
-    return {"status": "deleted", "id": record_id}
-
-
-@app.post("/api/v1/hcm/attendance/bulk", tags=["Attendance"])
-def bulk_create_attendance(
-    payload: schemas.AttendanceBulkCreate,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    return crud.bulk_create_attendance(
-        db, payload.records, user_id=current_user["id"]
-    )
-
-
-@app.get("/api/v1/hcm/attendance/stats", response_model=schemas.AttendanceStats, tags=["Attendance"])
-def get_attendance_stats(
-    date: str,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    """Get attendance statistics for a specific date."""
-    org_id = get_user_org(current_user)
-    return crud.get_attendance_stats(db, date, organization_id=org_id)
-
-
-@app.get("/api/v1/hcm/attendance/matrix", tags=["Attendance"])
-def get_attendance_matrix(
-    month: int,
-    year: int,
-    skip: int = 0,
-    limit: int = 50,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    """Get monthly attendance matrix."""
-    org_id = get_user_org(current_user)
-    return crud.get_attendance_matrix(
-        db, month, year, organization_id=org_id, skip=skip, limit=limit
-    )
-
-
-@app.get("/api/v1/hcm/attendance/corrections", response_model=List[schemas.AttendanceCorrection], tags=["Attendance"])
-def get_attendance_corrections(
-    status: Optional[str] = None,
-    employee_id: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    """Get attendance correction requests."""
-    return crud.get_attendance_corrections(
-        db, status=status, employee_id=employee_id, skip=skip, limit=limit
-    )
-
-
-@app.post("/api/v1/hcm/attendance/corrections", response_model=schemas.AttendanceCorrection, tags=["Attendance"])
-def create_attendance_correction(
-    correction: schemas.AttendanceCorrectionCreate,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    """Create a new attendance correction request."""
-    return crud.create_attendance_correction(
-        db, correction, user_id=current_user["id"]
-    )
-
-
-@app.put("/api/v1/hcm/attendance/corrections/{correction_id}/status", response_model=schemas.AttendanceCorrection, tags=["Attendance"])
-def update_correction_status(
-    correction_id: str,
-    payload: schemas.AttendanceCorrectionApproval,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(check_permission("approve_leaves")) # Reusing leave approval permission for now
-):
-    """Approve or reject a correction request."""
-    return crud.approve_attendance_correction(
-        db, 
-        correction_id=correction_id, 
-        action=payload.action, 
-        approver_id=current_user["id"],
-        rejection_reason=payload.rejection_reason
-    )
-
-
-@app.get("/api/v1/hcm/payroll", response_model=List[schemas.PayrollLedger], tags=["Payroll"])
-def get_payroll_records(
-    employee_id: Optional[str] = None,
-    period_month: Optional[str] = None,
-    period_year: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    return crud.get_payroll_records(
-        db, employee_id=employee_id, period_month=period_month,
-        period_year=period_year, skip=skip, limit=limit
-    )
-
-
-@app.post("/api/v1/hcm/payroll", response_model=schemas.PayrollLedger, tags=["Payroll"])
-def create_payroll_entry(
-    payroll: schemas.PayrollLedgerCreate,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    return crud.create_payroll_record(
-        db, payroll, user_id=current_user["id"]
-    )
-
-
-@app.post("/api/v1/hcm/payroll/generate", tags=["Payroll"])
-def generate_payroll(
-    request: schemas.PayrollGenerateRequest,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    records = crud.generate_monthly_payroll(
-        db, request.period_month, request.period_year,
-        user_id=current_user["id"]
-    )
-    return {"generated": len(records), "period": f"{request.period_month} {request.period_year}"}
-
-@app.get("/api/v1/payroll-settings", response_model=schemas.PayrollSettings, tags=["Payroll"])
-def get_payroll_settings(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    org_id = get_user_org(current_user)
-    return crud.get_payroll_settings(db, org_id)
-
-@app.get("/api/v1/hcm/leaves", response_model=List[schemas.LeaveRequest], tags=["Leaves"])
-def get_leaves(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: dict = Depends(check_permission("view_leaves"))):
-    return crud.get_leave_requests(db, skip=skip, limit=limit)
-
-@app.post("/api/v1/hcm/leaves", response_model=schemas.LeaveRequest, tags=["Leaves"])
-def create_leave(leave: schemas.LeaveRequestCreate, db: Session = Depends(get_db), current_user: dict = Depends(check_permission("request_leave"))):
-    return crud.create_leave_request(db, leave, user_id=current_user["id"])
-
-# =================================================================
-# VIII. DEPLOYMENT & HEALTH
-# =================================================================
 
 @app.get("/api/v1/health", tags=["System"])
-def health_check(db: Session = Depends(get_db)):
+def health_root(db: Session = Depends(get_db)):
     try:
+        # Lightweight DB check
         db.execute(text("SELECT 1"))
         return {"status": "Optimal", "database": "Connected", "timestamp": datetime.datetime.now().isoformat()}
     except Exception as e:
         return {"status": "Degraded", "database": "Disconnected", "details": str(e)}
 
-@app.get("/")
-def read_root():
-    return {"message": "Hunzal People OS API Operating Normally", "version": "1.0.0"}
-
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=settings.PORT)
+    # Enable hot-reload only in development
+    should_reload = settings.ENVIRONMENT == "development"
+    
+    logger.info(f"Starting server in {settings.ENVIRONMENT} mode on port {settings.PORT}")
+    
+    if should_reload:
+        # Reload requires loading via import string
+        uvicorn.run("backend.main:app", host="0.0.0.0", port=settings.PORT, reload=True)
+    else:
+        uvicorn.run(app, host="0.0.0.0", port=settings.PORT)

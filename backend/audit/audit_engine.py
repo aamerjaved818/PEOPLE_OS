@@ -24,6 +24,7 @@ from .models import ActionItem, AuditFinding, AuditReport, DimensionScore
 from .persistence import get_persistence
 from .report_generator import ReportGenerator
 from .rule_engine import get_policy_evaluator, get_rule_engine
+from backend.config import settings
 
 
 class AuditEngine:
@@ -236,3 +237,23 @@ def run_system_audit(executed_by: str, save_to_db: bool = True) -> AuditReport:
             # Continue anyway - file report still works
 
     return report
+
+if __name__ == "__main__":
+    import asyncio
+    
+    print("🚀 Starting System Audit...")
+    report = run_system_audit(executed_by="CLI-Admin")
+    
+    # Generate Markdown Report
+    generator = ReportGenerator()
+    md_report = generator.generate_markdown(report)
+    
+    reports_dir = Path(settings.REPORTS_DIR)
+    report_path = reports_dir / "latest_audit_report.md"
+    report_path.write_text(md_report, encoding="utf-8")
+    
+    print(f"\n📊 Audit Complete!")
+    print(f"Overall Score: {report.overall_score}/5.0")
+    print(f"Risk Level: {report.risk_level}")
+    print(f"Findings: {report.critical_count} Critical, {report.major_count} Major, {report.minor_count} Minor")
+    print(f"Report saved to: {report_path.absolute()}")

@@ -55,7 +55,12 @@ class DevOpsAnalyzer:
             )
 
         # Check for backup strategy
-        backup_files = ["backup_db.bat", "backup_db.sh", "backup.py"]
+        backup_files = [
+            "backup_db.bat",
+            "backup_db.sh",
+            "backup.py",
+            "backend/scripts/backup_db.py",
+        ]
 
         for backup_file in backup_files:
             if (self.project_root / backup_file).exists():

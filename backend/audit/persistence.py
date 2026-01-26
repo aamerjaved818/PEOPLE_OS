@@ -23,12 +23,83 @@ class AuditPersistence:
             self.db_path = settings.DB_PATH
         else:
             self.db_path = db_path
+            
+        self.ensure_tables_exist()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Get database connection"""
         conn = sqlite3.connect(str(self.db_path))
         conn.row_factory = sqlite3.Row
         return conn
+
+    def ensure_tables_exist(self):
+        """Create audit tables if they don't exist"""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            # audit_runs table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS audit_runs (
+                    id TEXT PRIMARY KEY,
+                    commit_sha TEXT,
+                    environment TEXT,
+                    triggered_by TEXT,
+                    overall_score REAL,
+                    risk_level TEXT,
+                    critical_count INTEGER,
+                    major_count INTEGER,
+                    minor_count INTEGER,
+                    execution_time_seconds REAL,
+                    created_at TEXT
+                )
+            """)
+            
+            # audit_scores table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS audit_scores (
+                    id TEXT PRIMARY KEY,
+                    audit_run_id TEXT,
+                    dimension TEXT,
+                    score REAL,
+                    max_score REAL,
+                    severity_critical INTEGER,
+                    severity_major INTEGER,
+                    severity_minor INTEGER,
+                    raw_signals TEXT,
+                    scoring_version TEXT,
+                    confidence_level TEXT,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (audit_run_id) REFERENCES audit_runs(id)
+                )
+            """)
+            
+            # audit_findings table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS audit_findings (
+                    id TEXT PRIMARY KEY,
+                    audit_run_id TEXT,
+                    dimension TEXT,
+                    severity TEXT,
+                    title TEXT,
+                    description TEXT,
+                    recommendation TEXT,
+                    file_path TEXT,
+                    line_number INTEGER,
+                    commit_sha TEXT,
+                    status TEXT,
+                    acknowledged_by TEXT,
+                    acknowledged_at TEXT,
+                    acknowledgment_note TEXT,
+                    FOREIGN KEY (audit_run_id) REFERENCES audit_runs(id)
+                )
+            """)
+            
+            conn.commit()
+        except Exception as e:
+            print(f"⚠️ Failed to ensure audit tables: {e}")
+        finally:
+            conn.close()
 
     def save_audit_run(
         self,

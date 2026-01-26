@@ -1,0 +1,1225 @@
+TYPE: table
+NAME: core_locations
+TABLE: core_locations
+SQL: CREATE TABLE core_locations (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	location VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	code VARCHAR, 
+	current_sequence INTEGER, 
+	is_active BOOLEAN, 
+	head_of_plant VARCHAR, 
+	contact_number VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	UNIQUE (name), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	UNIQUE (code)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_job_levels
+TABLE: hcm_job_levels
+SQL: CREATE TABLE hcm_job_levels (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	code VARCHAR, 
+	description VARCHAR, 
+	is_active BOOLEAN, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, level_number INTEGER DEFAULT 1, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_grades
+TABLE: hcm_grades
+SQL: CREATE TABLE hcm_grades (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	level INTEGER, 
+	job_level_id VARCHAR NOT NULL, 
+	is_active BOOLEAN, 
+	organization_id VARCHAR NOT NULL, 
+	code VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	UNIQUE (name), 
+	FOREIGN KEY(job_level_id) REFERENCES hcm_job_levels (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	UNIQUE (code)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_designations
+TABLE: hcm_designations
+SQL: CREATE TABLE hcm_designations (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	grade_id VARCHAR NOT NULL, 
+	department_id VARCHAR, 
+	is_active BOOLEAN, 
+	organization_id VARCHAR NOT NULL, 
+	code VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	UNIQUE (name), 
+	FOREIGN KEY(grade_id) REFERENCES hcm_grades (id), 
+	FOREIGN KEY(department_id) REFERENCES "core_departments_temp_fix" (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	UNIQUE (code)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_shifts
+TABLE: hcm_shifts
+SQL: CREATE TABLE hcm_shifts (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	code VARCHAR, 
+	type VARCHAR, 
+	start_time VARCHAR, 
+	end_time VARCHAR, 
+	grace_period INTEGER, 
+	break_duration INTEGER, 
+	work_days VARCHAR, 
+	color VARCHAR, 
+	description VARCHAR, 
+	"isActive" BOOLEAN, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: core_audit_logs
+TABLE: core_audit_logs
+SQL: CREATE TABLE core_audit_logs (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR, 
+	user VARCHAR, 
+	action VARCHAR, 
+	status VARCHAR, 
+	time VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: core_api_keys
+TABLE: core_api_keys
+SQL: CREATE TABLE core_api_keys (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR, 
+	name VARCHAR, 
+	key_hash VARCHAR, 
+	last_used DATETIME, 
+	revoked BOOLEAN, 
+	expires_at DATETIME, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: webhooks
+TABLE: webhooks
+SQL: CREATE TABLE webhooks (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR, 
+	name VARCHAR, 
+	url VARCHAR, 
+	event_types VARCHAR, 
+	headers VARCHAR, 
+	is_active BOOLEAN, 
+	test_payload_sent BOOLEAN, 
+	last_triggered DATETIME, 
+	failure_count INTEGER, 
+	max_retries INTEGER, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: system_flags
+TABLE: system_flags
+SQL: CREATE TABLE system_flags (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR, 
+	ai_enabled BOOLEAN, 
+	advanced_analytics_enabled BOOLEAN, 
+	employee_self_service_enabled BOOLEAN, 
+	maintenance_mode BOOLEAN, 
+	read_only_mode BOOLEAN, 
+	cache_enabled BOOLEAN, 
+	cache_ttl INTEGER, 
+	db_optimization_last_run DATETIME, 
+	db_optimization_enabled BOOLEAN, 
+	debug_logging_enabled BOOLEAN, 
+	log_retention_days INTEGER, 
+	rate_limit_enabled BOOLEAN, 
+	rate_limit_requests_per_minute INTEGER, 
+	webhooks_enabled BOOLEAN, 
+	webhooks_retry_enabled BOOLEAN, 
+	webhooks_max_retries INTEGER, 
+	mfa_enforced BOOLEAN, 
+	biometrics_required BOOLEAN, 
+	ip_whitelisting BOOLEAN, 
+	session_timeout VARCHAR, 
+	password_complexity VARCHAR, 
+	session_isolation BOOLEAN, 
+	neural_bypass BOOLEAN, 
+	api_caching BOOLEAN, 
+	immutable_logs BOOLEAN, 
+	custom_flags VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: compliance_settings
+TABLE: compliance_settings
+SQL: CREATE TABLE compliance_settings (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR, 
+	tax_year_end VARCHAR, 
+	min_wage FLOAT, 
+	eobi_rate FLOAT, 
+	social_security_rate FLOAT, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: payroll_settings
+TABLE: payroll_settings
+SQL: CREATE TABLE payroll_settings (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR, 
+	currency VARCHAR, 
+	tax_year_start VARCHAR, 
+	allow_negative_salary BOOLEAN, 
+	pay_frequency VARCHAR, 
+	pay_day INTEGER, 
+	last_processed VARCHAR, 
+	tax_calculation_method VARCHAR, 
+	eobi_enabled BOOLEAN, 
+	social_security_enabled BOOLEAN, 
+	default_house_rent FLOAT, 
+	default_medical FLOAT, 
+	overtime_enabled BOOLEAN, 
+	overtime_rate FLOAT, 
+	calculation_method VARCHAR, 
+	custom_formulas VARCHAR, 
+	overtime_rules VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: ai_configurations
+TABLE: ai_configurations
+SQL: CREATE TABLE ai_configurations (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR, 
+	provider VARCHAR, 
+	status VARCHAR, 
+	api_keys VARCHAR, 
+	agents VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: notification_settings
+TABLE: notification_settings
+SQL: CREATE TABLE notification_settings (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR, 
+	email_enabled BOOLEAN, 
+	email_provider VARCHAR, 
+	email_from_address VARCHAR, 
+	email_from_name VARCHAR, 
+	email_on_employee_created BOOLEAN, 
+	email_on_leave_request BOOLEAN, 
+	email_on_payroll_processed BOOLEAN, 
+	email_on_system_alert BOOLEAN, 
+	sms_enabled BOOLEAN, 
+	sms_provider VARCHAR, 
+	sms_from_number VARCHAR, 
+	sms_on_leave_approval BOOLEAN, 
+	sms_on_payroll_processed BOOLEAN, 
+	sms_on_system_alert BOOLEAN, 
+	slack_enabled BOOLEAN, 
+	slack_webhook_url VARCHAR, 
+	slack_channel VARCHAR, 
+	slack_on_critical_alerts BOOLEAN, 
+	digest_enabled BOOLEAN, 
+	digest_frequency VARCHAR, 
+	quiet_hours_enabled BOOLEAN, 
+	quiet_hours_start VARCHAR, 
+	quiet_hours_end VARCHAR, 
+	dnd_enabled BOOLEAN, 
+	dnd_start_date DATETIME, 
+	dnd_end_date DATETIME, 
+	custom_settings VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: background_jobs
+TABLE: background_jobs
+SQL: CREATE TABLE background_jobs (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR, 
+	job_type VARCHAR, 
+	status VARCHAR, 
+	priority INTEGER, 
+	payload VARCHAR, 
+	result VARCHAR, 
+	error_message VARCHAR, 
+	started_at DATETIME, 
+	completed_at DATETIME, 
+	retry_count INTEGER, 
+	max_retries INTEGER, 
+	next_retry_at DATETIME, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: webhook_logs
+TABLE: webhook_logs
+SQL: CREATE TABLE webhook_logs (
+	id VARCHAR NOT NULL, 
+	webhook_id VARCHAR, 
+	organization_id VARCHAR, 
+	event_type VARCHAR, 
+	payload VARCHAR, 
+	response_status INTEGER, 
+	response_body VARCHAR, 
+	delivery_status VARCHAR, 
+	retry_count INTEGER, 
+	next_retry_at DATETIME, 
+	error_message VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(webhook_id) REFERENCES webhooks (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: platform_events
+TABLE: platform_events
+SQL: CREATE TABLE platform_events (
+	id VARCHAR NOT NULL, 
+	event_type VARCHAR NOT NULL, 
+	domain VARCHAR NOT NULL, 
+	entity_type VARCHAR NOT NULL, 
+	entity_id VARCHAR NOT NULL, 
+	action VARCHAR NOT NULL, 
+	actor_id VARCHAR, 
+	actor_type VARCHAR, 
+	organization_id VARCHAR, 
+	environment VARCHAR NOT NULL, 
+	timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	severity VARCHAR, 
+	payload VARCHAR, 
+	previous_hash VARCHAR, 
+	event_hash VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: core_role_permissions
+TABLE: core_role_permissions
+SQL: CREATE TABLE core_role_permissions (
+	id INTEGER NOT NULL, 
+	role VARCHAR, 
+	permission VARCHAR, 
+	organization_id VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_positions
+TABLE: hcm_positions
+SQL: CREATE TABLE hcm_positions (
+	id VARCHAR NOT NULL, 
+	title VARCHAR, 
+	department_id VARCHAR, 
+	grade_id VARCHAR, 
+	designation_id VARCHAR, 
+	reports_to VARCHAR, 
+	description VARCHAR, 
+	is_active BOOLEAN, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(department_id) REFERENCES "core_departments_temp_fix" (id), 
+	FOREIGN KEY(grade_id) REFERENCES hcm_grades (id), 
+	FOREIGN KEY(designation_id) REFERENCES hcm_designations (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_holidays
+TABLE: hcm_holidays
+SQL: CREATE TABLE hcm_holidays (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	date VARCHAR, 
+	type VARCHAR, 
+	is_recurring BOOLEAN, 
+	description VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_banks
+TABLE: hcm_banks
+SQL: CREATE TABLE hcm_banks (
+	id VARCHAR NOT NULL, 
+	bank_name VARCHAR, 
+	account_number VARCHAR, 
+	account_title VARCHAR, 
+	branch VARCHAR, 
+	iban VARCHAR, 
+	swift_code VARCHAR, 
+	currency VARCHAR, 
+	is_active BOOLEAN, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_candidates
+TABLE: hcm_candidates
+SQL: CREATE TABLE hcm_candidates (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	email VARCHAR, 
+	phone VARCHAR, 
+	position_applied VARCHAR, 
+	current_stage VARCHAR, 
+	score INTEGER, 
+	resume_url VARCHAR, 
+	applied_date VARCHAR, 
+	avatar VARCHAR, 
+	organization_id VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_employees
+TABLE: hcm_employees
+SQL: CREATE TABLE hcm_employees (id TEXT PRIMARY KEY, employee_code TEXT, name TEXT, eobi_status TEXT, social_security_status TEXT, medical_status TEXT, role TEXT, department TEXT, organization_id TEXT, department_id TEXT, designation_id TEXT, grade_id TEXT, plant_id TEXT, shift_id TEXT, status TEXT, join_date TEXT, email TEXT, created_at TEXT, updated_at TEXT, created_by TEXT, updated_by TEXT, father_name TEXT, gender TEXT, cnic TEXT, cnic_expiry TEXT, religion TEXT, marital_status TEXT, blood_group TEXT, nationality TEXT, phone TEXT, personal_email TEXT, personal_phone TEXT, present_address TEXT, permanent_address TEXT, present_district TEXT, permanent_district TEXT, gross_salary TEXT, payment_mode TEXT, bank_account TEXT, bank_name TEXT, eobi_number TEXT, social_security_number TEXT, probation_period TEXT, confirmation_date TEXT, leaving_date TEXT, leaving_type TEXT, cnic_issue_date TEXT, line_manager_id TEXT, sub_department_id TEXT, date_of_birth TEXT, emergency_contact_name TEXT, emergency_contact_phone TEXT, emergency_contact_relation TEXT, profile_photo_url TEXT, bio TEXT, FOREIGN KEY(line_manager_id) REFERENCES hcm_employees(id), FOREIGN KEY(sub_department_id) REFERENCES "core_sub_departments_temp_fix"(id), FOREIGN KEY(department_id) REFERENCES "core_departments_temp_fix"(id), FOREIGN KEY(designation_id) REFERENCES hcm_designations(id), FOREIGN KEY(grade_id) REFERENCES hcm_grades(id), FOREIGN KEY(plant_id) REFERENCES core_locations(id), FOREIGN KEY(shift_id) REFERENCES hcm_shifts(id), FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix"(id))
+----------------------------------------
+TYPE: table
+NAME: hcm_salary_components
+TABLE: hcm_salary_components
+SQL: CREATE TABLE hcm_salary_components (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	code VARCHAR NOT NULL, 
+	name VARCHAR NOT NULL, 
+	description VARCHAR, 
+	component_type VARCHAR NOT NULL, 
+	calculation_type VARCHAR, 
+	percentage_of VARCHAR, 
+	default_amount FLOAT, 
+	is_taxable BOOLEAN, 
+	is_statutory BOOLEAN, 
+	is_active BOOLEAN, 
+	display_order INTEGER, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_tax_slabs
+TABLE: hcm_tax_slabs
+SQL: CREATE TABLE hcm_tax_slabs (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	tax_year VARCHAR NOT NULL, 
+	min_income FLOAT NOT NULL, 
+	max_income FLOAT, 
+	fixed_tax FLOAT, 
+	tax_rate FLOAT, 
+	excess_over FLOAT, 
+	is_active BOOLEAN, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_tax_deduction_types
+TABLE: hcm_tax_deduction_types
+SQL: CREATE TABLE hcm_tax_deduction_types (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	code VARCHAR NOT NULL, 
+	name VARCHAR NOT NULL, 
+	section VARCHAR NOT NULL, 
+	description VARCHAR, 
+	deduction_type VARCHAR NOT NULL, 
+	max_income_limit FLOAT, 
+	calc_percentage FLOAT, 
+	calc_income_percentage FLOAT, 
+	calc_per_unit_limit FLOAT, 
+	calc_max_limit FLOAT, 
+	requires_document BOOLEAN, 
+	requires_ntn BOOLEAN, 
+	is_active BOOLEAN, 
+	display_order INTEGER, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_payroll_runs
+TABLE: hcm_payroll_runs
+SQL: CREATE TABLE hcm_payroll_runs (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	period_month VARCHAR NOT NULL, 
+	period_year VARCHAR NOT NULL, 
+	status VARCHAR, 
+	total_employees INTEGER, 
+	processed_employees INTEGER, 
+	total_gross FLOAT, 
+	total_deductions FLOAT, 
+	total_net FLOAT, 
+	processed_at VARCHAR, 
+	processed_by VARCHAR, 
+	approved_at VARCHAR, 
+	approved_by VARCHAR, 
+	paid_at VARCHAR, 
+	paid_by VARCHAR, 
+	notes VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_leave_types
+TABLE: hcm_leave_types
+SQL: CREATE TABLE hcm_leave_types (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	code VARCHAR NOT NULL, 
+	name VARCHAR NOT NULL, 
+	description VARCHAR, 
+	days_per_year FLOAT, 
+	carry_forward_allowed BOOLEAN, 
+	carry_forward_max FLOAT, 
+	requires_approval BOOLEAN, 
+	requires_document BOOLEAN, 
+	min_days_notice INTEGER, 
+	is_active BOOLEAN, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_performance_reviews
+TABLE: hcm_performance_reviews
+SQL: CREATE TABLE hcm_performance_reviews (
+	id VARCHAR NOT NULL, 
+	employee_id VARCHAR NOT NULL, 
+	reviewer_id VARCHAR NOT NULL, 
+	review_period VARCHAR NOT NULL, 
+	review_date VARCHAR NOT NULL, 
+	status VARCHAR, 
+	score INTEGER, 
+	feedback VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(reviewer_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_document_requests
+TABLE: hcm_document_requests
+SQL: CREATE TABLE hcm_document_requests (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR NOT NULL, 
+	document_type VARCHAR NOT NULL, 
+	purpose VARCHAR, 
+	additional_notes VARCHAR, 
+	status VARCHAR, 
+	requested_date VARCHAR NOT NULL, 
+	approved_by VARCHAR, 
+	approved_date VARCHAR, 
+	fulfilled_date VARCHAR, 
+	rejection_reason VARCHAR, 
+	document_url VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(approved_by) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_employee_documents
+TABLE: hcm_employee_documents
+SQL: CREATE TABLE hcm_employee_documents (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR NOT NULL, 
+	document_type VARCHAR NOT NULL, 
+	document_name VARCHAR NOT NULL, 
+	document_url VARCHAR NOT NULL, 
+	file_size INTEGER, 
+	mime_type VARCHAR, 
+	description VARCHAR, 
+	upload_date VARCHAR NOT NULL, 
+	uploaded_by VARCHAR NOT NULL, 
+	expiry_date VARCHAR, 
+	is_private BOOLEAN, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(uploaded_by) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_info_update_requests
+TABLE: hcm_info_update_requests
+SQL: CREATE TABLE hcm_info_update_requests (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR NOT NULL, 
+	field_name VARCHAR NOT NULL, 
+	current_value VARCHAR, 
+	new_value VARCHAR NOT NULL, 
+	reason VARCHAR, 
+	status VARCHAR, 
+	requested_date VARCHAR NOT NULL, 
+	approved_by VARCHAR, 
+	approved_date VARCHAR, 
+	rejection_reason VARCHAR, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(approved_by) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_notifications
+TABLE: hcm_notifications
+SQL: CREATE TABLE hcm_notifications (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	recipient_id VARCHAR NOT NULL, 
+	sender_id VARCHAR, 
+	type VARCHAR NOT NULL, 
+	title VARCHAR NOT NULL, 
+	message VARCHAR NOT NULL, 
+	action_url VARCHAR, 
+	is_read BOOLEAN, 
+	read_at VARCHAR, 
+	is_sent_email BOOLEAN, 
+	is_sent_sms BOOLEAN, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(recipient_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(sender_id) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_attendance
+TABLE: hcm_attendance
+SQL: CREATE TABLE hcm_attendance (
+	id INTEGER NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR NOT NULL, 
+	plant_id VARCHAR, 
+	date VARCHAR NOT NULL, 
+	clock_in VARCHAR, 
+	clock_out VARCHAR, 
+	status VARCHAR, 
+	shift_id VARCHAR, 
+	verification_type VARCHAR, 
+	location VARCHAR, 
+	remarks VARCHAR, 
+	overtime_hours FLOAT, 
+	early_leave BOOLEAN, 
+	late_minutes INTEGER, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id) ON UPDATE CASCADE, 
+	FOREIGN KEY(plant_id) REFERENCES core_locations (id), 
+	FOREIGN KEY(shift_id) REFERENCES hcm_shifts (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_overtime_requests
+TABLE: hcm_overtime_requests
+SQL: CREATE TABLE hcm_overtime_requests (
+	id VARCHAR NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR NOT NULL, 
+	date VARCHAR NOT NULL, 
+	hours FLOAT NOT NULL, 
+	multiplier FLOAT, 
+	reason VARCHAR, 
+	status VARCHAR, 
+	approved_by VARCHAR, 
+	approved_at VARCHAR, 
+	rejection_reason VARCHAR, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(approved_by) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: gen_admin_assets
+TABLE: gen_admin_assets
+SQL: CREATE TABLE gen_admin_assets (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	serial_number VARCHAR, 
+	category VARCHAR, 
+	status VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR, 
+	purchase_date VARCHAR, 
+	purchase_value FLOAT, 
+	currency VARCHAR, 
+	specifications TEXT, 
+	location VARCHAR, 
+	maintenance_schedule_days INTEGER, 
+	last_maintenance_date VARCHAR, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: gen_admin_visitors
+TABLE: gen_admin_visitors
+SQL: CREATE TABLE gen_admin_visitors (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	identification_number VARCHAR, 
+	organization VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	host_id VARCHAR, 
+	check_in VARCHAR NOT NULL, 
+	check_out VARCHAR, 
+	purpose VARCHAR, 
+	badge_number VARCHAR, 
+	status VARCHAR, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(host_id) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: gen_admin_facilities
+TABLE: gen_admin_facilities
+SQL: CREATE TABLE gen_admin_facilities (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	type VARCHAR, 
+	capacity INTEGER, 
+	location VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	status VARCHAR, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: gen_admin_vehicles
+TABLE: gen_admin_vehicles
+SQL: CREATE TABLE gen_admin_vehicles (
+	id VARCHAR NOT NULL, 
+	model VARCHAR, 
+	plate_number VARCHAR, 
+	category VARCHAR, 
+	status VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	assigned_to_id VARCHAR, 
+	last_service_date VARCHAR, 
+	last_service_mileage INTEGER, 
+	current_mileage INTEGER, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(assigned_to_id) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: gen_admin_compliance
+TABLE: gen_admin_compliance
+SQL: CREATE TABLE gen_admin_compliance (
+	id INTEGER NOT NULL, 
+	organization_id VARCHAR NOT NULL, 
+	license_name VARCHAR, 
+	provider VARCHAR, 
+	expiry_date VARCHAR NOT NULL, 
+	status VARCHAR, 
+	reminder_days_before INTEGER, 
+	document_url VARCHAR, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_onboarding_hires
+TABLE: hcm_onboarding_hires
+SQL: CREATE TABLE hcm_onboarding_hires (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	role VARCHAR, 
+	mentor VARCHAR, 
+	start_date VARCHAR, 
+	progress INTEGER, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_offboarding_exits
+TABLE: hcm_offboarding_exits
+SQL: CREATE TABLE hcm_offboarding_exits (
+	id VARCHAR NOT NULL, 
+	name VARCHAR, 
+	role VARCHAR, 
+	type VARCHAR, 
+	last_date VARCHAR, 
+	status VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_goals
+TABLE: hcm_goals
+SQL: CREATE TABLE hcm_goals (
+	id VARCHAR NOT NULL, 
+	title VARCHAR, 
+	category VARCHAR, 
+	progress INTEGER, 
+	metric VARCHAR, 
+	status VARCHAR, 
+	due_date VARCHAR, 
+	weight INTEGER, 
+	description VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_learning_courses
+TABLE: hcm_learning_courses
+SQL: CREATE TABLE hcm_learning_courses (
+	id INTEGER NOT NULL, 
+	title VARCHAR NOT NULL, 
+	provider VARCHAR, 
+	duration VARCHAR, 
+	level VARCHAR, 
+	category VARCHAR, 
+	icon VARCHAR, 
+	color VARCHAR, 
+	progress INTEGER, 
+	status VARCHAR, 
+	score INTEGER, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_benefit_tiers
+TABLE: hcm_benefit_tiers
+SQL: CREATE TABLE hcm_benefit_tiers (
+	id INTEGER NOT NULL, 
+	name VARCHAR NOT NULL, 
+	color VARCHAR, 
+	price VARCHAR, 
+	items VARCHAR, 
+	icon VARCHAR, 
+	popular BOOLEAN, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_benefit_enrollments
+TABLE: hcm_benefit_enrollments
+SQL: CREATE TABLE hcm_benefit_enrollments (
+	id VARCHAR NOT NULL, 
+	name VARCHAR NOT NULL, 
+	tier VARCHAR, 
+	date VARCHAR, 
+	status VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_expenses
+TABLE: hcm_expenses
+SQL: CREATE TABLE hcm_expenses (
+	id VARCHAR NOT NULL, 
+	employee_name VARCHAR NOT NULL, 
+	category VARCHAR NOT NULL, 
+	amount FLOAT NOT NULL, 
+	currency VARCHAR, 
+	date VARCHAR NOT NULL, 
+	status VARCHAR, 
+	receipt_url VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	employee_id VARCHAR, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_rewards
+TABLE: hcm_rewards
+SQL: CREATE TABLE hcm_rewards (
+	id INTEGER NOT NULL, 
+	title VARCHAR NOT NULL, 
+	description VARCHAR, 
+	points_required INTEGER, 
+	category VARCHAR, 
+	image_url VARCHAR, 
+	is_active BOOLEAN, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_recognitions
+TABLE: hcm_recognitions
+SQL: CREATE TABLE hcm_recognitions (
+	id INTEGER NOT NULL, 
+	sender_id VARCHAR NOT NULL, 
+	receiver_id VARCHAR NOT NULL, 
+	message VARCHAR NOT NULL, 
+	category VARCHAR, 
+	points_awarded INTEGER, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(sender_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(receiver_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_reward_points
+TABLE: hcm_reward_points
+SQL: CREATE TABLE hcm_reward_points (
+	id INTEGER NOT NULL, 
+	employee_id VARCHAR NOT NULL, 
+	balance INTEGER, 
+	total_earned INTEGER, 
+	total_redeemed INTEGER, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_reward_point_transactions
+TABLE: hcm_reward_point_transactions
+SQL: CREATE TABLE hcm_reward_point_transactions (
+	id INTEGER NOT NULL, 
+	employee_id VARCHAR NOT NULL, 
+	points INTEGER NOT NULL, 
+	type VARCHAR NOT NULL, 
+	description VARCHAR, 
+	reference_id VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP), 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_promotion_cycles
+TABLE: hcm_promotion_cycles
+SQL: CREATE TABLE hcm_promotion_cycles (
+	id INTEGER NOT NULL, 
+	title VARCHAR NOT NULL, 
+	status VARCHAR, 
+	start_date VARCHAR, 
+	end_date VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: hcm_promotion_requests
+TABLE: hcm_promotion_requests
+SQL: CREATE TABLE hcm_promotion_requests (
+	id INTEGER NOT NULL, 
+	cycle_id INTEGER, 
+	employee_id VARCHAR NOT NULL, 
+	type VARCHAR, 
+	current_salary FLOAT, 
+	proposed_salary FLOAT, 
+	current_designation_id VARCHAR, 
+	proposed_designation_id VARCHAR, 
+	current_grade_id VARCHAR, 
+	proposed_grade_id VARCHAR, 
+	reason VARCHAR, 
+	performance_rating VARCHAR, 
+	manager_remarks VARCHAR, 
+	status VARCHAR, 
+	effective_date VARCHAR, 
+	organization_id VARCHAR NOT NULL, 
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+	updated_at DATETIME, 
+	created_by VARCHAR, 
+	updated_by VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(cycle_id) REFERENCES hcm_promotion_cycles (id), 
+	FOREIGN KEY(employee_id) REFERENCES hcm_employees (id), 
+	FOREIGN KEY(current_designation_id) REFERENCES hcm_designations (id), 
+	FOREIGN KEY(proposed_designation_id) REFERENCES hcm_designations (id), 
+	FOREIGN KEY(current_grade_id) REFERENCES hcm_grades (id), 
+	FOREIGN KEY(proposed_grade_id) REFERENCES hcm_grades (id), 
+	FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id)
+)
+----------------------------------------
+TYPE: table
+NAME: core_users
+TABLE: core_users
+SQL: CREATE TABLE core_users (
+            id VARCHAR NOT NULL, 
+            username VARCHAR, 
+            password_hash VARCHAR, 
+            role VARCHAR, 
+            name VARCHAR, 
+            email VARCHAR, 
+            organization_id VARCHAR, 
+            employee_id VARCHAR, 
+            is_active BOOLEAN, 
+            is_system_user BOOLEAN, 
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+            updated_at DATETIME, 
+            created_by VARCHAR, 
+            updated_by VARCHAR, 
+            PRIMARY KEY (id), 
+            FOREIGN KEY(organization_id) REFERENCES "core_organizations_temp_fix" (id), 
+            FOREIGN KEY(employee_id) REFERENCES hcm_employees (id) ON DELETE SET NULL
+        )
+----------------------------------------

@@ -1,0 +1,214 @@
+/* ReportDownloader.css */
+
+.report-downloader {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
+.downloader-header {
+  margin-bottom: 24px;
+}
+
+.downloader-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.downloader-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.format-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.format-option {
+  display: flex;
+  cursor: pointer;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+}
+
+.format-option input {
+  cursor: pointer;
+  margin-right: 12px;
+  width: 20px;
+  height: 20px;
+  accent-color: #3b82f6;
+}
+
+.format-option input:checked + .option-content {
+  color: #3b82f6;
+}
+
+.format-option input:checked {
+  accent-color: #3b82f6;
+}
+
+.format-option:has(input:checked) {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.format-option:hover {
+  border-color: #3b82f6;
+}
+
+.option-content {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+.option-icon {
+  font-size: 24px;
+  min-width: 32px;
+}
+
+.option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.option-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.option-description {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+.error-icon {
+  font-size: 18px;
+}
+
+.downloader-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.download-button {
+  flex: 1;
+  padding: 12px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.download-button:hover:not(:disabled) {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.download-button:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.spinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.button-icon {
+  font-size: 16px;
+}
+
+.downloader-footer {
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.report-info {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.info-item {
+  display: flex;
+  gap: 6px;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.info-value {
+  text-transform: capitalize;
+}
+
+@media (max-width: 768px) {
+  .report-downloader {
+    padding: 16px;
+  }
+
+  .format-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .downloader-actions {
+    flex-direction: column;
+  }
+
+  .report-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

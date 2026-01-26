@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ShieldAlert, AlertTriangle, ChevronRight, Loader2, Sparkles } from 'lucide-react';
-import { getDeepAudit } from '../../services/geminiService';
+import { getDeepAudit } from '@/services/geminiService';
 
 const EntropyAlert: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);

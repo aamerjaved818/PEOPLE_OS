@@ -15,7 +15,7 @@
 -- Pre-Migration Checks
 -- ============================================
 -- Verify backup exists before running this migration
--- Backup file should be: backups/hunzal_hcm_prod.backup.YYYYMMDD_HHMMSS.db
+-- Backup file should be: backups/people_os_prod.backup.YYYYMMDD_HHMMSS.db
 
 BEGIN TRANSACTION;
 

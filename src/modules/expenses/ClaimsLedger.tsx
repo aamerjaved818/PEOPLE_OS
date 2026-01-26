@@ -1,9 +1,9 @@
 import React from 'react';
 import { Search, Filter, Landmark, ArrowUpRight, FileText, FileSpreadsheet } from 'lucide-react';
-import { VibrantBadge } from '../../components/ui/VibrantBadge';
-import { Expense } from '../../types';
-import { formatCurrency } from '../../utils/formatting';
-// import { exportToExcel, exportToPDF } from '../../utils/exportUtils'; // Lazy loaded
+import { VibrantBadge } from '@/components/ui/VibrantBadge';
+import { Expense } from '@/types';
+import { formatCurrency } from '@/utils/formatting';
+// import { exportToExcel, exportToPDF } from '@/utils/exportUtils'; // Lazy loaded
 
 interface ClaimsLedgerProps {
   expenses: Expense[];
@@ -45,7 +45,7 @@ const ClaimsLedger: React.FC<ClaimsLedgerProps> = ({
             </button>
             <button
               onClick={async () => {
-                const { exportToPDF } = await import('../../utils/exportUtils');
+                const { exportToPDF } = await import('@/utils/exportUtils');
                 const headers = ['ID', 'Employee', 'Category', 'Amount', 'Date', 'Status'];
                 const data = expenses.map((e) => ({
                   ID: e.id,
@@ -64,7 +64,7 @@ const ClaimsLedger: React.FC<ClaimsLedgerProps> = ({
             </button>
             <button
               onClick={async () => {
-                const { exportToExcel } = await import('../../utils/exportUtils');
+                const { exportToExcel } = await import('@/utils/exportUtils');
                 const data = expenses.map((e) => ({
                   ID: e.id,
                   Employee: e.employeeName,

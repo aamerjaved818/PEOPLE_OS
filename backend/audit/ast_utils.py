@@ -114,6 +114,10 @@ class PythonASTAnalyzer:
             return node.id
         return ""
 
+    def _get_function_name(self, node: ast.AST) -> str:
+        """Compatibility wrapper used by older callers/tests."""
+        return self._get_name(node)
+
     def _extract_temperature(self, node: ast.Call) -> Optional[float]:
         """Extract temperature parameter from call"""
         for keyword in node.keywords:
@@ -435,7 +439,8 @@ class TypeScriptASTAnalyzer:
     def _fallback_regex_extraction(self) -> List[AICall]:
         """Fallback to regex when AST parsing fails"""
         calls = []
-        pattern = r'(?:await\s+)?(?:[\w.]+\.)?(?:models\.)?generateContent\s*\('
+        # Broaden fallback to detect common JS/TS AI SDK call patterns (openai, chat.completions, create)
+        pattern = r'(?:await\s+)?(?:[\w.]+\.)?(?:openai|OpenAI|chat\.completions|create)\s*\('
         
         for match in re.finditer(pattern, self.source):
             line_num = self.source[:match.start()].count('\n') + 1
@@ -468,6 +473,9 @@ class TypeScriptASTAnalyzer:
             # Check for temperature in snippet (usually in config/args)
             temp_match = re.search(r'temperature\s*:\s*(\d+(\.\d+)?)', snippet)
             temperature = float(temp_match.group(1)) if temp_match else None
+            # Extract model string if present
+            model_match = re.search(r"model\s*[:=]\s*['\"]([^'\"]+)['\"]", snippet)
+            model = model_match.group(1) if model_match else None
             
             # Check for response validation
             has_response_val = any(
@@ -478,11 +486,26 @@ class TypeScriptASTAnalyzer:
                 ]
             )
             
+            # Derive a friendly function name from the matched text
+            matched_text = match.group(0)
+            func_name = re.sub(r"\s*\($", "", matched_text).strip()
+            # If the matched snippet is generic (e.g. 'OpenAI('), try to find a more specific
+            # call in the nearby source (e.g. 'openai.chat.completions.create').
+            try:
+                nearby = self.source[match.start(): match.start() + 1000]
+                m2 = re.search(r"[\w.]*openai[\w.]*create", nearby, re.IGNORECASE)
+                if m2:
+                    func_name = m2.group(0)
+                elif "openai.chat.completions.create" in nearby:
+                    func_name = "openai.chat.completions.create"
+            except Exception:
+                pass
             calls.append(AICall(
                 file_path=str(self.file_path),
-                function_name='generateContent',
+                function_name=func_name,
                 line_number=line_num,
                 temperature=temperature,
+                model=model,
                 has_grounding=has_grounding,
                 has_validation=has_validation,
                 has_error_handling=has_try,

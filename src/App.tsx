@@ -1,58 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import { secureStorage } from './utils/secureStorage';
 import { RBACProvider } from '@/contexts/RBACContext';
 import { LayoutProvider } from '@/contexts/LayoutContext';
 import ModuleSkeleton from './components/ui/ModuleSkeleton';
-import { useTheme } from './contexts/ThemeContext';
+import SplashScreen from './components/ui/SplashScreen'; // New
+import { useTheme, ThemeProvider } from './contexts/ThemeContext';
 import { useUIStore } from './store/uiStore';
+import { useOrgStore } from './store/orgStore';
 
 // Lazy Load Core Components
-const Login = React.lazy(() => import('./modules/Login'));
-const AuthenticatedApp = React.lazy(() => import('./AuthenticatedApp'));
-
-const DATA_VERSION = '1.7';
-
-// Immediate check before component initialization
-if (typeof window !== 'undefined') {
-  const savedVersion = secureStorage.getItem('data_version');
-  if (savedVersion !== DATA_VERSION) {
-    // Preserve authentication state during version updates
-    const token = secureStorage.getItem('token');
-    const email = secureStorage.getItem('user_email');
-
-    secureStorage.clear(); // Ensure clean slate for application data
-
-    // Re-secure
-    if (token) {
-      secureStorage.setItem('token', token);
-    }
-    if (email) {
-      secureStorage.setItem('user_email', email);
-    }
-
-    secureStorage.setItem('data_version', DATA_VERSION);
-    window.location.reload();
-  }
-}
+const Login = React.lazy(() => import('./modules/auth/Login'));
+const AuthenticatedApp = React.lazy(() => import('./components/layout/AuthenticatedApp'));
 
 const AppContent: React.FC = () => {
-  const { theme } = useTheme();
   const { colorTheme, setActiveModule } = useUIStore();
+  const { fetchMasterData, fetchProfile, refreshCurrentUser } = useOrgStore();
 
-  // Auth state
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!secureStorage.getItem('token');
-  });
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [loadingStatus, setLoadingStatus] = useState('Initializing Application...');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Unified Bootstrap Process
+  const bootstrap = useCallback(async () => {
+    try {
+      // 1. Data Integrity Check (Simplified)
+      setLoadingStatus('Verifying Data Integrity...');
+
+      // 2. Auth Verification
+      setLoadingStatus('Authenticating Security Node...');
+      const token = secureStorage.getItem('token');
+      if (token) {
+        setIsAuthenticated(true);
+
+        // 3. Parallel Data Fetching for Authenticated Users
+        setLoadingStatus('Fetching Core Intelligence...');
+        await Promise.all([refreshCurrentUser(), fetchMasterData(), fetchProfile()]).catch((err) =>
+          console.warn('Non-critical initialization error:', err)
+        );
+      } else {
+        setIsAuthenticated(false);
+      }
+
+      // 4. Finalizing
+      setLoadingStatus('Activating Neural Interface...');
+      // Small artificial delay for smooth transition
+      await new Promise((r) => setTimeout(r, 600));
+      setIsInitializing(false);
+    } catch (error) {
+      console.error('Fatal Bootstrap Error:', error);
+      setLoadingStatus('Error: Protocol Failed. Re-authenticating...');
+      setTimeout(() => window.location.reload(), 2000);
+    }
+  }, [fetchMasterData, fetchProfile, refreshCurrentUser]);
+
+  useEffect(() => {
+    bootstrap();
+  }, [bootstrap]);
 
   // Theme Sync
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
+  // Theme is applied centrally by ThemeContext; avoid duplicating DOM mutations here.
 
   // Apply Color Theme
   useEffect(() => {
@@ -60,7 +67,7 @@ const AppContent: React.FC = () => {
     document.body.classList.add(`theme-${colorTheme}`);
   }, [colorTheme]);
 
-  // Listen for global logout events (from 401 interceptor)
+  // Listen for global logout events
   useEffect(() => {
     const handleGlobalLogout = () => {
       handleLogout();
@@ -69,13 +76,11 @@ const AppContent: React.FC = () => {
     return () => window.removeEventListener('auth:logout', handleGlobalLogout);
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setIsAuthenticated(true);
-    // Data fetching is handled by AuthenticatedApp on mount
-    // Small delay to ensure state propagation if needed, but likely fine strictly here
-    setTimeout(() => {
-      setActiveModule('dashboard');
-    }, 100);
+    setIsInitializing(true);
+    await bootstrap();
+    setActiveModule('dashboard');
   };
 
   const handleLogout = () => {
@@ -84,6 +89,12 @@ const AppContent: React.FC = () => {
     setIsAuthenticated(false);
   };
 
+  // 1. Splash Screen Phase
+  if (isInitializing) {
+    return <SplashScreen status={loadingStatus} />;
+  }
+
+  // 2. Auth Phase
   if (!isAuthenticated) {
     return (
       <React.Suspense fallback={<ModuleSkeleton />}>
@@ -92,6 +103,7 @@ const AppContent: React.FC = () => {
     );
   }
 
+  // 3. Application Phase
   return (
     <React.Suspense fallback={<ModuleSkeleton />}>
       <AuthenticatedApp onLogout={handleLogout} />
@@ -99,13 +111,25 @@ const AppContent: React.FC = () => {
   );
 };
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
+// ...
+
 const App: React.FC = () => {
   return (
-    <LayoutProvider>
-      <RBACProvider>
-        <AppContent />
-      </RBACProvider>
-    </LayoutProvider>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <LayoutProvider>
+          <RBACProvider>
+            <ThemeProvider>
+              <AppContent />
+            </ThemeProvider>
+          </RBACProvider>
+        </LayoutProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
 

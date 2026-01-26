@@ -8,29 +8,33 @@ DO NOT DUPLICATE THIS FILE. Frontend should mirror this structure.
 """
 
 # ============================================================
-# SYSTEM DEFAULT ROLES (Hardcoded - Cannot be modified)
+# SYSTEM DEFAULT ROLES (Built-in - Cannot be modified)
 # ============================================================
 SYSTEM_ROLES = {"Root", "Super Admin"}
 
 # ============================================================
-# DEFAULT_ROLE_PERMISSIONS - Hardcoded System Defaults
+# DEFAULT_ROLE_PERMISSIONS - Built-in System Defaults
 # ============================================================
 DEFAULT_ROLE_PERMISSIONS = {
-    # SYSTEM DEFAULTS (Hardcoded - Full Access)
-    "Root": ["*"],  # God Mode - All permissions
-    "Super Admin": ["*"],  # Full Application Access
+    # SYSTEM DEFAULTS (Built-in - Full Access)
+    "Root": ["*"],  # Full System Access - All permissions (system-wide)
+    "Super Admin": ["*"],  # Full Organization Access - All permissions (organization-scoped)
     
     # CONFIGURABLE ROLES (Defaults - Can be modified via UI)
     "SystemAdmin": [],  # To be configured via System Settings
-    "Business Admin": [],  # To be configured via System Settings
+    "Business Admin": ["view_employees"],  # Default basic view permission for employees
     "Manager": [],  # To be configured via System Settings
     "User": [],  # To be configured via System Settings
 }
 
 # ============================================================
-# SUPER_ROLES - Roles with automatic full access bypass
+# PRIVILEGED ROLES - Hardcoded High-Privilege Sets
 # ============================================================
-SUPER_ROLES = {"Root", "Super Admin"}
+SYSTEM_ROOT_ROLES = {"Root"}        # Bypass ALL checks + View ALL Orgs
+ORG_SUPER_ROLES = {"Super Admin"}    # Bypass ALL checks + View OWN Org
+
+# SUPER_ROLES - Roles with automatic permission bypass (Union)
+SUPER_ROLES = SYSTEM_ROOT_ROLES | ORG_SUPER_ROLES
 
 # ============================================================
 # ROLE_HIERARCHY - Authority Levels (Higher index = more power)

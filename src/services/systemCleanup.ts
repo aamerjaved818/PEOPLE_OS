@@ -61,6 +61,8 @@ export { cleanup };
 
 // Register to window for console-based triggers
 if (typeof window !== 'undefined') {
-  (window as any).hunzalCleanup = cleanup;
-  Logger.info('🚀 Hunzal People OS: Centralized Cleanup Ready. (Use `hunzalCleanup.hardReset()`)');
+  (window as any).peopleOSCleanup = cleanup;
+  Logger.info(
+    '🚀 peopleOS eBusiness: Centralized Cleanup Ready. (Use `peopleOSCleanup.hardReset()`)'
+  );
 }

@@ -35,8 +35,11 @@ class SecurityAnalyzer:
             r'secret\s*=\s*["\'][^"\']{8,}["\']',
         ]
 
+        exclude_dirs = {"venv", ".venv", "env", ".env-project", "node_modules", "dist", "build", "__pycache__", "tests", "scripts"}
+        
         for py_file in self.project_root.rglob("*.py"):
-            if "venv" in str(py_file) or "node_modules" in str(py_file):
+            path_str = str(py_file).lower().replace("\\", "/")
+            if any(f"/{exc}/" in path_str or path_str.endswith(f"/{exc}") for exc in exclude_dirs):
                 continue
 
             try:

@@ -1,46 +1,45 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { DetailLayout } from '../../components/layout/DetailLayout';
+import { DetailLayout } from '@/components/layout/DetailLayout';
 import {
   Layout,
   BrainCircuit,
   ShieldCheck,
   Cloud,
-  History,
   Bell,
   Database,
   RefreshCw,
   Globe,
   Zap,
   Lock,
+  Terminal,
+  Bot,
+  Building,
 } from 'lucide-react';
 
-import { Button } from '../../components/ui/Button';
-import { useToast } from '../../components/ui/Toast';
-import { api } from '../../services/api';
-import { secureStorage } from '../../utils/secureStorage';
-import { HorizontalTabs } from '../../components/ui/HorizontalTabs';
-import ErrorBoundary from '../../components/ErrorBoundary';
-import ModuleSkeleton from '../../components/ui/ModuleSkeleton'; // Improved loading state
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
+import { api } from '@/services/api';
+import { secureStorage } from '@/utils/secureStorage';
+import { HorizontalTabs } from '@/components/ui/HorizontalTabs';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import ModuleSkeleton from '@/components/ui/ModuleSkeleton'; // Improved loading state
 // useOrgStore is used indirectly via child components
-import { SYSTEM_CONFIG } from './admin/systemConfig';
-import { Building2 } from 'lucide-react';
+import { SYSTEM_CONFIG } from './submodules/systemConfig';
 
 // Lazy Load Sub-components for better performance
-const UserManagement = React.lazy(() => import('./admin/UserManagement'));
-const InfrastructureMonitor = React.lazy(() => import('./admin/InfrastructureMonitor'));
-const APIManager = React.lazy(() => import('./admin/APIManager'));
-const NotificationsManager = React.lazy(() => import('./admin/NotificationsManager'));
-const DataManagement = React.lazy(() => import('./admin/DataManagement'));
-const AIConfig = React.lazy(() => import('./admin/AIConfig'));
-const DashboardOverview = React.lazy(() => import('./admin/DashboardOverview'));
-const ComplianceSettings = React.lazy(() => import('./admin/ComplianceSettings'));
-const SecuritySettings = React.lazy(() => import('./admin/SecuritySettings'));
-const OrganizationList = React.lazy(() => import('./admin/OrganizationList'));
+const UserManagement = React.lazy(() => import('./submodules/UserManagement'));
+const LogViewer = React.lazy(() => import('./submodules/LogViewer'));
+const InfrastructureMonitor = React.lazy(() => import('./submodules/InfrastructureMonitor'));
+const APIManager = React.lazy(() => import('./submodules/APIManager'));
+const NotificationsManager = React.lazy(() => import('./submodules/NotificationsManager'));
+const DataManagement = React.lazy(() => import('./submodules/DataManagement'));
+const AIConfig = React.lazy(() => import('./submodules/AIConfig'));
+const DashboardOverview = React.lazy(() => import('./submodules/DashboardOverview'));
+const ComplianceSettings = React.lazy(() => import('./submodules/ComplianceSettings'));
+const SecuritySettings = React.lazy(() => import('./submodules/SecuritySettings'));
+const OrganizationManagement = React.lazy(() => import('./submodules/OrganizationManagement'));
 
-// Handle named export for AuditDashboard
-const AuditDashboard = React.lazy(() =>
-  import('./audit/AuditDashboard').then((module) => ({ default: module.AuditDashboard }))
-);
+const NeuralModule = React.lazy(() => import('./submodules/NeuralSubmodule'));
 
 const SystemSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -139,15 +138,15 @@ const SystemSettings: React.FC = () => {
 
   const sections = [
     { id: 'dashboard', label: 'Dashboard', icon: Layout },
-    { id: 'org-mgmt', label: 'Organizations', icon: Building2 },
-
+    { id: 'neural', label: 'AI Lab', icon: Bot },
     { id: 'sys-admin', label: 'Access Control', icon: ShieldCheck },
     { id: 'ai', label: 'AI Settings', icon: BrainCircuit },
     { id: 'integrations', label: 'Integrations', icon: Cloud },
     { id: 'compliance', label: 'Compliance', icon: ShieldCheck },
     { id: 'security', label: 'Security', icon: Lock },
-    { id: 'audit', label: 'Audit Logs', icon: History },
+    { id: 'logs', label: 'System Logs', icon: Terminal },
     { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'org-mgmt', label: 'Organization Management', icon: Building },
     { id: 'maintenance', label: 'Maintenance', icon: Database },
   ];
 
@@ -191,7 +190,8 @@ const SystemSettings: React.FC = () => {
           <DashboardOverview systemHealth={systemHealth} storageUsage={storageUsage} />
         )}
 
-        {activeSection === 'org-mgmt' && <OrganizationList />}
+        {activeSection === 'org-mgmt' && <OrganizationManagement />}
+        {activeSection === 'neural' && <NeuralModule />}
 
         {activeSection === 'sys-admin' && <UserManagement onSync={handleSyncSettings} />}
 
@@ -203,7 +203,7 @@ const SystemSettings: React.FC = () => {
 
         {activeSection === 'security' && <SecuritySettings />}
 
-        {activeSection === 'audit' && <AuditDashboard />}
+        {activeSection === 'logs' && <LogViewer />}
 
         {activeSection === 'notifications' && <NotificationsManager onSync={handleSyncSettings} />}
 

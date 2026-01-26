@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TrendingUp, Network, Zap, RefreshCw } from 'lucide-react';
-import { getDeepAudit } from '../../services/geminiService';
+import { getDeepAudit } from '@/services/geminiService';
 
 const NeuralModeling: React.FC = () => {
   const [modelingScope, setModelingScope] = useState<'6M' | '1Y' | '3Y'>('6M');

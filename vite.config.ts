@@ -1,31 +1,31 @@
 import path from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+  // Load env file based on `mode` in the current working directory.
+  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
+  const env = loadEnv(mode, process.cwd(), '');
+
   return {
     server: {
-      port: 5173,
+      port: parseInt(env.FRONTEND_PORT || '5173'),
       host: true,
-      open: true,
+      open: false,
     },
     preview: {
-      port: 4173,
+      port: parseInt(env.PREVIEW_PORT || '9000'),
       host: true,
     },
     plugins: [react()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        '@/components': path.resolve(__dirname, './src/components'),
-        '@/lib': path.resolve(__dirname, './src/lib'),
         '@components': path.resolve(__dirname, './src/components'),
-        '@modules': path.resolve(__dirname, './src/modules'),
+        '@hooks': path.resolve(__dirname, './src/hooks'),
         '@services': path.resolve(__dirname, './src/services'),
         '@store': path.resolve(__dirname, './src/store'),
         '@utils': path.resolve(__dirname, './src/utils'),
-        '@types': path.resolve(__dirname, './src/types'),
-        '@hooks': path.resolve(__dirname, './src/hooks'),
       },
     },
     build: {

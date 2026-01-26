@@ -153,7 +153,7 @@ class ReportGenerator:
         class AuditPDF(FPDF):
             def header(self):
                 self.set_font("Arial", "B", 10)
-                self.cell(0, 10, "Hunzal PeopleOS - System Audit Report", 0, 1, "R")
+                self.cell(0, 10, "peopleOS eBusiness Suite - System Audit Report", 0, 1, "R")
                 self.line(10, 20, 200, 20)
                 self.ln(10)
 

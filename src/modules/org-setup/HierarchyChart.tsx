@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useOrgStore } from '@/store/orgStore';
 import {
   Network,
-  Building2,
   Users,
   ChevronRight,
   ChevronDown,
@@ -119,7 +118,7 @@ const HierarchyChart: React.FC = () => {
 
   const renderStructuralTree = () => {
     return (
-      <TreeNode label={profile.name || 'Organization'} type="root" icon={Building2} expanded={true}>
+      <TreeNode label={profile.name || 'Organization'} type="root" icon={Building} expanded={true}>
         {/* Branch 1: Locations / Plants */}
         <TreeNode label="Locations" type="category" icon={Factory} expanded={defaultExpanded}>
           {plants.map((plant) => (
@@ -169,7 +168,7 @@ const HierarchyChart: React.FC = () => {
     // Sort levels by hierarchy if possible, otherwise list them
     // Assuming grades link to levels
     return (
-      <TreeNode label={profile.name || 'Organization'} type="root" icon={Building2} expanded={true}>
+      <TreeNode label={profile.name || 'Organization'} type="root" icon={Building} expanded={true}>
         {jobLevels.map((level: any) => {
           const levelGrades = grades.filter((g) => g.jobLevelId === level.id);
           // Sort grades by level number if available

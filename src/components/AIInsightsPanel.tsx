@@ -23,46 +23,51 @@ const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({ isOpen, onClose, cont
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'fast' | 'deep'>('fast');
 
-  const generateInsights = async (forcedMode?: 'fast' | 'deep') => {
-    setLoading(true);
-    const targetMode = forcedMode || mode;
+  const generateInsights = React.useCallback(
+    async (forcedMode?: 'fast' | 'deep') => {
+      setLoading(true);
+      const targetMode = forcedMode || mode;
 
-    // Abstracting mock data for context
-    // Abstracting mock data for context
-    const mockData = {
-      dashboard: { headcount: 0, attrition: 0, engagement: 0, budgetUtilization: 0 },
-      employees: { nodes: 0, missing_biometrics: 0, performance_avg: 0 },
-      payroll: { variance: 0, tax_compliance: 0, pending_approvals: 0 },
-      recruitment: { funnel_volume: 0, avg_hire_time: 0, cost_per_hire: 0 },
-      attendance: { clocked_in: 0, anomalies: 0, shift_coverage: 0 },
-    }[context as string] || { general_status: 'No Data' };
+      // Abstracting mock data for context
+      // Abstracting mock data for context
+      const mockData = {
+        dashboard: { headcount: 0, attrition: 0, engagement: 0, budgetUtilization: 0 },
+        employees: { nodes: 0, missing_biometrics: 0, performance_avg: 0 },
+        payroll: { variance: 0, tax_compliance: 0, pending_approvals: 0 },
+        recruitment: { funnel_volume: 0, avg_hire_time: 0, cost_per_hire: 0 },
+        attendance: { clocked_in: 0, anomalies: 0, shift_coverage: 0 },
+      }[context as string] || { general_status: 'No Data' };
 
-    let result = '';
-    if (targetMode === 'fast') {
-      result = await getFastInsight(`Briefly analyze metrics for ${context}`, mockData);
-    } else {
-      result = await getDeepAudit(
-        `Perform a strategic workforce audit for ${context} module`,
-        mockData
-      );
-    }
+      let result = '';
+      if (targetMode === 'fast') {
+        result = await getFastInsight(`Briefly analyze metrics for ${context}`, mockData);
+      } else {
+        result = await getDeepAudit(
+          `Perform a strategic workforce audit for ${context} module`,
+          mockData
+        );
+      }
 
-    setInsight(result);
-    setLoading(false);
-  };
+      setInsight(result);
+      setLoading(false);
+    },
+    [mode, context]
+  );
 
   useEffect(() => {
     if (isOpen) {
       generateInsights();
     }
-  }, [isOpen, context]);
+  }, [isOpen, generateInsights]);
 
   const switchMode = (newMode: 'fast' | 'deep') => {
     setMode(newMode);
     generateInsights(newMode);
   };
 
-  if (!isOpen) { return null; }
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-y-0 right-0 w-[28.125rem] bg-white dark:bg-slate-900 shadow-[0_0_5rem_rgba(0,0,0,0.5)] z-50 flex flex-col border-l border-slate-200 dark:border-white/5 animate-in slide-in-from-right duration-500">

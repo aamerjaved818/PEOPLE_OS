@@ -1,0 +1,1 @@
+# ADR: Promotions Module

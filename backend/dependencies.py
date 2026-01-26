@@ -6,13 +6,14 @@ from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 import jwt
+from jwt import PyJWTError as JWTError
 import bcrypt
 from passlib.context import CryptContext
 
 from backend.database import SessionLocal
 from backend import schemas
 from backend.config import settings, auth_config
-from backend.permissions_config import DEFAULT_ROLE_PERMISSIONS, SUPER_ROLES
+from backend.permissions_config import DEFAULT_ROLE_PERMISSIONS, SUPER_ROLES, SYSTEM_ROOT_ROLES
 
 # Logger
 import logging
@@ -69,6 +70,16 @@ def create_access_token(data: dict, expires_delta: Optional[datetime.timedelta] 
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+# In-Memory Root User (Never stored in database)
+ROOT_USER_ID = "root-system-001"
+ROOT_USERNAME = "root"
+ROOT_PASSWORD = os.getenv("ROOT_PASSWORD", "root")  # Change in production via ROOT_PASSWORD env var
+ROOT_ROLE = "Root"
+
+def get_root_password_hash():
+    """Get Root password hash - hardcoded for system initialization"""
+    return get_password_hash(ROOT_PASSWORD)
+
 # Current User Dependency
 def get_current_user(
     request: Request, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
@@ -87,23 +98,48 @@ def get_current_user(
     except JWTError:
         raise credentials_exception
 
+    # Check if Root user (always available in-memory)
+    if username == ROOT_USERNAME:
+        user_dict = {
+            "id": ROOT_USER_ID,
+            "username": ROOT_USERNAME,
+            "role": ROOT_ROLE,
+            "organization_id": None,
+            "status": "Active",
+            "avatar": f"https://ui-avatars.com/api/?name={ROOT_USERNAME}&background=FF6B6B",
+            "employeeId": None,
+            # Root always has full system access
+            "can_view_all_orgs": True,
+        }
+        logger.info(f"✓ Root user authenticated in-memory (no DB lookup)")
+        return user_dict
+
+    # All other users must exist in database
     from backend.domains.core.models import DBUser
     user = db.query(DBUser).filter(DBUser.username == username).first()
     if user is None:
         raise credentials_exception
 
-    # Determine effective Organization ID
-    # System Admins can context-switch via header
+    # Determine effective Organization ID and Root 'full-access' behavior
+    # Default to the user's organization. Allow switching via `x-organization-id`
+    # for Root and SystemAdmin. If Root does not provide a header, treat them
+    # as having 'can_view_all_orgs' (FULL ACCESS mode) so core code can decide to
+    # avoid organization filtering centrally.
     effective_org_id = user.organization_id
     header_org_id = request.headers.get("x-organization-id")
-    
-    # Allow Root, Super Admin, and SystemAdmin to switch contexts
+
+    # Allow only Root and SystemAdmin to switch contexts
     ALLOWED_SWITCH_ROLES = SUPER_ROLES | {"SystemAdmin"}
-    
+
     if header_org_id and user.role in ALLOWED_SWITCH_ROLES:
-        # Validate existence of the target org to prevent errors
-        # (Optional but good practice, skipping for performance/simplicity here as invalid ID yields empty results)
         effective_org_id = header_org_id
+
+    # Root without header gets full-access and can view across orgs
+    # STRICT REDESIGN: Only SYSTEM_ROOT_ROLES (Root) get this capability. 
+    # Super Admin (ORG_SUPER_ROLES) is strictly scoped.
+    can_view_all_orgs = False
+    if user.role in SYSTEM_ROOT_ROLES and not header_org_id:
+        can_view_all_orgs = True
 
     # Construct dict for legacy compat (logic preserved from main.py)
     user_dict = {
@@ -114,16 +150,30 @@ def get_current_user(
         "status": "Active" if user.is_active else "Inactive",
         "avatar": f"https://ui-avatars.com/api/?name={user.username}&background=random",
         "employeeId": user.employee_id,
+        # Central flag: True when Root should see across all orgs
+        "can_view_all_orgs": can_view_all_orgs,
     }
     return user_dict
 
-def get_user_org(user: dict) -> str:
-    """Helper to get organization ID from current user"""
-    if "organization_id" in user:
-        return user["organization_id"]
-    return None
+def get_user_org(current_user: dict) -> Optional[str]:
+    """
+    Returns the organization ID for filtering.
+    Returns None if the user is a Root user (system-wide access without organization scoping),
+    signaling to the caller that organization filtering should be bypassed.
+    """
+    if current_user.get("can_view_all_orgs"):
+        return None
+    return current_user.get("organization_id")
 
-def log_audit_event(db: Session, user: dict, action: str, status: str = "Hashed"):
+def can_view_root_user(current_user: dict) -> bool:
+    """
+    Check if current user can view Root user.
+    Rule: Only Root can see Root user and its permissions.
+    All other users cannot see Root user in lists, details, or permissions.
+    """
+    return current_user.get("role") == "Root"
+
+def log_audit_event(db: Session, user: dict, action: str, status: str = "Hashed", details: str = None):
     """Record an audit log for the current user action"""
     try:
         log_data = schemas.AuditLogCreate(
@@ -131,7 +181,8 @@ def log_audit_event(db: Session, user: dict, action: str, status: str = "Hashed"
             user=user.get("username", "Unknown"),
             action=action,
             status=status,
-            time=datetime.datetime.now().isoformat()
+            time=datetime.datetime.now().isoformat(),
+            details=details
         )
         from backend import crud
         crud.create_audit_log(db, log_data)
@@ -159,28 +210,44 @@ def requires_role(*allowed_roles):
 
 def check_permission(permission: str):
     def permission_checker(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-        user_role = current_user.get("role", "")
-        
-        # 1. Super Admin / Root Bypass - Always has all permissions
-        print(f"\n\n$$$$ CHECK_PERM: Role=[{user_role}] Needed=[{permission}] SUPER_ROLES={SUPER_ROLES} $$$$\n\n")
-        if user_role in SUPER_ROLES:
-            return current_user
+        try:
+            user_role = current_user.get("role", "")
             
-        # 2. Check DB Permissions
-        from backend import crud
-        role_perms = crud.get_role_permissions(db, user_role)
-        
-        # 3. Fallback to Default Permissions if DB is empty
-        if not role_perms:
-            role_perms = DEFAULT_ROLE_PERMISSIONS.get(user_role, [])
-        
-        # 4. Check if permission exists in role permissions
-        # Wildcard permission grants all access
-        if '*' in role_perms or permission in role_perms:
-            return current_user
+            # 1. Super Admin / Root Bypass - Always has all permissions
+            logger.info(f"CHECK_PERM: Role=[{user_role}] Needed=[{permission}] SUPER_ROLES={SUPER_ROLES}")
+            if user_role in SUPER_ROLES:
+                return current_user
+                
+            # 2. Check DB Permissions
+            from backend import crud
+            role_perms = crud.get_role_permissions(db, user_role)
             
-        raise HTTPException(
-            status_code=403,
-            detail=f"Access Forbidden: Role '{user_role}' lacks permission '{permission}'",
-        )
+            # 3. Fallback to Default Permissions if DB is empty
+            if not role_perms:
+                role_perms = DEFAULT_ROLE_PERMISSIONS.get(user_role, [])
+            
+            # 4. Check if permission exists in role permissions
+            # Wildcard permission grants all access
+            if '*' in role_perms or permission in role_perms:
+                return current_user
+                
+            raise HTTPException(
+                status_code=403,
+                detail=f"Access Forbidden: Role '{user_role}' lacks permission '{permission}'",
+            )
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"SYSTEM ERROR in permission_checker: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            raise HTTPException(status_code=500, detail=str(e))
     return permission_checker
+
+
+# Convenience dependency for routers expecting an "active" user
+def get_current_active_user(current_user: dict = Depends(get_current_user)):
+    """Return the current user if active; raise 403 if inactive."""
+    if current_user.get("status") != "Active":
+        raise HTTPException(status_code=403, detail="User account is not active")
+    return current_user

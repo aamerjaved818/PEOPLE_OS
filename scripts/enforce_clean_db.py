@@ -15,12 +15,12 @@ def clean_legacy_databases():
     print(f"Authoritative Database: {auth_db}")
     print(f"Located at: {settings.DATABASE_URL.replace('sqlite:///', '')}")
 
-    # TARGETS FOR DESTRUCTION: Legacy filenames to hunt down and delete
+    # TARGETS FOR DESTRUCTION: Legacy/outdated filenames to hunt down and delete
+    # These patterns detect old database files from previous project iterations
     patterns = [
-        "hunzal_hrms.db",
-        "sql_app.db",
-        "**/hunzal_hrms.db",
+        "*.db",  # Generic old DB pattern
         "**/sql_app.db",
+        "**/*.db",  # Recursive scan for any leftover .db files
     ]
 
     found_any = False

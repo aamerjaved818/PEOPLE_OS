@@ -1,12 +1,13 @@
 import Logger from '@/utils/logger';
 import { create } from 'zustand';
 import { SystemSignal, SystemDecision, EvolutionProposal, SystemBrain } from './index';
+import { OrganizationProfile } from '@/types';
 
 const PRESSURE_LIMITS: Record<string, number> = {
-  low: 200,
-  medium: 100,
-  high: 50,
-  critical: 10,
+  low: 1000,
+  medium: 500,
+  high: 200,
+  critical: 50,
 };
 
 interface SystemState {
@@ -14,6 +15,7 @@ interface SystemState {
   decisions: SystemDecision[];
   proposals: EvolutionProposal[];
   pressure: 'low' | 'medium' | 'high' | 'critical';
+  organization?: OrganizationProfile;
 
   // Actions
   ingestSignal: (signal: SystemSignal) => void;
@@ -56,14 +58,27 @@ export const useSystemStore = create<SystemState>((set, get) => ({
     const results = SystemBrain.cycle(signals);
 
     // Apply adaptive rate limits based on system pressure
-    const newLimit = PRESSURE_LIMITS[results.pressure] || 200;
+    // In non-production (dev/test) clamp to a safe minimum to avoid UI self-throttling.
+    const computed = PRESSURE_LIMITS[results.pressure] || 200;
+    let newLimit = computed;
+    try {
+      // Vite exposes import.meta.env.MODE; guard in case it's unavailable
+      // @ts-ignore
+      const mode = import.meta?.env?.MODE || 'development';
+      if (mode !== 'production') {
+        newLimit = Math.max(200, computed);
+      }
+    } catch {
+      // Fallback to safe clamp when env inspection fails
+      newLimit = Math.max(200, computed);
+    }
+
     // Dynamically import API to avoid top-level import during tests (prevents hoisting/mocking issues)
     import('@/services/api').then(({ default: API }) => {
       try {
         API.setRateLimit(newLimit);
       } catch (_e) {
         // Ignore in test environments or if API mock not available yet
-        // Console suppressed to avoid noisy test output
       }
     });
 

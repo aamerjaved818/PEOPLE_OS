@@ -1,0 +1,126 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.2, pluggy-1.6.0 -- D:\Project\PEOPLE_OS\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\Project\PEOPLE_OS
+configfile: pytest.ini
+plugins: anyio-3.7.1, asyncio-1.3.0, cov-7.0.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 10 items
+
+backend/tests/test_leaves_enhanced.py::TestLeaveTypes::test_create_leave_type ERROR [ 10%]
+backend/tests/test_leaves_enhanced.py::TestLeaveTypes::test_get_leave_types ERROR [ 20%]
+backend/tests/test_leaves_enhanced.py::TestLeaveRequestValidation::test_calculate_business_days PASSED [ 30%]
+backend/tests/test_leaves_enhanced.py::TestLeaveRequestValidation::test_calculate_half_day PASSED [ 40%]
+backend/tests/test_leaves_enhanced.py::TestLeaveRequestValidation::test_validate_overlapping_leave ERROR [ 50%]
+backend/tests/test_leaves_enhanced.py::TestLeaveRequestValidation::test_validate_insufficient_balance ERROR [ 60%]
+backend/tests/test_leaves_enhanced.py::TestApprovalWorkflow::test_approve_leave_deducts_balance ERROR [ 70%]
+backend/tests/test_leaves_enhanced.py::TestApprovalWorkflow::test_reject_leave_does_not_deduct ERROR [ 80%]
+backend/tests/test_leaves_enhanced.py::TestCarryForward::test_carry_forward_respects_limit ERROR [ 90%]
+backend/tests/test_leaves_enhanced.py::TestCalendar::test_get_team_leave_calendar ERROR [100%]
+
+=================================== ERRORS ====================================
+___________ ERROR at setup of TestLeaveTypes.test_create_leave_type ___________
+file D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py, line 37
+      def test_create_leave_type(self, db, test_org):
+E       fixture 'test_org' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cov, db, doctest_namespace, event_loop_policy, leave_type, monkeypatch, no_cover, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py:37
+____________ ERROR at setup of TestLeaveTypes.test_get_leave_types ____________
+file D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py, line 61
+      def test_get_leave_types(self, db, test_org, leave_type):
+E       fixture 'test_org' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cov, db, doctest_namespace, event_loop_policy, leave_type, monkeypatch, no_cover, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py:61
+_ ERROR at setup of TestLeaveRequestValidation.test_validate_overlapping_leave _
+file D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py, line 83
+      def test_validate_overlapping_leave(self, db, test_employee):
+E       fixture 'test_employee' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cov, db, doctest_namespace, event_loop_policy, leave_type, monkeypatch, no_cover, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py:83
+_ ERROR at setup of TestLeaveRequestValidation.test_validate_insufficient_balance _
+file D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py, line 115
+      def test_validate_insufficient_balance(self, db, test_employee):
+E       fixture 'test_employee' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cov, db, doctest_namespace, event_loop_policy, leave_type, monkeypatch, no_cover, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py:115
+__ ERROR at setup of TestApprovalWorkflow.test_approve_leave_deducts_balance __
+file D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py, line 145
+      def test_approve_leave_deducts_balance(self, db, test_employee):
+E       fixture 'test_employee' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cov, db, doctest_namespace, event_loop_policy, leave_type, monkeypatch, no_cover, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py:145
+__ ERROR at setup of TestApprovalWorkflow.test_reject_leave_does_not_deduct ___
+file D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py, line 186
+      def test_reject_leave_does_not_deduct(self, db, test_employee):
+E       fixture 'test_employee' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cov, db, doctest_namespace, event_loop_policy, leave_type, monkeypatch, no_cover, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py:186
+____ ERROR at setup of TestCarryForward.test_carry_forward_respects_limit _____
+file D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py, line 225
+      def test_carry_forward_respects_limit(self, db, test_org, test_employee, leave_type):
+E       fixture 'test_org' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cov, db, doctest_namespace, event_loop_policy, leave_type, monkeypatch, no_cover, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py:225
+_________ ERROR at setup of TestCalendar.test_get_team_leave_calendar _________
+file D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py, line 253
+      def test_get_team_leave_calendar(self, db, test_employee):
+E       fixture 'test_employee' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cov, db, doctest_namespace, event_loop_policy, leave_type, monkeypatch, no_cover, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+D:\Project\PEOPLE_OS\backend\tests\test_leaves_enhanced.py:253
+============================== warnings summary ===============================
+backend\database\__init__.py:62
+  D:\Project\PEOPLE_OS\backend\database\__init__.py:62: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:271: 91 warnings
+  D:\Project\PEOPLE_OS\venv\Lib\site-packages\pydantic\_internal\_config.py:271: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+venv\Lib\site-packages\pydantic\fields.py:768
+venv\Lib\site-packages\pydantic\fields.py:768
+  D:\Project\PEOPLE_OS\venv\Lib\site-packages\pydantic\fields.py:768: PydanticDeprecatedSince20: `min_items` is deprecated and will be removed, use `min_length` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    warn('`min_items` is deprecated and will be removed, use `min_length` instead', DeprecationWarning)
+
+venv\Lib\site-packages\pydantic\fields.py:774
+venv\Lib\site-packages\pydantic\fields.py:774
+  D:\Project\PEOPLE_OS\venv\Lib\site-packages\pydantic\fields.py:774: PydanticDeprecatedSince20: `max_items` is deprecated and will be removed, use `max_length` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    warn('`max_items` is deprecated and will be removed, use `max_length` instead', DeprecationWarning)
+
+backend/tests/test_leaves_enhanced.py::TestLeaveTypes::test_create_leave_type
+backend/tests/test_leaves_enhanced.py::TestLeaveTypes::test_get_leave_types
+backend/tests/test_leaves_enhanced.py::TestLeaveRequestValidation::test_validate_overlapping_leave
+backend/tests/test_leaves_enhanced.py::TestLeaveRequestValidation::test_validate_insufficient_balance
+backend/tests/test_leaves_enhanced.py::TestApprovalWorkflow::test_approve_leave_deducts_balance
+backend/tests/test_leaves_enhanced.py::TestApprovalWorkflow::test_reject_leave_does_not_deduct
+backend/tests/test_leaves_enhanced.py::TestCarryForward::test_carry_forward_respects_limit
+backend/tests/test_leaves_enhanced.py::TestCalendar::test_get_team_leave_calendar
+  D:\Project\PEOPLE_OS\backend\tests\conftest.py:51: SAWarning: Can't sort tables for DROP; an unresolvable foreign key dependency exists between tables: core_departments, core_locations, core_organizations, core_sub_departments, core_users, hcm_designations, hcm_employees, hcm_grades, hcm_job_levels, hcm_shifts; and backend does not support ALTER.  To restore at least a partial sort, apply use_alter=True to ForeignKey and ForeignKeyConstraint objects involved in the cycle to mark these as known cycles that will be ignored.
+    Base.metadata.drop_all(bind=conn)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR backend/tests/test_leaves_enhanced.py::TestLeaveTypes::test_create_leave_type
+ERROR backend/tests/test_leaves_enhanced.py::TestLeaveTypes::test_get_leave_types
+ERROR backend/tests/test_leaves_enhanced.py::TestLeaveRequestValidation::test_validate_overlapping_leave
+ERROR backend/tests/test_leaves_enhanced.py::TestLeaveRequestValidation::test_validate_insufficient_balance
+ERROR backend/tests/test_leaves_enhanced.py::TestApprovalWorkflow::test_approve_leave_deducts_balance
+ERROR backend/tests/test_leaves_enhanced.py::TestApprovalWorkflow::test_reject_leave_does_not_deduct
+ERROR backend/tests/test_leaves_enhanced.py::TestCarryForward::test_carry_forward_respects_limit
+ERROR backend/tests/test_leaves_enhanced.py::TestCalendar::test_get_team_leave_calendar
+================== 2 passed, 104 warnings, 8 errors in 1.43s ==================

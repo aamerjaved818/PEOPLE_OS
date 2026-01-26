@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from backend.main import app
 from backend.database import get_db, engine
-import backend.models as models
+from backend.domains.core import models
 from backend.dependencies import get_password_hash
 
 # Test credentials from environment variables (moved out of hardcoded strings)

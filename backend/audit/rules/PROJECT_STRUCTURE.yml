@@ -1,0 +1,249 @@
+---
+# PeopleOS Project Structure Rules
+# Type: MANDATORY
+# Status: ENFORCED - All violations must be corrected immediately
+# Authority: Project Architecture Standard
+# Last Updated: January 22, 2026
+# Enforcement: Automatic
+
+rules:
+  python_environment:
+    name: 'Python Environment (Virtual Environments)'
+    type: 'MANDATORY'
+    standard: '.venv/ ONLY'
+    violations:
+      - 'venv/'
+      - 'venv2/'
+      - 'venv_ai/'
+      - 'venv_backend/'
+      - '.venv_new/'
+    action: 'AUTOMATICALLY DELETE on discovery'
+    scope: 'All code commits and work'
+
+  test_files:
+    name: 'Test Files'
+    type: 'MANDATORY'
+    standard:
+      - 'backend/tests/ for backend unit tests ONLY'
+      - 'tests/ for integration/end-to-end tests ONLY'
+    violations:
+      - 'test/'
+      - 'test-results/'
+      - 'verification/'
+      - 'Any other test folder'
+    action: 'MOVE all files to correct folder and DELETE violation folder'
+    scope: 'All test organization'
+
+  documentation:
+    name: 'Documentation Files'
+    type: 'MANDATORY'
+    standard: 'ALL .md files → docs/ ONLY'
+    violations:
+      - '.md files in root'
+      - '.md files in scattered directories'
+      - 'project_docs/ folder'
+    action: 'AUTOMATICALLY MOVE to docs/ on creation'
+    scope: 'All documentation creation'
+
+  logs_and_reports:
+    name: 'Logs & Reports'
+    type: 'MANDATORY'
+    standard:
+      - 'Logs → logs/ ONLY'
+      - 'Reports → docs/ (if documentation) or logs/ (if log-related)'
+    violations:
+      - 'Log files in root'
+      - 'Report files scattered'
+    action: 'MOVE to correct folder immediately'
+    scope: 'All log and report generation'
+
+  scripts:
+    name: 'Utility Scripts'
+    type: 'MANDATORY'
+    standard: 'ALL .py utility scripts → scripts/ ONLY'
+    violations:
+      - '.py utility scripts in root'
+    action: 'MOVE to scripts/ folder'
+    scope: 'All utility script creation'
+
+  yml_files:
+    name: 'YML Configuration Files'
+    type: 'MANDATORY'
+    standard:
+      - 'Audit rules/policies → backend/audit/ ONLY'
+      - 'CI/CD workflows → .github/workflows/ ONLY'
+    violations:
+      - '.yml files scattered elsewhere'
+    action: 'MOVE to correct folder'
+    scope: 'All YML file creation'
+
+  module_structure:
+    name: 'Module Internal Structure'
+    type: 'MANDATORY'
+    standard: 'index.tsx + standard subdirs (components/, hooks/, types/, utils/)'
+    violations:
+      - 'Modules without index.tsx'
+      - 'Non-standard folder names inside modules'
+    action: 'REPORT finding in System Audit'
+    scope: 'All src/modules/'
+
+  path_aliases:
+    name: 'Path Aliases (Wiring Standard)'
+    type: 'MANDATORY'
+    standard: 'Use @/ for all non-relative local imports'
+    violations:
+      - 'Deep relative imports (../../...)'
+      - 'Absolute-style imports without @/ prefix'
+    action: 'REPORT finding in System Audit'
+    scope: 'All src/'
+
+file_organization:
+  markdown:
+    type: 'MANDATORY'
+    location: 'docs/'
+    violations: 'Any .md in root'
+    enforcement: 'Auto-move on creation'
+
+  python_production:
+    type: 'MANDATORY'
+    locations:
+      - 'backend/'
+      - 'src/'
+      - 'scripts/'
+    violations: '.py files in root (except setup.py if required)'
+    enforcement: 'Move or delete'
+
+  python_tests:
+    type: 'MANDATORY'
+    location: 'backend/tests/'
+    violations: '.py test files outside backend/tests/'
+    enforcement: 'Move immediately'
+
+  text_files:
+    type: 'MANDATORY'
+    rules:
+      - 'Logs: logs/ ONLY'
+      - 'Reports: docs/ or logs/ ONLY'
+    violations: '.txt files in root'
+    enforcement: 'Move immediately'
+
+  config_files:
+    type: 'ALLOWED_IN_ROOT'
+    files:
+      - '.env'
+      - '.env.example'
+      - '.eslintrc.json'
+      - '.prettierrc'
+      - 'tsconfig.json'
+      - 'vite.config.ts'
+      - 'tailwind.config.cjs'
+      - 'vitest.config.ts'
+      - 'playwright.config.ts'
+      - '.prettierignore'
+      - '.pre-commit-config.yaml'
+
+  build_files:
+    type: 'ALLOWED_IN_ROOT'
+    files:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pytest.ini'
+
+no_duplication:
+  name: 'THE GOLDEN RULE'
+  rule: 'ONE FOLDER = ONE PURPOSE'
+  enforcement: 'Violations are AUTOMATICALLY corrected'
+  folders:
+    - name: 'Python Environment'
+      path: '.venv/'
+      duplicates_allowed: false
+
+    - name: 'Backend Unit Tests'
+      path: 'backend/tests/'
+      duplicates_allowed: false
+
+    - name: 'Integration Tests'
+      path: 'tests/'
+      duplicates_allowed: false
+
+    - name: 'Documentation'
+      path: 'docs/'
+      duplicates_allowed: false
+
+    - name: 'Logs'
+      path: 'logs/'
+      duplicates_allowed: false
+
+    - name: 'Scripts'
+      path: 'scripts/'
+      duplicates_allowed: false
+
+    - name: 'Frontend'
+      path: 'src/'
+      duplicates_allowed: false
+
+    - name: 'Backend'
+      path: 'backend/'
+      duplicates_allowed: false
+
+    - name: 'Audit Rules'
+      path: 'backend/audit/'
+      duplicates_allowed: false
+
+    - name: 'CI/CD Workflows'
+      path: '.github/workflows/'
+      duplicates_allowed: false
+
+enforcement:
+  violation_detection:
+    - 'Automated tooling - scripts that organize files automatically'
+    - 'CI/CD checks - pre-commit hooks that prevent violations'
+    - 'Manual review - during code review process'
+    - 'AI Assistant - automatically corrects violations during work'
+
+  violation_correction:
+    step1: 'Check for structure violations'
+    step2: 'Move files to correct locations'
+    step3: 'Delete duplicate folders'
+    step4: 'Verify standard compliance'
+
+  workflow:
+    - 'Before completing any work: VERIFY ROOT DIRECTORY IS CLEAN'
+    - 'All .md files in docs/'
+    - 'All .py scripts in scripts/'
+    - 'All tests in backend/tests/ or tests/'
+    - 'No duplicate folders exist'
+
+  on_violation:
+    - 'STOP work'
+    - 'CORRECT violation immediately'
+    - 'VERIFY compliance'
+    - 'RESUME work'
+
+status:
+  active: true
+  effective_date: 'January 22, 2026'
+  compliance: 'MANDATORY'
+  exceptions: 'NONE'
+  optional: false
+
+authority:
+  project: 'PeopleOS'
+  type: 'Architecture Standard'
+  scope: 'All work'
+  applies_to:
+    - 'All code commits'
+    - 'All documentation'
+    - 'All test files'
+    - 'All configuration'
+    - 'All scripts and utilities'
+    - 'All developers'
+    - 'All AI assistants'
+    - 'All automated tools'
+
+sign_off:
+  status: 'ACTIVE and ENFORCED'
+  effective: 'January 22, 2026'
+  requirement: 'All future work MUST follow this structure without exception'
+  violations: 'WILL be automatically corrected'
+  optional: 'NOT optional - MANDATORY'

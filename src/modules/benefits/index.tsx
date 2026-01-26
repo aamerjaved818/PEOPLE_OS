@@ -17,11 +17,11 @@ import {
   ShieldAlert,
   History as HistoryIcon,
 } from 'lucide-react';
-import { BenefitEnrollment, BenefitTier } from '../../types';
-import { api } from '../../services/api';
-import { HorizontalTabs } from '../../components/ui/HorizontalTabs';
-import { useSearch } from '../../hooks/useSearch';
-import { SearchInput } from '../../components/ui/SearchInput';
+import { BenefitEnrollment, BenefitTier } from '@/types';
+import { api } from '@/services/api';
+import { HorizontalTabs } from '@/components/ui/HorizontalTabs';
+import { useSearch } from '@/hooks/useSearch';
+import { SearchInput } from '@/components/ui/SearchInput';
 
 type BenefitsTab = 'ledger' | 'tiers' | 'claims';
 

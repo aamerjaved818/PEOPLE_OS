@@ -71,7 +71,7 @@ export class RateLimiter {
   constructor(
     private maxRequests: number,
     private windowMs: number
-  ) { }
+  ) {}
 
   setMaxRequests(max: number): void {
     this.maxRequests = max;
@@ -91,6 +91,16 @@ export class RateLimiter {
     }
 
     return false;
+  }
+
+  /**
+   * Check if a request can be made without consuming a token.
+   * Useful for pre-checks before the actual request.
+   */
+  peekRequest(): boolean {
+    const now = Date.now();
+    const activeTimestamps = this.timestamps.filter((t) => now - t < this.windowMs);
+    return activeTimestamps.length < this.maxRequests;
   }
 
   getRemainingTime(): number {

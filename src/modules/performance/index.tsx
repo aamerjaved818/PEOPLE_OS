@@ -14,15 +14,15 @@ import {
   RefreshCw,
   TrendingDown,
 } from 'lucide-react';
-import { Goal } from '../../types';
-import { api } from '../../services/api';
-import { useModal } from '../../hooks/useModal';
-import { FormModal } from '../../components/ui/FormModal';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { DateInput } from '../../components/ui/DateInput';
-import { useSaveEntity } from '../../hooks/useSaveEntity';
-import RecruitmentFooter from '../recruitment/RecruitmentFooter';
+import { Goal } from '@/types';
+import { api } from '@/services/api';
+import { useModal } from '@/hooks/useModal';
+import { FormModal } from '@/components/ui/FormModal';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { DateInput } from '@/components/ui/DateInput';
+import { useSaveEntity } from '@/hooks/useSaveEntity';
+import RecruitmentFooter from '../hcm/submodules/recruitment/RecruitmentFooter';
 
 const PerformanceModule: React.FC = () => {
   const [goals, setGoals] = useState<Goal[]>([]);

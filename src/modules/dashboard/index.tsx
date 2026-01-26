@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import ErrorBoundary from '@/components/ErrorBoundary';
+
 import {
   Users,
   TrendingUp,
@@ -15,11 +17,13 @@ import {
   UserCheck,
   ChevronRight,
 } from 'lucide-react';
-import { Card } from '../../components/ui/Card';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { useTheme } from '@/contexts/ThemeContext';
 
 import { PALETTE } from '@/theme/palette';
-import { formatTime } from '../../utils/formatting';
-import { useUIStore } from '../../store/uiStore';
+import { formatTime } from '@/utils/formatting';
+import { useUIStore } from '@/store/uiStore';
 import {
   AreaChart,
   Area,
@@ -34,8 +38,8 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import { api } from '../../services/api';
-import { Employee, GrowthTrend, Milestone, DepartmentStat, AttendanceStat } from '../../types';
+import { api } from '@/services/api';
+import { Employee, GrowthTrend, Milestone, DepartmentStat, AttendanceStat } from '@/types';
 
 interface DashboardMetrics {
   growth: number;
@@ -128,7 +132,19 @@ const KPICard = React.memo<KPICardProps>(
 
 KPICard.displayName = 'KPICard';
 
-const Dashboard: React.FC = () => {
+const DashboardWrapper: React.FC = () => (
+  <ErrorBoundary>
+    <div className="h-full w-full overflow-y-auto overscroll-contain custom-scrollbar px-6 md:px-10 pb-10">
+      <div className="w-full pb-20">
+        <DashboardComponent />
+      </div>
+    </div>
+  </ErrorBoundary>
+);
+
+const DashboardComponent: React.FC = () => {
+  const { theme } = useTheme();
+  void theme;
   const { setActiveModule } = useUIStore();
   const [wishesSent, setWishesSent] = useState<number[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -293,9 +309,10 @@ const Dashboard: React.FC = () => {
               Last Updated: {formatTime(lastUpdate)}
             </div>
             <div className="flex items-center gap-4">
-              <button
+              <Button
                 onClick={() => window.location.reload()}
-                className="p-3 bg-card border border-border rounded-2xl hover:bg-muted-bg transition-all group backdrop-blur-xl shadow-lg disabled:opacity-50"
+                variant="outline"
+                className="p-3 h-auto rounded-2xl hover:bg-muted-bg transition-all group backdrop-blur-xl shadow-lg disabled:opacity-50 border-border"
                 title="Refresh Data"
                 aria-label="Refresh data"
                 disabled={loading}
@@ -304,10 +321,11 @@ const Dashboard: React.FC = () => {
                   size={18}
                   className={`text-primary group-hover:rotate-180 transition-transform duration-700 ${loading ? 'animate-spin' : ''}`}
                 />
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleExportData}
-                className="p-3 bg-card border border-border rounded-2xl hover:bg-muted-bg hover:border-border transition-all duration-300 group backdrop-blur-xl shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:scale-110 hover:-translate-y-1"
+                variant="outline"
+                className="p-3 h-auto rounded-2xl hover:bg-muted-bg border-border transition-all duration-300 group backdrop-blur-xl shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:scale-110 hover:-translate-y-1"
                 title="Export Dashboard Data"
                 aria-label="Export dashboard data as CSV"
               >
@@ -325,7 +343,7 @@ const Dashboard: React.FC = () => {
                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                   />
                 </svg>
-              </button>
+              </Button>
               <div className="bg-card backdrop-blur-xl px-6 py-3 rounded-2xl shadow-2xl border border-border flex items-center gap-4">
                 <div className="relative">
                   <div
@@ -833,4 +851,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardWrapper;

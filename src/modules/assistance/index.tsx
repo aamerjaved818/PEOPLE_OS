@@ -18,12 +18,12 @@ import {
   ArrowUpRight,
   Send,
 } from 'lucide-react';
-import { useModal } from '../../hooks/useModal';
-import { FormModal } from '../../components/ui/FormModal';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import RecruitmentFooter from '../recruitment/RecruitmentFooter';
-import { useSaveEntity } from '../../hooks/useSaveEntity';
+import { useModal } from '@/hooks/useModal';
+import { FormModal } from '@/components/ui/FormModal';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import RecruitmentFooter from '../hcm/submodules/recruitment/RecruitmentFooter';
+import { useSaveEntity } from '@/hooks/useSaveEntity';
 
 interface SupportTicket {
   id: string;

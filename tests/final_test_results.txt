@@ -1,0 +1,2687 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.2, pluggy-1.6.0 -- D:\Project\PEOPLE_OS\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\Project\PEOPLE_OS
+configfile: pytest.ini
+plugins: anyio-3.7.1, asyncio-1.3.0, cov-7.0.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 277 items
+
+backend/tests/test_department_crud.py::TestDepartmentCreation::test_create_department_basic PASSED [  0%]
+backend/tests/test_department_crud.py::TestDepartmentCreation::test_create_department_with_description PASSED [  0%]
+backend/tests/test_department_crud.py::TestDepartmentCreation::test_create_subdepartment PASSED [  1%]
+backend/tests/test_department_crud.py::TestDepartmentCreation::test_create_nested_subdepartments PASSED [  1%]
+backend/tests/test_department_crud.py::TestDepartmentCreation::test_create_multiple_departments_same_org PASSED [  1%]
+backend/tests/test_department_crud.py::TestDepartmentCreation::test_department_unique_per_organization FAILED [  2%]
+backend/tests/test_department_crud.py::TestDepartmentRetrieval::test_retrieve_department_by_id PASSED [  2%]
+backend/tests/test_department_crud.py::TestDepartmentRetrieval::test_retrieve_all_departments_in_org PASSED [  2%]
+backend/tests/test_department_crud.py::TestDepartmentRetrieval::test_retrieve_department_not_found PASSED [  3%]
+backend/tests/test_department_crud.py::TestDepartmentRetrieval::test_retrieve_subdepartments FAILED [  3%]
+backend/tests/test_department_crud.py::TestDepartmentRetrieval::test_retrieve_department_with_employees PASSED [  3%]
+backend/tests/test_department_crud.py::TestDepartmentUpdate::test_update_department_name PASSED [  4%]
+backend/tests/test_department_crud.py::TestDepartmentUpdate::test_update_department_code PASSED [  4%]
+backend/tests/test_department_crud.py::TestDepartmentUpdate::test_update_department_description PASSED [  5%]
+backend/tests/test_department_crud.py::TestDepartmentDelete::test_delete_empty_department PASSED [  5%]
+backend/tests/test_department_crud.py::TestDepartmentDelete::test_delete_department_cascade_check PASSED [  5%]
+backend/tests/test_department_crud.py::TestDepartmentErrorHandling::test_missing_required_organization PASSED [  6%]
+backend/tests/test_department_crud.py::TestDepartmentErrorHandling::test_invalid_parent_subdepartment PASSED [  6%]
+backend/tests/test_department_crud.py::TestDepartmentErrorHandling::test_department_unicode_name PASSED [  6%]
+backend/tests/test_department_crud.py::TestDepartmentErrorHandling::test_circular_subdepartment_reference PASSED [  7%]
+backend/tests/test_job_levels_grades.py::TestJobLevelCreation::test_create_job_level_basic PASSED [  7%]
+backend/tests/test_job_levels_grades.py::TestJobLevelCreation::test_create_job_level_hierarchy PASSED [  7%]
+backend/tests/test_job_levels_grades.py::TestJobLevelCreation::test_retrieve_job_level_by_number PASSED [  8%]
+backend/tests/test_job_levels_grades.py::TestJobLevelCreation::test_job_level_numeric_order PASSED [  8%]
+backend/tests/test_job_levels_grades.py::TestGradeCreation::test_create_grade_basic PASSED [  9%]
+backend/tests/test_job_levels_grades.py::TestGradeCreation::test_create_multiple_grades PASSED [  9%]
+backend/tests/test_job_levels_grades.py::TestGradeCreation::test_retrieve_grade_by_level PASSED [  9%]
+backend/tests/test_job_levels_grades.py::TestGradeCreation::test_grade_organization_isolation PASSED [ 10%]
+backend/tests/test_job_levels_grades.py::TestDesignationCreation::test_create_designation_basic PASSED [ 10%]
+backend/tests/test_job_levels_grades.py::TestDesignationCreation::test_create_designation_with_levels PASSED [ 10%]
+backend/tests/test_job_levels_grades.py::TestDesignationCreation::test_retrieve_designation_by_department PASSED [ 11%]
+backend/tests/test_job_levels_grades.py::TestDesignationCreation::test_designation_grade_relationship PASSED [ 11%]
+backend/tests/test_job_levels_grades.py::TestJobDesignationRelationships::test_designation_requires_grade FAILED [ 11%]
+backend/tests/test_job_levels_grades.py::TestJobDesignationRelationships::test_designation_requires_department FAILED [ 12%]
+backend/tests/test_job_levels_grades.py::TestJobDesignationRelationships::test_employee_with_designation PASSED [ 12%]
+backend/tests/test_job_levels_grades.py::TestJobDesignationRelationships::test_job_level_grade_mapping PASSED [ 12%]
+backend/tests/test_job_levels_grades.py::TestJobDesignationErrorHandling::test_duplicate_designation_code PASSED [ 13%]
+backend/tests/test_job_levels_grades.py::TestJobDesignationErrorHandling::test_negative_grade_level PASSED [ 13%]
+backend/tests/test_job_levels_grades.py::TestJobDesignationErrorHandling::test_zero_job_level_number PASSED [ 14%]
+backend/tests/test_job_levels_grades.py::TestJobDesignationErrorHandling::test_very_long_designation_name PASSED [ 14%]
+backend/tests/test_job_levels_grades.py::TestJobDesignationErrorHandling::test_special_characters_in_code PASSED [ 14%]
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_create_access_token PASSED [ 15%]
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_create_refresh_token PASSED [ 15%]
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_access_token_contains_user_data PASSED [ 15%]
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_token_has_expiration PASSED [ 16%]
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_token_type_validation PASSED [ 16%]
+backend/tests/test_security_phase2.py::TestTokenRefresh::test_refresh_access_token PASSED [ 16%]
+backend/tests/test_security_phase2.py::TestTokenRefresh::test_new_access_token_valid PASSED [ 17%]
+backend/tests/test_security_phase2.py::TestTokenRefresh::test_invalid_refresh_token_rejected PASSED [ 17%]
+backend/tests/test_security_phase2.py::TestRoleDefinitions::test_all_roles_defined PASSED [ 18%]
+backend/tests/test_security_phase2.py::TestRoleDefinitions::test_all_permissions_defined PASSED [ 18%]
+backend/tests/test_security_phase2.py::TestRBACPermissions::test_admin_has_all_permissions PASSED [ 18%]
+backend/tests/test_security_phase2.py::TestRBACPermissions::test_hr_manager_has_correct_permissions PASSED [ 19%]
+backend/tests/test_security_phase2.py::TestRBACPermissions::test_employee_has_limited_permissions PASSED [ 19%]
+backend/tests/test_security_phase2.py::TestRBACPermissions::test_multiple_roles_union_permissions PASSED [ 19%]
+backend/tests/test_security_phase2.py::TestRBACPermissions::test_invalid_role_ignored PASSED [ 20%]
+backend/tests/test_security_phase2.py::TestRBACPermissions::test_empty_roles_no_permissions PASSED [ 20%]
+backend/tests/test_security_phase2.py::TestRBACManager::test_get_role_permissions PASSED [ 20%]
+backend/tests/test_security_phase2.py::TestRBACManager::test_has_permission_method PASSED [ 21%]
+backend/tests/test_security_phase2.py::TestRBACManager::test_get_user_roles PASSED [ 21%]
+backend/tests/test_security_phase2.py::TestAuditLogging::test_log_employee_create PASSED [ 22%]
+backend/tests/test_security_phase2.py::TestAuditLogging::test_log_employee_update PASSED [ 22%]
+backend/tests/test_security_phase2.py::TestAuditLogging::test_log_employee_delete PASSED [ 22%]
+backend/tests/test_security_phase2.py::TestAuditLogging::test_log_role_change PASSED [ 23%]
+backend/tests/test_security_phase2.py::TestAuditLogging::test_audit_entry_has_timestamp PASSED [ 23%]
+backend/tests/test_security_phase2.py::TestEncryption::test_encrypt_string PASSED [ 23%]
+backend/tests/test_security_phase2.py::TestEncryption::test_decrypt_string PASSED [ 24%]
+backend/tests/test_security_phase2.py::TestEncryption::test_encrypt_none_returns_none PASSED [ 24%]
+backend/tests/test_security_phase2.py::TestEncryption::test_decrypt_none_returns_none PASSED [ 24%]
+backend/tests/test_security_phase2.py::TestEncryption::test_encrypt_different_values_different_results PASSED [ 25%]
+backend/tests/test_security_phase2.py::TestEncryption::test_same_value_encrypts_differently_each_time PASSED [ 25%]
+backend/tests/test_security_phase2.py::TestEncryption::test_encrypt_integer PASSED [ 25%]
+backend/tests/test_security_phase2.py::TestEncryption::test_function_encrypt_decrypt PASSED [ 26%]
+backend/tests/test_security_phase2.py::TestEncryption::test_generate_key PASSED [ 26%]
+backend/tests/test_security_phase2.py::TestEncryption::test_different_keys_different_encryption PASSED [ 27%]
+backend/tests/test_security_phase2.py::TestSecurityIntegration::test_authenticated_user_with_rbac PASSED [ 27%]
+backend/tests/test_security_phase2.py::TestSecurityIntegration::test_audit_logs_encrypted_data PASSED [ 27%]
+backend/tests/test_security_phase2.py::TestSecurityIntegration::test_permission_denied_flow PASSED [ 28%]
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_set_and_get_value PASSED [ 28%]
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_get_nonexistent_key PASSED [ 28%]
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_delete_key PASSED [ 29%]
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_delete_nonexistent_key PASSED [ 29%]
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_exists_key PASSED [ 29%]
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_cache_expiration PASSED [ 30%]
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_clear_cache PASSED [ 30%]
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_cache_statistics PASSED [ 31%]
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_cache_different_types PASSED [ 31%]
+backend/tests/test_performance_phase2.py::TestCacheManager::test_cache_manager_initialization PASSED [ 31%]
+backend/tests/test_performance_phase2.py::TestCacheManager::test_cache_manager_get_set PASSED [ 32%]
+backend/tests/test_performance_phase2.py::TestCacheManager::test_cache_manager_delete PASSED [ 32%]
+backend/tests/test_performance_phase2.py::TestCacheManager::test_cache_manager_exists PASSED [ 32%]
+backend/tests/test_performance_phase2.py::TestCacheManager::test_cache_manager_clear PASSED [ 33%]
+backend/tests/test_performance_phase2.py::TestCacheManager::test_cache_key_generation PASSED [ 33%]
+backend/tests/test_performance_phase2.py::TestCacheManager::test_cache_stats PASSED [ 33%]
+backend/tests/test_performance_phase2.py::TestCacheConvenienceFunctions::test_cache_get_function PASSED [ 34%]
+backend/tests/test_performance_phase2.py::TestCacheConvenienceFunctions::test_cache_set_function PASSED [ 34%]
+backend/tests/test_performance_phase2.py::TestQueryMetrics::test_add_query_basic PASSED [ 35%]
+backend/tests/test_performance_phase2.py::TestQueryMetrics::test_slow_query_detection PASSED [ 35%]
+backend/tests/test_performance_phase2.py::TestQueryMetrics::test_slow_query_limit PASSED [ 35%]
+backend/tests/test_performance_phase2.py::TestQueryMetrics::test_metrics_statistics PASSED [ 36%]
+backend/tests/test_performance_phase2.py::TestQueryOptimizer::test_optimizer_initialization PASSED [ 36%]
+backend/tests/test_performance_phase2.py::TestQueryOptimizer::test_connection_pool_configuration PASSED [ 36%]
+backend/tests/test_performance_phase2.py::TestQueryOptimizer::test_optimize_joins PASSED [ 37%]
+backend/tests/test_performance_phase2.py::TestCachedQueryDecorator::test_cached_query_caches_result PASSED [ 37%]
+backend/tests/test_performance_phase2.py::TestCachedQueryDecorator::test_cached_query_custom_key_builder PASSED [ 37%]
+backend/tests/test_performance_phase2.py::TestBatchQuery::test_batch_query_splits_into_batches PASSED [ 38%]
+backend/tests/test_performance_phase2.py::TestTransactionScope::test_transaction_commit PASSED [ 38%]
+backend/tests/test_performance_phase2.py::TestTransactionScope::test_transaction_rollback_on_error PASSED [ 38%]
+backend/tests/test_performance_phase2.py::TestTransactionScope::test_transaction_always_closes_session PASSED [ 39%]
+backend/tests/test_performance_phase2.py::TestIndexRecommendations::test_recommend_indexes_for_common_patterns PASSED [ 39%]
+backend/tests/test_performance_phase2.py::TestIndexRecommendations::test_generate_create_index_sql PASSED [ 40%]
+backend/tests/test_performance_phase2.py::TestIndexRecommendations::test_composite_index_recommendation PASSED [ 40%]
+backend/tests/test_performance_phase2.py::TestPerformanceIntegration::test_cache_hit_ratio_tracking PASSED [ 40%]
+backend/tests/test_performance_phase2.py::TestPerformanceIntegration::test_query_performance_monitoring PASSED [ 41%]
+backend/tests/test_performance_phase2.py::TestPerformanceIntegration::test_cache_and_query_optimization_together PASSED [ 41%]
+backend/tests/test_performance_phase2.py::TestPerformanceBenchmarks::test_cache_get_performance PASSED [ 41%]
+backend/tests/test_performance_phase2.py::TestPerformanceBenchmarks::test_cache_set_performance PASSED [ 42%]
+backend/tests/test_performance_phase2.py::TestPerformanceBenchmarks::test_large_cache_hit_ratio PASSED [ 42%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_metrics_initialization PASSED [ 42%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_system_metrics_initialized PASSED [ 43%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_api_metrics_initialized PASSED [ 43%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_database_metrics_initialized PASSED [ 44%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_cache_metrics_initialized PASSED [ 44%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_business_metrics_initialized PASSED [ 44%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_record_api_request PASSED [ 45%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_record_api_request_with_error PASSED [ 45%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_record_database_query PASSED [ 45%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_record_slow_query PASSED [ 46%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_record_cache_operation_hit PASSED [ 46%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_record_cache_operation_miss PASSED [ 46%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_update_cache_hit_ratio PASSED [ 47%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_record_business_change PASSED [ 47%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_record_error PASSED [ 48%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_get_metrics_export PASSED [ 48%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_get_content_type PASSED [ 48%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_global_metrics_instance PASSED [ 49%]
+backend/tests/test_monitoring_phase2.py::TestPrometheusMetrics::test_initialize_metrics PASSED [ 49%]
+backend/tests/test_monitoring_phase2.py::TestMetricsMiddleware::test_middleware_records_request PASSED [ 49%]
+backend/tests/test_monitoring_phase2.py::TestMetricsMiddleware::test_middleware_records_error PASSED [ 50%]
+backend/tests/test_monitoring_phase2.py::TestMetricsMiddleware::test_database_metrics_recorder PASSED [ 50%]
+backend/tests/test_monitoring_phase2.py::TestMetricsMiddleware::test_cache_metrics_recorder PASSED [ 50%]
+backend/tests/test_monitoring_phase2.py::TestMetricsMiddleware::test_business_metrics_recorder PASSED [ 51%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_alert_rules_structure PASSED [ 51%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_alert_groups_defined PASSED [ 51%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_system_alerts_defined PASSED [ 52%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_api_alerts_defined PASSED [ 52%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_database_alerts_defined PASSED [ 53%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_cache_alerts_defined PASSED [ 53%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_alert_rule_structure PASSED [ 53%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_alert_labels_present PASSED [ 54%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_get_alert_rules_yaml PASSED [ 54%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_validate_alert_rules PASSED [ 54%]
+backend/tests/test_monitoring_phase2.py::TestAlertRules::test_alert_expressions_syntax PASSED [ 55%]
+backend/tests/test_monitoring_phase2.py::TestGrafanaDashboards::test_dashboard_json_structure PASSED [ 55%]
+backend/tests/test_monitoring_phase2.py::TestGrafanaDashboards::test_dashboard_panels_exist PASSED [ 55%]
+backend/tests/test_monitoring_phase2.py::TestGrafanaDashboards::test_dashboard_has_prometheus_datasource PASSED [ 56%]
+backend/tests/test_monitoring_phase2.py::TestGrafanaDashboards::test_dashboard_refresh_interval PASSED [ 56%]
+backend/tests/test_monitoring_phase2.py::TestGrafanaDashboards::test_dashboard_time_range PASSED [ 57%]
+backend/tests/test_monitoring_phase2.py::TestMetricsIntegration::test_metrics_end_to_end PASSED [ 57%]
+backend/tests/test_monitoring_phase2.py::TestMetricsIntegration::test_multiple_operations_tracked PASSED [ 57%]
+backend/tests/test_monitoring_phase2.py::TestMetricsIntegration::test_error_tracking PASSED [ 58%]
+backend/tests/test_monitoring_phase2.py::TestMetricsIntegration::test_metric_labels_recorded PASSED [ 58%]
+backend/tests/test_monitoring_phase2.py::TestMetricsPerformance::test_metrics_recording_speed PASSED [ 58%]
+backend/tests/test_monitoring_phase2.py::TestMetricsPerformance::test_concurrent_metrics_recording PASSED [ 59%]
+backend/tests/test_monitoring_phase2.py::TestMetricsNamespaces::test_namespace_enum_values PASSED [ 59%]
+backend/tests/test_monitoring_phase2.py::TestMetricsNamespaces::test_metric_names_use_namespace PASSED [ 59%]
+backend/tests/test_protection_phase2.py::TestRateLimitConfig::test_config_initialization PASSED [ 60%]
+backend/tests/test_protection_phase2.py::TestRateLimitConfig::test_config_with_custom_strategy PASSED [ 60%]
+backend/tests/test_protection_phase2.py::TestRateLimitConfig::test_config_hour_limit_calculation PASSED [ 61%]
+backend/tests/test_protection_phase2.py::TestSlidingWindowLimiter::test_sliding_window_allow_request PASSED [ 61%]
+backend/tests/test_protection_phase2.py::TestSlidingWindowLimiter::test_sliding_window_exceed_limit PASSED [ 61%]
+backend/tests/test_protection_phase2.py::TestSlidingWindowLimiter::test_sliding_window_different_clients PASSED [ 62%]
+backend/tests/test_protection_phase2.py::TestTokenBucketLimiter::test_token_bucket_initialization PASSED [ 62%]
+backend/tests/test_protection_phase2.py::TestTokenBucketLimiter::test_token_bucket_allow_request PASSED [ 62%]
+backend/tests/test_protection_phase2.py::TestTokenBucketLimiter::test_token_bucket_burst_allowed PASSED [ 63%]
+backend/tests/test_protection_phase2.py::TestRateLimiter::test_rate_limiter_add_endpoint PASSED [ 63%]
+backend/tests/test_protection_phase2.py::TestRateLimiter::test_rate_limiter_check_endpoint PASSED [ 63%]
+backend/tests/test_protection_phase2.py::TestRateLimiter::test_rate_limiter_unconfigured_endpoint PASSED [ 64%]
+backend/tests/test_protection_phase2.py::TestRateLimiter::test_rate_limiter_reset_client PASSED [ 64%]
+backend/tests/test_protection_phase2.py::TestRequestValidationConfig::test_default_config PASSED [ 64%]
+backend/tests/test_protection_phase2.py::TestRequestValidationConfig::test_custom_config PASSED [ 65%]
+backend/tests/test_protection_phase2.py::TestPayloadValidator::test_validate_required_fields_success PASSED [ 65%]
+backend/tests/test_protection_phase2.py::TestPayloadValidator::test_validate_required_fields_missing PASSED [ 66%]
+backend/tests/test_protection_phase2.py::TestPayloadValidator::test_validate_field_types_success PASSED [ 66%]
+backend/tests/test_protection_phase2.py::TestPayloadValidator::test_validate_field_types_failure PASSED [ 66%]
+backend/tests/test_protection_phase2.py::TestPayloadValidator::test_validate_field_values_success PASSED [ 67%]
+backend/tests/test_protection_phase2.py::TestPayloadValidator::test_validate_field_values_failure PASSED [ 67%]
+backend/tests/test_protection_phase2.py::TestInputSanitizer::test_sanitize_string_removes_nulls PASSED [ 67%]
+backend/tests/test_protection_phase2.py::TestInputSanitizer::test_sanitize_string_trims_whitespace PASSED [ 68%]
+backend/tests/test_protection_phase2.py::TestInputSanitizer::test_sanitize_string_max_length PASSED [ 68%]
+backend/tests/test_protection_phase2.py::TestInputSanitizer::test_sanitize_dict PASSED [ 68%]
+backend/tests/test_protection_phase2.py::TestInputSanitizer::test_detect_sql_injection PASSED [ 69%]
+backend/tests/test_protection_phase2.py::TestInputSanitizer::test_detect_script_injection PASSED [ 69%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_config_initialization PASSED [ 70%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ip_stats_creation PASSED [ 70%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_check_ip_safe PASSED [ 70%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_record_request PASSED [ 71%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_record_error PASSED [ 71%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_block_ip PASSED [ 71%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_permanent_blacklist PASSED [ 72%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_whitelist_ip PASSED [ 72%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_threat_summary PASSED [ 72%]
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_error_rate_escalation PASSED [ 73%]
+backend/tests/test_protection_phase2.py::TestRateLimiterIntegration::test_multiple_endpoints PASSED [ 73%]
+backend/tests/test_protection_phase2.py::TestRateLimiterIntegration::test_rate_limiter_concurrent_access PASSED [ 74%]
+backend/tests/test_protection_phase2.py::TestDDoSIntegration::test_ddos_escalation_chain PASSED [ 74%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_scanner_initialization PASSED [ 74%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_scanner_reset PASSED [ 75%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_hardcoded_secrets_detection PASSED [ 75%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_sql_injection_detection PASSED [ 75%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_command_injection_detection PASSED [ 76%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_insecure_deserialization_detection PASSED [ 76%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_weak_cryptography_detection PASSED [ 76%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_hardcoded_credentials_detection PASSED [ 77%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_xxe_vulnerability_detection PASSED [ 77%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_ssrf_vulnerability_detection PASSED [ 77%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_insecure_logging_detection PASSED [ 78%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_vulnerability_to_dict PASSED [ 78%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_get_summary PASSED [ 79%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_scan_python_code PASSED [ 79%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityScanner::test_singleton_instance PASSED [ 79%]
+backend/tests/test_security_scanning_phase2.py::TestBanditAnalyzer::test_analyzer_initialization PASSED [ 80%]
+backend/tests/test_security_scanning_phase2.py::TestBanditAnalyzer::test_bandit_issue_creation PASSED [ 80%]
+backend/tests/test_security_scanning_phase2.py::TestBanditAnalyzer::test_bandit_issue_to_dict PASSED [ 80%]
+backend/tests/test_security_scanning_phase2.py::TestBanditAnalyzer::test_bandit_summary_generation PASSED [ 81%]
+backend/tests/test_security_scanning_phase2.py::TestBanditAnalyzer::test_singleton_instance PASSED [ 81%]
+backend/tests/test_security_scanning_phase2.py::TestSemgrepAnalyzer::test_analyzer_initialization PASSED [ 81%]
+backend/tests/test_security_scanning_phase2.py::TestSemgrepAnalyzer::test_semgrep_match_creation PASSED [ 82%]
+backend/tests/test_security_scanning_phase2.py::TestSemgrepAnalyzer::test_semgrep_match_to_dict PASSED [ 82%]
+backend/tests/test_security_scanning_phase2.py::TestSemgrepAnalyzer::test_semgrep_summary_generation PASSED [ 83%]
+backend/tests/test_security_scanning_phase2.py::TestSemgrepAnalyzer::test_singleton_instance PASSED [ 83%]
+backend/tests/test_security_scanning_phase2.py::TestSemgrepAnalyzer::test_different_instances_for_different_paths PASSED [ 83%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_report_initialization PASSED [ 84%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_metrics_creation PASSED [ 84%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_metrics_as_dict PASSED [ 84%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_summary_generation PASSED [ 85%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_singleton_instance PASSED [ 85%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_json_export_format PASSED [ 85%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_markdown_export_format PASSED [ 86%]
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_html_export_format PASSED [ 86%]
+backend/tests/test_security_scanning_phase2.py::TestIntegration::test_scanner_with_vulnerable_code PASSED [ 87%]
+backend/tests/test_security_scanning_phase2.py::TestIntegration::test_multiple_vulnerability_types PASSED [ 87%]
+backend/tests/test_security_scanning_phase2.py::TestIntegration::test_severity_levels PASSED [ 87%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_employee_basic FAILED [ 88%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_employee_with_optional_fields FAILED [ 88%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_multiple_employees_same_org FAILED [ 88%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_employee_default_status FAILED [ 89%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_employee_unicode_name FAILED [ 89%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_employee_email_case_sensitivity FAILED [ 89%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employee_by_id FAILED [ 90%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employee_not_found PASSED [ 90%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employees_by_department FAILED [ 90%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employees_by_organization FAILED [ 91%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employees_paginated FAILED [ 91%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employee_with_relationships FAILED [ 92%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_employee_name FAILED [ 92%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_employee_email FAILED [ 92%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_employee_department FAILED [ 93%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_employee_multiple_fields FAILED [ 93%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_preserves_other_fields FAILED [ 93%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeDelete::test_delete_employee FAILED [ 94%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeDelete::test_delete_employee_cascade_check FAILED [ 94%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeDelete::test_delete_nonexistent_employee PASSED [ 94%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_duplicate_employee_id_error FAILED [ 95%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_missing_required_organization_id FAILED [ 95%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_invalid_department_reference FAILED [ 96%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_invalid_designation_reference FAILED [ 96%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_invalid_email_format FAILED [ 96%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_future_date_of_birth FAILED [ 97%]
+backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_joining_date_before_birth_date FAILED [ 97%]
+backend/tests/test_employee_crud_expanded.py::TestTransactionBehavior::test_rollback_on_error FAILED [ 97%]
+backend/tests/test_employee_crud_expanded.py::TestTransactionBehavior::test_partial_commit_isolation FAILED [ 98%]
+backend/tests/test_employee_crud_expanded.py::TestTransactionBehavior::test_nested_updates_in_transaction FAILED [ 98%]
+backend/tests/test_employee_crud_expanded.py::TestAggregateOperations::test_count_employees_by_department FAILED [ 98%]
+backend/tests/test_employee_crud_expanded.py::TestAggregateOperations::test_count_employees_by_organization FAILED [ 99%]
+backend/tests/test_employee_crud_expanded.py::TestAggregateOperations::test_bulk_status_update FAILED [ 99%]
+backend/tests/test_employee_crud_expanded.py::TestAggregateOperations::test_distinct_departments_in_org FAILED [100%]
+
+================================== FAILURES ===================================
+_______ TestDepartmentCreation.test_department_unique_per_organization ________
+
+self = <sqlalchemy.engine.base.Connection object at 0x0000017F5EB360C0>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000017F5C11BA70>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000017F5EB37C80>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000017F5EAF42F0>
+parameters = [('DEPT_UNIQUE_2', 'UNIQUE_CODE', 'Department 2', 1, 'ORG_DEPT_TEST', None, ...)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000017F5C11BA70>
+cursor = <sqlite3.Cursor object at 0x0000017F5EB466C0>
+statement = 'INSERT INTO core_departments (id, code, name, "isActive", organization_id, hod_id, manager_id, description, updated_at, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?) RETURNING created_at, updated_at'
+parameters = ('DEPT_UNIQUE_2', 'UNIQUE_CODE', 'Department 2', 1, 'ORG_DEPT_TEST', None, ...)
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000017F5EB37C80>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlite3.IntegrityError: UNIQUE constraint failed: core_departments.code
+
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <test_department_crud.TestDepartmentCreation object at 0x0000017F5CAA7A40>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5E882630>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5E827980>
+
+    def test_department_unique_per_organization(self, db, test_org):
+        """Test department codes are unique within organization"""
+        dept1 = DBDepartment(
+            id="DEPT_UNIQUE_1",
+            code="UNIQUE_CODE",
+            name="Department 1",
+            organization_id=test_org.id
+        )
+        db.add(dept1)
+        db.commit()
+    
+        # Create another department with same code (should work - different ID)
+        dept2 = DBDepartment(
+            id="DEPT_UNIQUE_2",
+            code="UNIQUE_CODE",  # Same code but different org/id
+            name="Department 2",
+            organization_id=test_org.id
+        )
+        db.add(dept2)
+>       db.commit()  # May succeed or fail depending on constraints
+        ^^^^^^^^^^^
+
+backend\tests\test_department_crud.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+<string>:2: in commit
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000017F5C11BA70>
+cursor = <sqlite3.Cursor object at 0x0000017F5EB466C0>
+statement = 'INSERT INTO core_departments (id, code, name, "isActive", organization_id, hod_id, manager_id, description, updated_at, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?) RETURNING created_at, updated_at'
+parameters = ('DEPT_UNIQUE_2', 'UNIQUE_CODE', 'Department 2', 1, 'ORG_DEPT_TEST', None, ...)
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000017F5EB37C80>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: core_departments.code
+E       [SQL: INSERT INTO core_departments (id, code, name, "isActive", organization_id, hod_id, manager_id, description, updated_at, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?) RETURNING created_at, updated_at]
+E       [parameters: ('DEPT_UNIQUE_2', 'UNIQUE_CODE', 'Department 2', 1, 'ORG_DEPT_TEST', None, None, None, None, None)]
+E       (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: IntegrityError
+____________ TestDepartmentRetrieval.test_retrieve_subdepartments _____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x0000017F5EB357F0>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000017F5C11BA70>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000017F5EB37EC0>
+
+    def _exec_insertmany_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for an "insertmanyvalues"
+        operation, which will invoke DBAPI
+        cursor.execute() one or more times with individual log and
+        event hook calls.
+    
+        """
+    
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+        else:
+            generic_setinputsizes = None
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters = parameters
+    
+        engine_events = self._has_events or self.engine._has_events
+        if self.dialect._has_events:
+            do_execute_dispatch: Iterable[Any] = (
+                self.dialect.dispatch.do_execute
+            )
+        else:
+            do_execute_dispatch = ()
+    
+        if engine_events:
+            _WORKAROUND_ISSUE_13018 = getattr(
+                self, "_WORKAROUND_ISSUE_13018", False
+            )
+        else:
+            _WORKAROUND_ISSUE_13018 = False
+    
+        if self._echo:
+            stats = context._get_cache_stats() + " (insertmanyvalues)"
+    
+        preserve_rowcount = context.execution_options.get(
+            "preserve_rowcount", False
+        )
+        rowcount = 0
+    
+        for imv_batch in dialect._deliver_insertmanyvalues_batches(
+            self,
+            cursor,
+            str_statement,
+            effective_parameters,
+            generic_setinputsizes,
+            context,
+        ):
+            if imv_batch.processed_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor,
+                        imv_batch.processed_setinputsizes,
+                        context,
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e,
+                        sql_util._long_statement(imv_batch.replaced_statement),
+                        imv_batch.replaced_parameters,
+                        None,
+                        context,
+                        is_sub_exec=True,
+                    )
+    
+            sub_stmt = imv_batch.replaced_statement
+            sub_params = imv_batch.replaced_parameters
+    
+            if engine_events:
+                for fn in self.dispatch.before_cursor_execute:
+                    sub_stmt, sub_params = fn(
+                        self,
+                        cursor,
+                        sub_stmt,
+                        sub_params,
+                        context,
+                        True,
+                    )
+    
+            if self._echo:
+                self._log_info(sql_util._long_statement(sub_stmt))
+    
+                imv_stats = f""" {imv_batch.batchnum}/{
+                            imv_batch.total_batches
+                } ({
+                    'ordered'
+                    if imv_batch.rows_sorted else 'unordered'
+                }{
+                    '; batch not supported'
+                    if imv_batch.is_downgraded
+                    else ''
+                })"""
+    
+                if imv_batch.batchnum == 1:
+                    stats += imv_stats
+                else:
+                    stats = f"insertmanyvalues{imv_stats}"
+    
+                if not self.engine.hide_parameters:
+                    self._log_info(
+                        "[%s] %r",
+                        stats,
+                        sql_util._repr_params(
+                            sub_params,
+                            batches=10,
+                            ismulti=False,
+                        ),
+                    )
+                else:
+                    self._log_info(
+                        "[%s] [SQL parameters hidden due to "
+                        "hide_parameters=True]",
+                        stats,
+                    )
+    
+            try:
+                for fn in do_execute_dispatch:
+                    if fn(
+                        cursor,
+                        sub_stmt,
+                        sub_params,
+                        context,
+                    ):
+                        break
+                else:
+>                   dialect.do_execute(
+                        cursor,
+                        sub_stmt,
+                        sub_params,
+                        context,
+                    )
+
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000017F5C11BA70>
+cursor = <sqlite3.Cursor object at 0x0000017F5F942DC0>
+statement = 'INSERT INTO core_sub_departments (id, code, name, is_active, organization_id, department_id, manager_id, updated_at, ...?, ?, ?, CURRENT_TIMESTAMP, ?, ?), (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?) RETURNING created_at, updated_at, id'
+parameters = ('SUB_0', 'SUB_0', 'Sub Department 0', 1, None, 'DEPT_PARENT_REL', ...)
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000017F5EB37EC0>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: core_sub_departments.organization_id
+
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <test_department_crud.TestDepartmentRetrieval object at 0x0000017F5CAD85F0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5E845B20>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5E844FE0>
+
+    def test_retrieve_subdepartments(self, db, test_org):
+        """Test retrieving subdepartments under parent"""
+        parent = DBDepartment(
+            id="DEPT_PARENT_REL",
+            code="PARENT_REL",
+            name="Parent",
+            organization_id=test_org.id
+        )
+        db.add(parent)
+        db.commit()
+    
+        # Create subdepartments
+        for i in range(2):
+            sub = DBSubDepartment(
+                id=f"SUB_{i}",
+                name=f"Sub Department {i}",
+                code=f"SUB_{i}",
+                department_id=parent.id
+            )
+            db.add(sub)
+    
+>       db.commit()
+
+backend\tests\test_department_crud.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+<string>:2: in commit
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1143: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1844: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2133: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2125: in _exec_insertmany_context
+    dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000017F5C11BA70>
+cursor = <sqlite3.Cursor object at 0x0000017F5F942DC0>
+statement = 'INSERT INTO core_sub_departments (id, code, name, is_active, organization_id, department_id, manager_id, updated_at, ...?, ?, ?, CURRENT_TIMESTAMP, ?, ?), (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?) RETURNING created_at, updated_at, id'
+parameters = ('SUB_0', 'SUB_0', 'Sub Department 0', 1, None, 'DEPT_PARENT_REL', ...)
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000017F5EB37EC0>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: core_sub_departments.organization_id
+E       [SQL: INSERT INTO core_sub_departments (id, code, name, is_active, organization_id, department_id, manager_id, updated_at, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?), (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?) RETURNING created_at, updated_at, id]
+E       [parameters: ('SUB_0', 'SUB_0', 'Sub Department 0', 1, None, 'DEPT_PARENT_REL', None, None, None, 'SUB_1', 'SUB_1', 'Sub Department 1', 1, None, 'DEPT_PARENT_REL', None, None, None)]
+E       (Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: IntegrityError
+_______ TestJobDesignationRelationships.test_designation_requires_grade _______
+
+self = <test_job_levels_grades.TestJobDesignationRelationships object at 0x0000017F5CAF1010>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5ECC3F80>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5ED2B590>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5ED16F30>
+
+    def test_designation_requires_grade(self, db, test_org, test_dept):
+        """Test designation requires valid grade"""
+        des = DBDesignation(
+            id="DES_NO_GRADE",
+            name="No Grade",
+            code="NG",
+            grade_id="NONEXISTENT_GRADE",
+            department_id=test_dept.id,
+            organization_id=test_org.id
+        )
+        db.add(des)
+    
+>       with pytest.raises(Exception):  # FK constraint
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'Exception'>
+
+backend\tests\test_job_levels_grades.py:383: Failed
+____ TestJobDesignationRelationships.test_designation_requires_department _____
+
+self = <test_job_levels_grades.TestJobDesignationRelationships object at 0x0000017F5CAF1400>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5ED86120>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5ED29A90>
+
+    def test_designation_requires_department(self, db, test_org):
+        """Test designation requires valid department"""
+        grade = DBGrade(
+            id="GRADE_ND",
+            name="Grade",
+            level=1,
+            code="GND",
+            organization_id=test_org.id
+        )
+        db.add(grade)
+        db.commit()
+    
+        des = DBDesignation(
+            id="DES_NO_DEPT",
+            name="No Dept",
+            code="ND",
+            grade_id=grade.id,
+            department_id="NONEXISTENT_DEPT",
+            organization_id=test_org.id
+        )
+        db.add(des)
+    
+>       with pytest.raises(Exception):  # FK constraint
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'Exception'>
+
+backend\tests\test_job_levels_grades.py:408: Failed
+_______________ TestEmployeeCreation.test_create_employee_basic _______________
+
+self = <test_employee_crud_expanded.TestEmployeeCreation object at 0x0000017F5E810770>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D480050>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_create_employee_basic(self, db, test_employee_data):
+        """Test basic employee creation with required fields"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FEB3350>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_______ TestEmployeeCreation.test_create_employee_with_optional_fields ________
+
+self = <test_employee_crud_expanded.TestEmployeeCreation object at 0x0000017F5E8127B0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5E7671A0>
+test_employee_data = {'address': '123 Main St', 'alternate_phone': '555-0002', 'city': 'New York', 'country': 'USA', ...}
+
+    def test_create_employee_with_optional_fields(self, db, test_employee_data):
+        """Test employee creation with optional fields"""
+        test_employee_data.update({
+            "alternate_phone": "555-0002",
+            "address": "123 Main St",
+            "city": "New York",
+            "state": "NY",
+            "zip_code": "10001",
+            "country": "USA"
+        })
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5ED14DD0>
+kwargs = {'address': '123 Main St', 'alternate_phone': '555-0002', 'city': 'New York', 'country': 'USA', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+________ TestEmployeeCreation.test_create_multiple_employees_same_org _________
+
+self = <test_employee_crud_expanded.TestEmployeeCreation object at 0x0000017F5E812BD0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5F5A09B0>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5ED2BFE0>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5FEB3F80>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5FEB3830>
+
+    def test_create_multiple_employees_same_org(self, db, test_org, test_dept, test_designation):
+        """Test creating multiple employees in same organization"""
+        employees_data = [
+            {"id": f"EMP_00{i}", "first_name": f"First {i}", "last_name": f"Last {i}", "email": f"emp{i}@test.com",
+             "department_id": test_dept.id, "designation_id": test_designation.id,
+             "organization_id": test_org.id}
+            for i in range(1, 4)
+        ]
+    
+        for emp_data in employees_data:
+>           emp = DBEmployee(**emp_data)
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE66810>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'emp1@test.com', 'first_name': 'First 1', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+______________ TestEmployeeCreation.test_employee_default_status ______________
+
+self = <test_employee_crud_expanded.TestEmployeeCreation object at 0x0000017F5E812F90>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5F549E50>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_employee_default_status(self, db, test_employee_data):
+        """Test employee default status is ACTIVE"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5E7799D0>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+___________ TestEmployeeCreation.test_create_employee_unicode_name ____________
+
+self = <test_employee_crud_expanded.TestEmployeeCreation object at 0x0000017F5E813380>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5E778380>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_create_employee_unicode_name(self, db, test_employee_data):
+        """Test employee creation with unicode characters in name"""
+        test_employee_data["first_name"] = "Fran├ºois"
+        test_employee_data["last_name"] = "M├╝ller"
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:206: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FEB3C20>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+______ TestEmployeeCreation.test_create_employee_email_case_sensitivity _______
+
+self = <test_employee_crud_expanded.TestEmployeeCreation object at 0x0000017F5E813770>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D480110>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_create_employee_email_case_sensitivity(self, db, test_employee_data):
+        """Test email is handled correctly"""
+        test_employee_data["email"] = "JOHN.DOE@TEST.COM"
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:217: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5ED15700>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_____________ TestEmployeeRetrieval.test_retrieve_employee_by_id ______________
+
+self = <test_employee_crud_expanded.TestEmployeeRetrieval object at 0x0000017F5E813BF0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5E845940>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_retrieve_employee_by_id(self, db, test_employee_data):
+        """Test retrieving employee by ID"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:234: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE67FB0>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_________ TestEmployeeRetrieval.test_retrieve_employees_by_department _________
+
+self = <test_employee_crud_expanded.TestEmployeeRetrieval object at 0x0000017F5E824350>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D492BD0>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5ED15FA0>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5FEB3860>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5FEB3BC0>
+
+    def test_retrieve_employees_by_department(self, db, test_org, test_dept, test_designation):
+        """Test retrieving all employees in a department"""
+        # Create multiple employees in same dept
+        for i in range(3):
+>           emp = DBEmployee(
+                id=f"EMP_D{i}",
+                first_name=f"First {i}",
+                last_name=f"Last {i}",
+                email=f"dept_emp{i}@test.com",
+                department_id=test_dept.id,
+                designation_id=test_designation.id,
+                organization_id=test_org.id
+            )
+
+backend\tests\test_employee_crud_expanded.py:256: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FEB3C50>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'dept_emp0@test.com', 'first_name': 'First 0', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+________ TestEmployeeRetrieval.test_retrieve_employees_by_organization ________
+
+self = <test_employee_crud_expanded.TestEmployeeRetrieval object at 0x0000017F5E824740>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5ED16DB0>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5D492090>
+test_org_2 = <backend.domains.core.models.DBOrganization object at 0x0000017F5D492B70>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5FE679E0>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5FE65F40>
+
+    def test_retrieve_employees_by_organization(self, db, test_org, test_org_2, test_dept, test_designation):
+        """Test retrieving employees by organization"""
+        # Create employee in org 1
+>       emp1 = DBEmployee(
+            id="EMP_ORG1",
+            first_name="Org1",
+            last_name="Employee",
+            email="org1_emp@test.com",
+            department_id=test_dept.id,
+            designation_id=test_designation.id,
+            organization_id=test_org.id
+        )
+
+backend\tests\test_employee_crud_expanded.py:277: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE65A90>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'org1_emp@test.com', 'first_name': 'Org1', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+___________ TestEmployeeRetrieval.test_retrieve_employees_paginated ___________
+
+self = <test_employee_crud_expanded.TestEmployeeRetrieval object at 0x0000017F5E824B30>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5ED17920>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5FEB3E00>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5FE65970>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5FE66750>
+
+    def test_retrieve_employees_paginated(self, db, test_org, test_dept, test_designation):
+        """Test retrieving employees with pagination"""
+        # Create 10 employees
+        for i in range(10):
+>           emp = DBEmployee(
+                id=f"EMP_PAGE_{i:02d}",
+                first_name=f"First {i}",
+                last_name=f"Last {i}",
+                email=f"page_emp{i}@test.com",
+                department_id=test_dept.id,
+                designation_id=test_designation.id,
+                organization_id=test_org.id
+            )
+
+backend\tests\test_employee_crud_expanded.py:299: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE66C30>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'page_emp0@test.com', 'first_name': 'First 0', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_______ TestEmployeeRetrieval.test_retrieve_employee_with_relationships _______
+
+self = <test_employee_crud_expanded.TestEmployeeRetrieval object at 0x0000017F5E813B30>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5EBE1190>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5D492AB0>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5D4921B0>
+
+    def test_retrieve_employee_with_relationships(self, db, test_employee_data, test_dept, test_designation):
+        """Test retrieving employee with related objects"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE66570>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+________________ TestEmployeeUpdate.test_update_employee_name _________________
+
+self = <test_employee_crud_expanded.TestEmployeeUpdate object at 0x0000017F5E812D50>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5ED16A20>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_update_employee_name(self, db, test_employee_data):
+        """Test updating employee name"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:349: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE9F6E0>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+________________ TestEmployeeUpdate.test_update_employee_email ________________
+
+self = <test_employee_crud_expanded.TestEmployeeUpdate object at 0x0000017F5E8120C0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5ED16690>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_update_employee_email(self, db, test_employee_data):
+        """Test updating employee email"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE651F0>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_____________ TestEmployeeUpdate.test_update_employee_department ______________
+
+self = <test_employee_crud_expanded.TestEmployeeUpdate object at 0x0000017F5E8248F0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5FEB3890>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5FE9E420>
+
+    def test_update_employee_department(self, db, test_employee_data, test_org):
+        """Test moving employee to different department"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:375: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE679B0>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+___________ TestEmployeeUpdate.test_update_employee_multiple_fields ___________
+
+self = <test_employee_crud_expanded.TestEmployeeUpdate object at 0x0000017F5E8241D0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D492D80>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_update_employee_multiple_fields(self, db, test_employee_data):
+        """Test updating multiple fields at once"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:403: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE9F470>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+____________ TestEmployeeUpdate.test_update_preserves_other_fields ____________
+
+self = <test_employee_crud_expanded.TestEmployeeUpdate object at 0x0000017F5E824F20>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D493080>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_update_preserves_other_fields(self, db, test_employee_data):
+        """Test that updating one field doesn't affect others"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:427: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE9D670>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+___________________ TestEmployeeDelete.test_delete_employee ___________________
+
+self = <test_employee_crud_expanded.TestEmployeeDelete object at 0x0000017F5E8253A0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5E7675F0>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_delete_employee(self, db, test_employee_data):
+        """Test deleting an employee"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:452: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5D492D80>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+____________ TestEmployeeDelete.test_delete_employee_cascade_check ____________
+
+self = <test_employee_crud_expanded.TestEmployeeDelete object at 0x0000017F5E825790>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D480080>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_delete_employee_cascade_check(self, db, test_employee_data):
+        """Test cascading deletion if applicable"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:467: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE9E480>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_________ TestEmployeeErrorHandling.test_duplicate_employee_id_error __________
+
+self = <test_employee_crud_expanded.TestEmployeeErrorHandling object at 0x0000017F5E825EE0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5EDD9B80>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_duplicate_employee_id_error(self, db, test_employee_data):
+        """Test that duplicate employee ID raises error"""
+>       emp1 = DBEmployee(**test_employee_data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:499: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5ED2B920>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_______ TestEmployeeErrorHandling.test_missing_required_organization_id _______
+
+self = <test_employee_crud_expanded.TestEmployeeErrorHandling object at 0x0000017F5E8262D0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5ED2A210>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5ED171A0>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5ED178C0>
+
+    def test_missing_required_organization_id(self, db, test_dept, test_designation):
+        """Test creating employee without organization_id"""
+        emp_data = {
+            "id": "EMP_NO_ORG",
+            "first_name": "No",
+            "last_name": "Org",
+            "email": "no_org@test.com",
+            "department_id": test_dept.id,
+            "designation_id": test_designation.id,
+            "organization_id": None  # Missing required field
+        }
+    
+>       emp = DBEmployee(**emp_data)
+              ^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:522: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5ED16540>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'no_org@test.com', 'first_name': 'No', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_________ TestEmployeeErrorHandling.test_invalid_department_reference _________
+
+self = <test_employee_crud_expanded.TestEmployeeErrorHandling object at 0x0000017F5E826600>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D16E840>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5D4929C0>
+
+    def test_invalid_department_reference(self, db, test_org):
+        """Test creating employee with non-existent department"""
+        emp_data = {
+            "id": "EMP_INVALID_DEPT",
+            "first_name": "Invalid",
+            "last_name": "Dept",
+            "email": "invalid_dept@test.com",
+            "department_id": "NONEXISTENT_DEPT",  # Invalid reference
+            "organization_id": test_org.id
+        }
+    
+>       emp = DBEmployee(**emp_data)
+              ^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:540: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE64440>
+kwargs = {'department_id': 'NONEXISTENT_DEPT', 'email': 'invalid_dept@test.com', 'first_name': 'Invalid', 'id': 'EMP_INVALID_DEPT', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+________ TestEmployeeErrorHandling.test_invalid_designation_reference _________
+
+self = <test_employee_crud_expanded.TestEmployeeErrorHandling object at 0x0000017F5E826960>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5F5CDF40>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5D492D20>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5D492CF0>
+
+    def test_invalid_designation_reference(self, db, test_org, test_dept):
+        """Test creating employee with non-existent designation"""
+        emp_data = {
+            "id": "EMP_INVALID_DES",
+            "first_name": "Invalid",
+            "last_name": "Des",
+            "email": "invalid_des@test.com",
+            "department_id": test_dept.id,
+            "designation_id": "NONEXISTENT_DES",  # Invalid reference
+            "organization_id": test_org.id
+        }
+    
+>       emp = DBEmployee(**emp_data)
+              ^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:559: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5D4920C0>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'NONEXISTENT_DES', 'email': 'invalid_des@test.com', 'first_name': 'Invalid', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_____________ TestEmployeeErrorHandling.test_invalid_email_format _____________
+
+self = <test_employee_crud_expanded.TestEmployeeErrorHandling object at 0x0000017F5E826D20>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D492E10>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_invalid_email_format(self, db, test_employee_data):
+        """Test creating employee with invalid email format"""
+        test_employee_data["email"] = "not_an_email"
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:569: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE9C9B0>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_____________ TestEmployeeErrorHandling.test_future_date_of_birth _____________
+
+self = <test_employee_crud_expanded.TestEmployeeErrorHandling object at 0x0000017F5E827110>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D4929C0>
+test_employee_data = {'date_of_birth': datetime.date(2030, 1, 1), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_future_date_of_birth(self, db, test_employee_data):
+        """Test employee with future date of birth"""
+        test_employee_data["date_of_birth"] = date(2030, 1, 1)
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE9E930>
+kwargs = {'date_of_birth': datetime.date(2030, 1, 1), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+________ TestEmployeeErrorHandling.test_joining_date_before_birth_date ________
+
+self = <test_employee_crud_expanded.TestEmployeeErrorHandling object at 0x0000017F5E812E10>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D492090>
+test_employee_data = {'date_of_birth': datetime.date(2000, 1, 1), 'date_of_joining': datetime.date(1990, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_joining_date_before_birth_date(self, db, test_employee_data):
+        """Test employee joining before birth date"""
+        test_employee_data["date_of_birth"] = date(2000, 1, 1)
+        test_employee_data["date_of_joining"] = date(1990, 1, 1)
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:587: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE9E390>
+kwargs = {'date_of_birth': datetime.date(2000, 1, 1), 'date_of_joining': datetime.date(1990, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_______________ TestTransactionBehavior.test_rollback_on_error ________________
+
+self = <test_employee_crud_expanded.TestTransactionBehavior object at 0x0000017F5E825BB0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5FEB3BC0>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+
+    def test_rollback_on_error(self, db, test_employee_data):
+        """Test rollback when error occurs"""
+>       emp1 = DBEmployee(**test_employee_data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:602: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE65D00>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+____________ TestTransactionBehavior.test_partial_commit_isolation ____________
+
+self = <test_employee_crud_expanded.TestTransactionBehavior object at 0x0000017F5E826780>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5ED17C50>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5FE660F0>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5FEB3BF0>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5FEB3890>
+
+    def test_partial_commit_isolation(self, db, test_org, test_dept, test_designation):
+        """Test that uncommitted changes are not visible"""
+>       emp = DBEmployee(
+            id="EMP_UNCOMMITTED",
+            first_name="Uncommitted",
+            last_name="Employee",
+            email="uncommitted@test.com",
+            department_id=test_dept.id,
+            designation_id=test_designation.id,
+            organization_id=test_org.id
+        )
+
+backend\tests\test_employee_crud_expanded.py:623: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE66C60>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'uncommitted@test.com', 'first_name': 'Uncommitted', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_________ TestTransactionBehavior.test_nested_updates_in_transaction __________
+
+self = <test_employee_crud_expanded.TestTransactionBehavior object at 0x0000017F5E826090>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5ED17920>
+test_employee_data = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5FE64740>
+
+    def test_nested_updates_in_transaction(self, db, test_employee_data, test_org):
+        """Test multiple updates within single transaction"""
+>       emp = DBEmployee(**test_employee_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_employee_crud_expanded.py:648: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE8DA00>
+kwargs = {'date_of_birth': datetime.date(1990, 5, 15), 'date_of_joining': datetime.date(2025, 1, 1), 'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_________ TestAggregateOperations.test_count_employees_by_department __________
+
+self = <test_employee_crud_expanded.TestAggregateOperations object at 0x0000017F5E825910>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5FEB3AA0>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5ED16AB0>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5ED16540>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5FE64DD0>
+
+    def test_count_employees_by_department(self, db, test_org, test_dept, test_designation):
+        """Test counting employees in each department"""
+        # Create 5 employees
+        for i in range(5):
+>           emp = DBEmployee(
+                id=f"EMP_COUNT_{i}",
+                first_name=f"First {i}",
+                last_name=f"Last {i}",
+                email=f"count_emp{i}@test.com",
+                department_id=test_dept.id,
+                designation_id=test_designation.id,
+                organization_id=test_org.id
+            )
+
+backend\tests\test_employee_crud_expanded.py:686: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE8DB50>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'count_emp0@test.com', 'first_name': 'First 0', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+________ TestAggregateOperations.test_count_employees_by_organization _________
+
+self = <test_employee_crud_expanded.TestAggregateOperations object at 0x0000017F5E8250A0>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5FEB3E30>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5FE8E300>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5FE9F8C0>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5FE9F3E0>
+
+    def test_count_employees_by_organization(self, db, test_org, test_dept, test_designation):
+        """Test counting all employees in organization"""
+        for i in range(3):
+>           emp = DBEmployee(
+                id=f"EMP_ORG_COUNT_{i}",
+                first_name=f"First {i}",
+                last_name=f"Last {i}",
+                email=f"org_count{i}@test.com",
+                department_id=test_dept.id,
+                designation_id=test_designation.id,
+                organization_id=test_org.id
+            )
+
+backend\tests\test_employee_crud_expanded.py:707: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F6008E600>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'org_count0@test.com', 'first_name': 'First 0', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+_______________ TestAggregateOperations.test_bulk_status_update _______________
+
+self = <test_employee_crud_expanded.TestAggregateOperations object at 0x0000017F5E824710>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5FE8C530>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F6008E6F0>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5FE9C380>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5FE9DD90>
+
+    def test_bulk_status_update(self, db, test_org, test_dept, test_designation):
+        """Test updating status for multiple employees"""
+        # Create 3 employees
+        emp_ids = []
+        for i in range(3):
+>           emp = DBEmployee(
+                id=f"EMP_BULK_{i}",
+                first_name=f"First {i}",
+                last_name=f"Last {i}",
+                email=f"bulk{i}@test.com",
+                department_id=test_dept.id,
+                designation_id=test_designation.id,
+                organization_id=test_org.id,
+                is_active=True
+            )
+
+backend\tests\test_employee_crud_expanded.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE8F1D0>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'bulk0@test.com', 'first_name': 'First 0', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+__________ TestAggregateOperations.test_distinct_departments_in_org ___________
+
+self = <test_employee_crud_expanded.TestAggregateOperations object at 0x0000017F5E827560>
+db = <sqlalchemy.orm.session.Session object at 0x0000017F5D4921B0>
+test_org = <backend.domains.core.models.DBOrganization object at 0x0000017F5FE8E0F0>
+test_dept = <backend.domains.core.models.DBDepartment object at 0x0000017F5FE9F050>
+test_designation = <backend.domains.hcm.models.DBDesignation object at 0x0000017F5E827170>
+
+    def test_distinct_departments_in_org(self, db, test_org, test_dept, test_designation):
+        """Test finding distinct departments in organization"""
+        # Create second department
+        dept2 = DBDepartment(
+            id="DEPT_DISTINCT",
+            code="DIST",
+            name="Distinct Dept",
+            organization_id=test_org.id
+        )
+        db.add(dept2)
+        db.commit()
+    
+        # Add employees to both departments
+>       emp1 = DBEmployee(
+            id="EMP_D1",
+            first_name="Dept1",
+            last_name="Employee",
+            email="d1@test.com",
+            department_id=test_dept.id,
+            designation_id=test_designation.id,
+            organization_id=test_org.id
+        )
+
+backend\tests\test_employee_crud_expanded.py:770: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:4: in __init__
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state.py:596: in _initialize_instance
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\state.py:594: in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.domains.hcm.models.DBEmployee object at 0x0000017F5FE9DE80>
+kwargs = {'department_id': 'DEPT_TEST', 'designation_id': 'DES_001', 'email': 'd1@test.com', 'first_name': 'Dept1', ...}
+cls_ = <class 'backend.domains.hcm.models.DBEmployee'>, k = 'first_name'
+
+    def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+        """A simple constructor that allows initialization from kwargs.
+    
+        Sets attributes on the constructed instance using the names and
+        values in ``kwargs``.
+    
+        Only keys that are present as
+        attributes of the instance's class are allowed. These could be,
+        for example, any mapped columns or relationships.
+        """
+        cls_ = type(self)
+        for k in kwargs:
+            if not hasattr(cls_, k):
+>               raise TypeError(
+                    "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+                )
+E               TypeError: 'first_name' is an invalid keyword argument for DBEmployee
+
+venv\Lib\site-packages\sqlalchemy\orm\decl_base.py:2179: TypeError
+============================== warnings summary ===============================
+backend\database\__init__.py:62
+  D:\Project\PEOPLE_OS\backend\database\__init__.py:62: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:271: 82 warnings
+  D:\Project\PEOPLE_OS\venv\Lib\site-packages\pydantic\_internal\_config.py:271: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+backend/tests/test_department_crud.py: 20 warnings
+backend/tests/test_job_levels_grades.py: 21 warnings
+backend/tests/test_employee_crud_expanded.py: 34 warnings
+  D:\Project\PEOPLE_OS\backend\tests\conftest.py:41: SAWarning: Can't sort tables for DROP; an unresolvable foreign key dependency exists between tables: core_departments, core_locations, core_organizations, core_sub_departments, core_users, hcm_designations, hcm_employees, hcm_grades, hcm_job_levels, hcm_shifts; and backend does not support ALTER.  To restore at least a partial sort, apply use_alter=True to ForeignKey and ForeignKeyConstraint objects involved in the cycle to mark these as known cycles that will be ignored.
+    Base.metadata.drop_all(bind=engine)
+
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_create_access_token
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_access_token_contains_user_data
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_token_has_expiration
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_token_type_validation
+backend/tests/test_security_phase2.py::TestTokenRefresh::test_refresh_access_token
+backend/tests/test_security_phase2.py::TestTokenRefresh::test_new_access_token_valid
+backend/tests/test_security_phase2.py::TestSecurityIntegration::test_authenticated_user_with_rbac
+backend/tests/test_security_phase2.py::TestSecurityIntegration::test_permission_denied_flow
+  D:\Project\PEOPLE_OS\backend\security\oauth2.py:68: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "exp": datetime.utcnow() + expires_delta,
+
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_create_refresh_token
+backend/tests/test_security_phase2.py::TestTokenRefresh::test_refresh_access_token
+backend/tests/test_security_phase2.py::TestTokenRefresh::test_refresh_access_token
+backend/tests/test_security_phase2.py::TestTokenRefresh::test_new_access_token_valid
+backend/tests/test_security_phase2.py::TestTokenRefresh::test_new_access_token_valid
+  D:\Project\PEOPLE_OS\backend\security\oauth2.py:98: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "exp": datetime.utcnow() + expires_delta,
+
+backend/tests/test_security_phase2.py::TestJWTTokenGeneration::test_token_has_expiration
+  D:\Project\PEOPLE_OS\backend\tests\test_security_phase2.py:93: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    assert token_data.exp > datetime.utcnow()
+
+backend/tests/test_security_phase2.py::TestAuditLogging::test_log_employee_create
+backend/tests/test_security_phase2.py::TestAuditLogging::test_log_employee_update
+backend/tests/test_security_phase2.py::TestAuditLogging::test_log_employee_delete
+backend/tests/test_security_phase2.py::TestAuditLogging::test_log_role_change
+backend/tests/test_security_phase2.py::TestAuditLogging::test_audit_entry_has_timestamp
+backend/tests/test_security_phase2.py::TestSecurityIntegration::test_audit_logs_encrypted_data
+backend/tests/test_security_phase2.py::TestSecurityIntegration::test_permission_denied_flow
+  D:\Project\PEOPLE_OS\backend\security\audit_logger.py:85: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp = datetime.utcnow()
+
+backend/tests/test_performance_phase2.py: 2023 warnings
+  D:\Project\PEOPLE_OS\backend\cache\redis_manager.py:224: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "expires": datetime.utcnow() + timedelta(seconds=ttl),
+
+backend/tests/test_performance_phase2.py: 1814 warnings
+  D:\Project\PEOPLE_OS\backend\cache\redis_manager.py:211: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    if entry["expires"] > datetime.utcnow():
+
+backend/tests/test_performance_phase2.py::TestInMemoryCache::test_exists_key
+backend/tests/test_performance_phase2.py::TestCacheManager::test_cache_manager_exists
+backend/tests/test_performance_phase2.py::TestCachedQueryDecorator::test_cached_query_custom_key_builder
+  D:\Project\PEOPLE_OS\backend\cache\redis_manager.py:242: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    if entry["expires"] > datetime.utcnow():
+
+backend/tests/test_performance_phase2.py: 153 warnings
+  D:\Project\PEOPLE_OS\backend\database\query_optimizer.py:47: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow(),
+
+backend/tests/test_monitoring_phase2.py::TestMetricsMiddleware::test_middleware_records_request
+backend/tests/test_monitoring_phase2.py::TestMetricsMiddleware::test_middleware_records_error
+  D:\Project\PEOPLE_OS\venv\Lib\site-packages\httpx\_client.py:680: DeprecationWarning: The 'app' shortcut is now deprecated. Use the explicit style 'transport=WSGITransport(app=...)' instead.
+    warnings.warn(message, DeprecationWarning)
+
+backend/tests/test_protection_phase2.py: 134 warnings
+  D:\Project\PEOPLE_OS\backend\protection\rate_limiter.py:65: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+backend/tests/test_protection_phase2.py: 16 warnings
+  D:\Project\PEOPLE_OS\backend\protection\rate_limiter.py:139: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+backend/tests/test_protection_phase2.py::TestRateLimiter::test_rate_limiter_unconfigured_endpoint
+  D:\Project\PEOPLE_OS\backend\protection\rate_limiter.py:213: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    reset_time=datetime.utcnow() + timedelta(hours=1),
+
+backend/tests/test_protection_phase2.py: 10 warnings
+  <string>:7: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_check_ip_safe
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_record_request
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_record_error
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_block_ip
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_permanent_blacklist
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_whitelist_ip
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_threat_summary
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_error_rate_escalation
+backend/tests/test_protection_phase2.py::TestDDoSIntegration::test_ddos_escalation_chain
+  D:\Project\PEOPLE_OS\backend\protection\ddos_protection.py:80: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self.last_cleanup = datetime.utcnow()
+
+backend/tests/test_protection_phase2.py: 205 warnings
+  D:\Project\PEOPLE_OS\backend\protection\ddos_protection.py:118: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    stats.last_request = datetime.utcnow()
+
+backend/tests/test_protection_phase2.py: 205 warnings
+  D:\Project\PEOPLE_OS\backend\protection\ddos_protection.py:213: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    if (datetime.utcnow() - self.last_cleanup).total_seconds() < self.config.cleanup_interval:
+
+backend/tests/test_protection_phase2.py: 10 warnings
+  D:\Project\PEOPLE_OS\backend\protection\ddos_protection.py:191: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    ban_until = datetime.utcnow() + timedelta(seconds=self.config.temporary_ban_duration)
+
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_block_ip
+  D:\Project\PEOPLE_OS\backend\protection\ddos_protection.py:92: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    if datetime.utcnow() < ban_time:
+
+backend/tests/test_protection_phase2.py::TestDDoSProtector::test_ddos_block_ip
+  D:\Project\PEOPLE_OS\backend\protection\ddos_protection.py:93: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    remaining = int((ban_time - datetime.utcnow()).total_seconds())
+
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_metrics_creation
+  D:\Project\PEOPLE_OS\backend\tests\test_security_scanning_phase2.py:387: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat()
+
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_metrics_as_dict
+  D:\Project\PEOPLE_OS\backend\tests\test_security_scanning_phase2.py:395: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp = datetime.utcnow().isoformat()
+
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_summary_generation
+  D:\Project\PEOPLE_OS\backend\tests\test_security_scanning_phase2.py:425: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat()
+
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_summary_generation
+  D:\Project\PEOPLE_OS\backend\tests\test_security_scanning_phase2.py:427: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    report.generated_at = datetime.utcnow().isoformat()
+
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_json_export_format
+  D:\Project\PEOPLE_OS\backend\tests\test_security_scanning_phase2.py:446: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    'generated_at': datetime.utcnow().isoformat(),
+
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_json_export_format
+  D:\Project\PEOPLE_OS\backend\tests\test_security_scanning_phase2.py:458: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    'timestamp': datetime.utcnow().isoformat()
+
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_markdown_export_format
+  D:\Project\PEOPLE_OS\backend\tests\test_security_scanning_phase2.py:475: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    'generated_at': datetime.utcnow().isoformat(),
+
+backend/tests/test_security_scanning_phase2.py::TestSecurityReport::test_html_export_format
+  D:\Project\PEOPLE_OS\backend\tests\test_security_scanning_phase2.py:510: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    'generated_at': datetime.utcnow().isoformat(),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend/tests/test_department_crud.py::TestDepartmentCreation::test_department_unique_per_organization
+FAILED backend/tests/test_department_crud.py::TestDepartmentRetrieval::test_retrieve_subdepartments
+FAILED backend/tests/test_job_levels_grades.py::TestJobDesignationRelationships::test_designation_requires_grade
+FAILED backend/tests/test_job_levels_grades.py::TestJobDesignationRelationships::test_designation_requires_department
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_employee_basic
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_employee_with_optional_fields
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_multiple_employees_same_org
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_employee_default_status
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_employee_unicode_name
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeCreation::test_create_employee_email_case_sensitivity
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employee_by_id
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employees_by_department
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employees_by_organization
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employees_paginated
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeRetrieval::test_retrieve_employee_with_relationships
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_employee_name
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_employee_email
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_employee_department
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_employee_multiple_fields
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeUpdate::test_update_preserves_other_fields
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeDelete::test_delete_employee
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeDelete::test_delete_employee_cascade_check
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_duplicate_employee_id_error
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_missing_required_organization_id
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_invalid_department_reference
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_invalid_designation_reference
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_invalid_email_format
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_future_date_of_birth
+FAILED backend/tests/test_employee_crud_expanded.py::TestEmployeeErrorHandling::test_joining_date_before_birth_date
+FAILED backend/tests/test_employee_crud_expanded.py::TestTransactionBehavior::test_rollback_on_error
+FAILED backend/tests/test_employee_crud_expanded.py::TestTransactionBehavior::test_partial_commit_isolation
+FAILED backend/tests/test_employee_crud_expanded.py::TestTransactionBehavior::test_nested_updates_in_transaction
+FAILED backend/tests/test_employee_crud_expanded.py::TestAggregateOperations::test_count_employees_by_department
+FAILED backend/tests/test_employee_crud_expanded.py::TestAggregateOperations::test_count_employees_by_organization
+FAILED backend/tests/test_employee_crud_expanded.py::TestAggregateOperations::test_bulk_status_update
+FAILED backend/tests/test_employee_crud_expanded.py::TestAggregateOperations::test_distinct_departments_in_org
+=============== 36 failed, 241 passed, 4774 warnings in 12.68s ================

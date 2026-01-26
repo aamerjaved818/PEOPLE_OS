@@ -11,19 +11,31 @@ import {
 } from 'recharts';
 import { PALETTE } from '@/theme/palette';
 
-const FORECAST_DATA = [
-  { month: 'Jan', actual: 4000, forecast: 4000 },
-  { month: 'Feb', actual: 3000, forecast: 3000 },
-  { month: 'Mar', actual: 2000, forecast: 2000 },
-  { month: 'Apr', actual: 2780, forecast: 2780 },
-  { month: 'May', actual: 1890, forecast: 1890 },
-  { month: 'Jun', actual: 2390, forecast: 2390 },
-  { month: 'Jul', actual: null, forecast: 3490 },
-  { month: 'Aug', actual: null, forecast: 4200 },
-  { month: 'Sep', actual: null, forecast: 4800 },
-];
+interface ForecastingMatrixProps {
+  data: any[];
+}
 
-const ForecastingMatrix: React.FC = () => {
+const ForecastingMatrix: React.FC<ForecastingMatrixProps> = ({ data }) => {
+  // Use provided data or fallback to internal mock for visual demonstration
+  const chartData =
+    data.length > 0
+      ? data.map((item) => ({
+          month: item.name,
+          actual: item.count * 10, // Scale for visualization
+          forecast: item.count * 12, // Scale for visualization
+        }))
+      : [
+          { month: 'Jan', actual: 4000, forecast: 4000 },
+          { month: 'Feb', actual: 3000, forecast: 3000 },
+          { month: 'Mar', actual: 2000, forecast: 2000 },
+          { month: 'Apr', actual: 2780, forecast: 2780 },
+          { month: 'May', actual: 1890, forecast: 1890 },
+          { month: 'Jun', actual: 2390, forecast: 2390 },
+          { month: 'Jul', actual: null, forecast: 3490 },
+          { month: 'Aug', actual: null, forecast: 4200 },
+          { month: 'Sep', actual: null, forecast: 4800 },
+        ];
+
   return (
     <div
       role="region"
@@ -53,7 +65,7 @@ const ForecastingMatrix: React.FC = () => {
 
       <div className="h-[21.875rem] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={FORECAST_DATA}>
+          <AreaChart data={chartData}>
             <defs>
               <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />

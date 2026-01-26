@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Edit2, X, Save, DollarSign, Calculator, Calendar } from 'lucide-react';
-import { useOrgStore } from '../../store/orgStore';
-import { api } from '../../services/api';
-import { Button } from '../../components/ui/Button';
-import { useToast } from '../../components/ui/Toast';
-import { Input } from '../../components/ui/Input';
+import { useOrgStore } from '@/store/orgStore';
+import { api } from '@/services/api';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
+import { Input } from '@/components/ui/Input';
 
 const PayrollRules: React.FC = () => {
   const { payrollSettings, updatePayrollSettings } = useOrgStore();

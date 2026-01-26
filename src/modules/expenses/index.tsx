@@ -15,35 +15,33 @@ import {
   FileSpreadsheet,
   Plus,
 } from 'lucide-react';
-import { Expense, ExpenseStatus, ExpenseCategory } from '../../types';
-import { api } from '../../services/api';
-import { formatCurrency } from '../../utils/formatting';
+import { Expense, ExpenseStatus, ExpenseCategory } from '@/types';
+import { api } from '@/services/api';
+import { formatCurrency } from '@/utils/formatting';
 // Mock data removed
-const TRAVEL_NODES: any[] = [];
-import { useSaveEntity } from '../../hooks/useSaveEntity';
-import { useModal } from '../../hooks/useModal';
-import { FormModal } from '../../components/ui/FormModal';
+import { useSaveEntity } from '@/hooks/useSaveEntity';
+import { useModal } from '@/hooks/useModal';
+import { FormModal } from '@/components/ui/FormModal';
 
 // UI Components
-import { Button } from '../../components/ui/Button';
-import { HorizontalTabs } from '../../components/ui/HorizontalTabs';
+import { Button } from '@/components/ui/Button';
+import { HorizontalTabs } from '@/components/ui/HorizontalTabs';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../components/ui/Select';
-import { Input } from '../../components/ui/Input';
-import { Label } from '../../components/ui/Label';
-import { DateInput } from '../../components/ui/DateInput';
+} from '@/components/ui/Select';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { DateInput } from '@/components/ui/DateInput';
 
 // Sub-components
 import ExpenseStats from './ExpenseStats';
-import ClaimsLedger from './ClaimsLedger';
-import TravelHub from './TravelHub';
+import ClaimLedger from './ClaimsLedger';
 
-type ExpenseTab = 'claims' | 'travel' | 'policy';
+type ExpenseTab = 'claims' | 'policy';
 
 const ExpensesTravel: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ExpenseTab>('claims');
@@ -51,7 +49,6 @@ const ExpensesTravel: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const claimModal = useModal();
-  const travelModal = useModal();
   const [selectedClaim, setSelectedClaim] = useState<Expense | null>(null);
 
   useEffect(() => {
@@ -95,31 +92,6 @@ const ExpensesTravel: React.FC = () => {
       date: new Date().toISOString().split('T')[0],
       status: 'Pending',
     }),
-  });
-
-  const initialTravelState = {
-    destination: '',
-    departureDate: '',
-    returnDate: '',
-    memo: '',
-  };
-
-  const {
-    formData: newTravel,
-    updateField: updateTravelField,
-    isSaving: isSavingTravel,
-    handleSave: handleSaveTravel,
-    setFormData: setTravelData,
-  } = useSaveEntity<void, typeof initialTravelState>({
-    onSave: async () => {
-      // Logic for travel request - currently just closing modal in mock
-    },
-    onAfterSave: () => {
-      travelModal.close();
-    },
-    successMessage: 'Travel authorization protocol initiated.',
-    initialState: initialTravelState,
-    validate: (data) => !!data.destination && !!data.departureDate,
   });
 
   const filteredExpenses = useMemo(() => {
@@ -167,12 +139,11 @@ const ExpensesTravel: React.FC = () => {
           <HorizontalTabs
             tabs={[
               { id: 'claims', label: 'Ledger', icon: Receipt },
-              { id: 'travel', label: 'Travel', icon: Plane },
               { id: 'policy', label: 'Matrix', icon: Landmark },
             ]}
             activeTabId={activeTab}
             onTabChange={(id) => setActiveTab(id as typeof activeTab)}
-            disabled={isLoading || isSavingClaim || isSavingTravel}
+            disabled={isLoading || isSavingClaim}
             wrap={true}
           />
           <button
@@ -191,20 +162,11 @@ const ExpensesTravel: React.FC = () => {
 
       <main>
         {activeTab === 'claims' && (
-          <ClaimsLedger
+          <ClaimLedger
             expenses={filteredExpenses}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             onSelectClaim={setSelectedClaim}
-          />
-        )}
-        {activeTab === 'travel' && (
-          <TravelHub
-            travelNodes={TRAVEL_NODES}
-            onPlanRoute={() => {
-              setTravelData(initialTravelState);
-              travelModal.open();
-            }}
           />
         )}
         {activeTab === 'policy' && (
@@ -341,67 +303,6 @@ const ExpensesTravel: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-          </div>
-        </div>
-      </FormModal>
-
-      <FormModal
-        title="Plan New Route"
-        isOpen={travelModal.isOpen}
-        onClose={travelModal.close}
-        onSave={handleSaveTravel}
-        isLoading={isSavingTravel}
-      >
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-[0.625rem] font-black text-muted-foreground uppercase tracking-widest ml-1">
-              Target Destination
-            </Label>
-            <Input
-              required
-              placeholder="e.g. London, UK"
-              value={newTravel.destination}
-              onChange={(e) => updateTravelField('destination', e.target.value)}
-              className="bg-secondary border-none h-12 rounded-xl"
-              aria-label="Destination"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-[0.625rem] font-black text-muted-foreground uppercase tracking-widest ml-1">
-                Departure Point
-              </Label>
-              <DateInput
-                value={newTravel.departureDate}
-                onChange={(e) => updateTravelField('departureDate', e.target.value)}
-                className="bg-secondary border-none h-12 rounded-xl"
-                aria-label="Departure Date"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[0.625rem] font-black text-muted-foreground uppercase tracking-widest ml-1">
-                Return Point
-              </Label>
-              <DateInput
-                value={newTravel.returnDate}
-                onChange={(e) => updateTravelField('returnDate', e.target.value)}
-                className="bg-secondary border-none h-12 rounded-xl"
-                aria-label="Return Date"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label className="text-[0.625rem] font-black text-muted-foreground uppercase tracking-widest ml-1">
-              Strategic Rationale
-            </Label>
-            <textarea
-              rows={3}
-              value={newTravel.memo}
-              onChange={(e) => updateTravelField('memo', e.target.value)}
-              className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm font-bold text-foreground outline-none resize-none shadow-inner focus:ring-2 focus:ring-primary/20"
-              placeholder="Provide context for mobility clearance..."
-              aria-label="Travel Memo"
-            />
           </div>
         </div>
       </FormModal>

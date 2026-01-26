@@ -178,20 +178,23 @@ class APIAnalyzer:
             )
 
         # Score calculation
-        # Deduct for breaking changes
-        # Reward versioning
-        score = calculate_score(
-            {
-                "braking_changes": max(
-                    0, 5 - (metrics["breaking_changes"] * 2)
-                ),  # -2 per breaking change
-                "versioning": (
-                    metrics["versioned_endpoints"] / max(1, metrics["total_endpoints"])
-                )
-                * 5,
-                "completeness": 5.0,  # Placeholder
-            }
-        )
+        if len(findings) == 0:
+             score = 5.0
+        else:
+            # Deduct for breaking changes
+            # Reward versioning
+            score = calculate_score(
+                {
+                    "braking_changes": max(
+                        0, 5 - (metrics["breaking_changes"] * 2)
+                    ),  # -2 per breaking change
+                    "versioning": (
+                        metrics["versioned_endpoints"] / max(1, metrics["total_endpoints"])
+                    )
+                    * 5,
+                    "completeness": 5.0,  # Placeholder
+                }
+            )
 
         return {
             "score": DimensionScore(

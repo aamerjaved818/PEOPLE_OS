@@ -137,7 +137,7 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     } else if (viewport.isDesktop) {
       setSidebarOpen(true);
     }
-  }, [viewport.breakpoint]); // Only run when breakpoint class changes
+  }, [viewport.isMobile, viewport.isDesktop, setSidebarOpen]);
 
   // Derived Metrics based on Density
   const activeMetrics = DENSITY_CONFIG[density || 'normal'];

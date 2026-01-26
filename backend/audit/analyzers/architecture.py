@@ -24,6 +24,8 @@ class ArchitectureAnalyzer:
         cycles = self._detect_circular_dependencies()
         # Check boundaries
         self._check_module_boundaries()
+        self._check_path_aliases()
+        self._check_module_internal_structure()
 
         # Calculate stats
         total_modules = len(self.dependency_graph)
@@ -48,17 +50,17 @@ class ArchitectureAnalyzer:
                     id=str(uuid.uuid4()),
                     dimension="Architecture",
                     severity="Major",
-                    title="Module Boundary Violation",
+                    title=violation.get("title", "Architecture Violation"),
                     description=violation["description"],
-                    recommendation="Import only from public module exports (index.ts) or shared kernel.",
+                    recommendation=violation.get("recommendation", "Follow project architecture standards."),
                 )
             )
 
         cycle_count = len(cycles)
-        boundary_violations = len(self.violations)
+        violation_count = len(self.violations)
 
-        # update score calculation to include boundary violations
-        score_val = self._calculate_score(cycle_count + boundary_violations)
+        # update score calculation to include all violations
+        score_val = self._calculate_score(cycle_count, violation_count)
 
         score = DimensionScore(
             dimension="Architecture",
@@ -66,7 +68,7 @@ class ArchitectureAnalyzer:
             findings_count=len(findings),
             details={
                 "cycle_count": cycle_count,
-                "boundary_violations": boundary_violations,
+                "architecture_violations": violation_count,
                 "modules_scanned": total_modules,
                 "dependency_edges": total_edges,
             },
@@ -74,14 +76,15 @@ class ArchitectureAnalyzer:
 
         return {"findings": findings, "score": score}
 
-    def _calculate_score(self, cycle_count: int) -> float:
-        if cycle_count == 0:
+    def _calculate_score(self, cycle_count: int, violation_count: int) -> float:
+        total = cycle_count + (violation_count / 2)  # Violations count less than cycles
+        if total == 0:
             return 5.0
-        elif cycle_count < 3:
+        elif total < 3:
             return 4.0
-        elif cycle_count < 6:
+        elif total < 6:
             return 3.0
-        elif cycle_count < 10:
+        elif total < 10:
             return 2.0
         else:
             return 1.0
@@ -94,8 +97,13 @@ class ArchitectureAnalyzer:
             if (
                 "node_modules" in root
                 or "venv" in root
+                or ".venv" in root
+                or ".env-project" in root
                 or ".git" in root
                 or "__pycache__" in root
+                or "dist" in root
+                or "build" in root
+                or "scripts" in root
             ):
                 continue
 
@@ -133,22 +141,19 @@ class ArchitectureAnalyzer:
             if rel_path not in self.dependency_graph:
                 self.dependency_graph[rel_path] = set()
 
-            import_pattern = re.compile(r'import\s+.*?from\s+[\'"](.*?)[\'"]')
+            # Catch both import x from '...' and import '...'
+            import_pattern = re.compile(r'import\s+.*?from\s+[\'"](.*?)[\'"]|import\s+[\'"](.*?)[\'"]')
 
             with open(file_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
+                content = f.read()
 
-            for line in lines:
-                match = import_pattern.search(line)
-                if match:
-                    import_target = match.group(1)
-                    # Normalize simple relative imports for the graph
-                    # This is a basic approximation
-                    if import_target.startswith("."):
-                        # Resolve relative path to absolute-ish conceptual path if possible
-                        # For now, just store the raw target to detect direct cycles in same dir
-                        pass
-                    self.dependency_graph[rel_path].add(import_target)
+            for match in import_pattern.finditer(content):
+                import_target = match.group(1) or match.group(2)
+                if import_target:
+                    # Ignore external libraries (node_modules) and standard libs
+                    # Only track relative paths or alias paths
+                    if import_target.startswith(".") or import_target.startswith("/") or import_target.startswith("@"):
+                        self.dependency_graph[rel_path].add(import_target)
         except Exception:
             pass
 
@@ -161,6 +166,26 @@ class ArchitectureAnalyzer:
         recursion_stack = set()
         cycles = []
 
+        # Optimization: Pre-map suffixes to keys to avoid O(N^2) in DFS
+        key_map = {}
+        for key in self.dependency_graph.keys():
+            # For Python: 'backend/main.py' -> 'backend/main'
+            if key.endswith(".py"):
+                name = key[:-3]
+                key_map[name] = key
+            # For TS: 'src/modules/auth/index.tsx' -> 'src/modules/auth/index'
+            elif key.endswith(".tsx"):
+                name = key[:-4]
+                key_map[name] = key
+            elif key.endswith(".ts"):
+                name = key[:-3]
+                key_map[name] = key
+            
+            # Use basename too
+            basename = key.split("/")[-1].split(".")[0]
+            if basename not in key_map:
+                key_map[basename] = key
+
         def dfs(node, path):
             visited.add(node)
             recursion_stack.add(node)
@@ -168,24 +193,11 @@ class ArchitectureAnalyzer:
 
             if node in self.dependency_graph:
                 for neighbor in self.dependency_graph[node]:
-                    # Heuristic mapping: try to match imports to file paths
-                    # This is tricky without a full resolver.
-                    # For a V1, we might only check exact string matches if we fully resolved them.
-                    # Or simpler: Just check if we've seen this 'neighbor' as a file key?
-                    # Python imports 'backend.x' map to 'backend/x.py'.
-                    # Let's try a simple heuristic resolution for Python.
-                    resolved_neighbor = neighbor.replace(".", "/") + ".py"
-
-                    if resolved_neighbor not in self.dependency_graph:
-                        # Try with .ts
-                        resolved_neighbor = neighbor
-
-                    # If we can't resolve it to a node in our graph, skip it (external lib)
-                    target_node = None
-                    for key in self.dependency_graph:
-                        if key.endswith(resolved_neighbor):
-                            target_node = key
-                            break
+                    # Quick resolution via key_map
+                    target_node = key_map.get(neighbor)
+                    if not target_node:
+                        # Try with .py replacement
+                        target_node = key_map.get(neighbor.replace(".", "/"))
 
                     if target_node:
                         if target_node not in visited:
@@ -198,8 +210,6 @@ class ArchitectureAnalyzer:
             recursion_stack.remove(node)
             path.pop()
 
-        # Limit DFS to avoid infinite recursion on massive graphs or weird edges
-        # Just run on a subset or with limit if needed. For now standard DFS.
         for node in list(self.dependency_graph.keys()):
             if node not in visited:
                 dfs(node, [])
@@ -208,47 +218,107 @@ class ArchitectureAnalyzer:
 
     def _check_module_boundaries(self):
         """
-        Enforce clean architecture:
-        - Modules should not import from other modules' internals (e.g. modules/A importing modules/B/components/Internal.tsx)
-        - Modules should only import from 'shared', 'services', or other modules' top-level index.
+        Enforce clean architecture module boundaries.
         """
         for source, deps in self.dependency_graph.items():
-            if "modules/" not in source:
+            if "src/modules/" not in source:
                 continue
 
-            # extract module name, e.g. "modules/audit/..." -> "audit"
             try:
-                source_module = source.split("modules/")[1].split("/")[0]
+                source_module = source.split("src/modules/")[1].split("/")[0]
             except IndexError:
                 continue
 
             for target in deps:
-                if "modules/" not in target:
+                if "src/modules/" not in target and "modules/" not in target:
                     continue
 
                 try:
-                    target_module = target.split("modules/")[1].split("/")[0]
+                    if "src/modules/" in target:
+                        target_module = target.split("src/modules/")[1].split("/")[0]
+                    else:
+                        target_module = target.split("modules/")[1].split("/")[0]
                 except IndexError:
                     continue
 
-                # Allow self-imports
                 if source_module == target_module:
                     continue
 
                 # Violation: Importing deep into another module
-                # Allowed: import { X } from 'modules/other' (if aliases used) or '../other'
-                # Disallowed: 'modules/other/components/Deep.tsx'
-
-                # Normalized path check
-                if (
-                    "/components/" in target
-                    or "/utils/" in target
-                    or "/hooks/" in target
-                ):
+                if "/components/" in target or "/utils/" in target or "/hooks/" in target:
                     self.violations.append(
                         {
                             "source": source,
                             "target": target,
-                            "description": f"Module '{source_module}' imports private internal '{target}' from '{target_module}'. Use public exports.",
+                            "title": "Module Boundary Violation",
+                            "description": f"Module '{source_module}' imports private internal '{target}' from '{target_module}'.",
+                            "recommendation": f"Import from '@/modules/{target_module}' instead of deep internal paths."
                         }
                     )
+
+    def _check_path_aliases(self):
+        """
+        Ensure imports use @/ aliases for non-relative local imports.
+        """
+        for source, deps in self.dependency_graph.items():
+            if not source.startswith("src/"):
+                continue
+
+            for target in deps:
+                # If it starts with ../../ but it's going back to src root, it should be @/
+                if target.startswith("..") and target.count("../") >= 2:
+                    self.violations.append({
+                        "source": source,
+                        "target": target,
+                        "title": "Path Alias Violation",
+                        "description": f"Deep relative import '{target}' found in '{source}'.",
+                        "recommendation": "Use '@/' path aliases for cleaner imports."
+                    })
+                
+                # Check for absolute-like paths that are missing @/
+                if not target.startswith(".") and not target.startswith("@/") and "/" in target:
+                    # Potential internal path without alias
+                    if target.startswith("components/") or target.startswith("modules/") or target.startswith("services/"):
+                        self.violations.append({
+                            "source": source,
+                            "target": target,
+                            "title": "Path Alias Violation",
+                            "description": f"Absolute-style import '{target}' without '@/' alias in '{source}'.",
+                            "recommendation": f"Add '@/' prefix: '@/ {target}'"
+                        })
+
+    def _check_module_internal_structure(self):
+        """
+        Enforce standard module structure.
+        """
+        modules_root = self.project_root / "src" / "modules"
+        if not modules_root.exists():
+            return
+
+        allowed_dirs = {"components", "hooks", "utils", "types", "submodules", "services", "config"}
+        
+        for module_dir in modules_root.iterdir():
+            if not module_dir.is_dir():
+                continue
+            
+            # Check for index.tsx
+            if not (module_dir / "index.tsx").exists():
+                 self.violations.append({
+                    "source": str(module_dir),
+                    "target": "index.tsx",
+                    "title": "Missing Module Entry Point",
+                    "description": f"Module '{module_dir.name}' is missing 'index.tsx'.",
+                    "recommendation": "Add 'index.tsx' as the public entry point for the module."
+                })
+
+            # Check subdirectories
+            for sub_item in module_dir.iterdir():
+                if sub_item.is_dir():
+                    if sub_item.name not in allowed_dirs:
+                        self.violations.append({
+                            "source": str(sub_item),
+                            "target": sub_item.name,
+                            "title": "Non-Standard Module Structure",
+                            "description": f"Directory '{sub_item.name}' in module '{module_dir.name}' is not standard.",
+                            "recommendation": f"Use standard directory names: {', '.join(allowed_dirs)}."
+                        })

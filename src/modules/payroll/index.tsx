@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from 'react';
 
 import { INITIAL_LEDGER } from './constants';
-import { PayrollRecord } from '../../types';
+import { PayrollRecord } from '@/types';
 
 // Sub-components
 import PayrollHeader from './PayrollHeader';
 
-import { useModal } from '../../hooks/useModal';
-import { FormModal } from '../../components/ui/FormModal';
-import { Modal } from '../../components/ui/Modal';
-import { useToast } from '../../components/ui/Toast';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
+import { useModal } from '@/hooks/useModal';
+import { FormModal } from '@/components/ui/FormModal';
+import { Modal } from '@/components/ui/Modal';
+import { useToast } from '@/components/ui/Toast';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { Download, Printer, Send, Zap } from 'lucide-react';
-import { HorizontalTabs } from '../../components/ui/HorizontalTabs';
+import { HorizontalTabs } from '@/components/ui/HorizontalTabs';
 
 import PayrollRules from './PayrollRules';
 
+// Lazy load new payroll management components
+const PayrollRunsManager = React.lazy(() => import('./PayrollRunsManager'));
+const SalaryComponentsManager = React.lazy(() => import('./SalaryComponentsManager'));
+const TaxDeductionsPortal = React.lazy(() => import('./TaxDeductionsPortal'));
+const PayslipViewer = React.lazy(() => import('./PayslipViewer'));
+
 const PayrollEngine: React.FC = () => {
+  const { theme } = useTheme();
+  void theme;
   const [activeTab, setActiveTab] = useState('ledger');
   const [ledger, setLedger] = useState<PayrollRecord[]>(INITIAL_LEDGER);
   void ledger; // Used by setLedger in useEffect
@@ -85,7 +93,10 @@ const PayrollEngine: React.FC = () => {
   // filteredLedger removed - search feature to be implemented
 
   return (
-    <div className="min-h-screen bg-background text-text-primary font-sans">
+    <div
+      className="min-h-screen bg-app text-text-primary font-sans"
+      aria-label="Payroll Management System"
+    >
       <div className="container mx-auto px-6 py-6">
         <PayrollHeader
           onOpenBonusModal={bonusModal.open}
@@ -97,6 +108,10 @@ const PayrollEngine: React.FC = () => {
           <HorizontalTabs
             tabs={[
               { id: 'ledger', label: 'Ledger' },
+              { id: 'runs', label: 'Payroll Runs' },
+              { id: 'components', label: 'Components' },
+              { id: 'tax', label: 'Tax Deductions' },
+              { id: 'payslips', label: 'Payslips' },
               { id: 'rules', label: 'Rules' },
             ]}
             activeTabId={activeTab}
@@ -110,6 +125,26 @@ const PayrollEngine: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* ... existing ledger layout ... */}
           </div>
+        )}
+        {activeTab === 'runs' && (
+          <React.Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+            <PayrollRunsManager />
+          </React.Suspense>
+        )}
+        {activeTab === 'components' && (
+          <React.Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+            <SalaryComponentsManager />
+          </React.Suspense>
+        )}
+        {activeTab === 'tax' && (
+          <React.Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+            <TaxDeductionsPortal employeeId="current" taxYear="2025-2026" />
+          </React.Suspense>
+        )}
+        {activeTab === 'payslips' && (
+          <React.Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+            <PayslipViewer employeeId="current" />
+          </React.Suspense>
         )}
         {activeTab === 'rules' && <PayrollRules />}
       </main>

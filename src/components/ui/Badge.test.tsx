@@ -5,8 +5,8 @@ import React from 'react';
 
 // Mock lucide-react
 vi.mock('lucide-react', () => {
-  const icons = [];
-  const mock: any = {};
+  const _icons = [];
+  const _mock: any = {};
   const proxy = new Proxy(
     {},
     {

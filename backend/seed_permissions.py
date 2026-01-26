@@ -22,7 +22,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def seed_permissions():
-    from backend import models, crud  # Local import to prevent eager loading
+    from backend.domains.core import models
+    from backend import crud  # Local import to prevent eager loading
     db = SessionLocal()
     try:
         logger.info("Checking Role Permissions...")
@@ -72,51 +73,24 @@ def seed_permissions():
             amer.is_system_user = True
             logger.info("Updated .amer as Root and System User.")
         else:
-            from backend.dependencies import get_password_hash
-            new_amer = models.DBUser(
-                id="root-system-user-amer-001", # Fixed ID for Root
-                username=".amer",
-                email="amer@hunzal.com", # Placeholder
-                password_hash=get_password_hash("amer"), # Assumption: pass is 'amer' or similar. 
-                # Wait, user keyed in **** (4 chars). 'amer' is 4 chars. 
-                # If they use a different pass, I might reset it. 
-                # I'll set it to 'amer' as a default known state or '1234'.
-                # Let's assume 'amer' based on username/length.
-                name="Root Administrator",
-                role="Root",
-                is_active=True,
-                is_system_user=True
-            )
-            db.add(new_amer)
-            logger.info("Created Default '.amer' User (Pass: amer).")
+            # Do NOT create a new Root user automatically. If '.amer' is missing,
+            # someone must provision the Root account manually to avoid accidental
+            # privilege escalation. Log a warning for operators.
+            logger.warning("'.amer' user not found. Skipping automatic creation of Root user.")
         
-        # 2. Ensure admin (Super Admin)
+        # 2. RBAC ENFORCEMENT: Only Root has system-wide access across all organizations.
+        # Super Admin users are org-scoped and should NOT be created as system users.
+        # Delete conflicting 'admin' Super Admin user if it exists.
         admin = db.query(models.DBUser).filter(models.DBUser.username == "admin").first()
         if admin:
-            admin.role = "Super Admin"
-            admin.is_system_user = True
-            logger.info("Updated admin as Super Admin and System User.")
-        else:
-            from backend.dependencies import get_password_hash
-            import uuid
-            new_admin = models.DBUser(
-                id=str(uuid.uuid4()),
-                username="admin",
-                email="admin@hunzal.com",
-                password_hash=get_password_hash("admin123"),
-                name="System Administrator",
-                role="Super Admin",
-                is_active=True,
-                is_system_user=True
-            )
-            db.add(new_admin)
-            logger.info("Created Default 'admin' User (Pass: admin123).")
+            db.delete(admin)
+            logger.info("Removed conflicting 'admin' Super Admin user (only Root should be system-wide).")
         
         db.commit()
 
         # 3. Unmark 'is_system_user' for everyone else
         logger.info("Unprotecting all other users...")
-        sql = text("UPDATE users SET is_system_user = 0 WHERE username NOT IN ('.amer', 'admin')")
+        sql = text("UPDATE users SET is_system_user = 0 WHERE username NOT IN ('.amer')")
         result = db.execute(sql)
         db.commit()
         logger.info(f"Unprotected users count (approximation): {result.rowcount}")

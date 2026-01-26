@@ -10,6 +10,7 @@ import {
   LeaveRequest,
   LeaveBalance,
   AttendanceRecord,
+  OTRequest,
   Asset,
   JobVacancy,
   Course,
@@ -17,6 +18,10 @@ import {
   BenefitTier,
   GrowthTrend,
   Milestone,
+  Reward,
+  Recognition,
+  RewardPoint,
+  RewardPointTransaction,
   AuditLog,
   BusinessRule,
   Shift,
@@ -31,6 +36,14 @@ import {
   SystemFlags,
   AISettings,
   Plant,
+  Facility,
+  FacilityBooking,
+  Vehicle,
+  AdminCompliance,
+  PromotionCycle,
+  PromotionRequest,
+  PromotionApproval,
+  TravelRequest,
 } from '../types';
 // Mock data imports removed to enforce strict backend dependency
 import { RateLimiter } from '../utils/security';
@@ -61,6 +74,7 @@ const DEFAULT_PAYROLL_SETTINGS: PayrollSettings = {
 // Mock data imports removed for production integration
 
 import Logger from '../utils/logger';
+import { convertKeysToCamel } from '../utils/case';
 
 // const DATA_VERSION = '1.7'; // Synced with App.tsx to prevent reload loop
 
@@ -87,7 +101,6 @@ class ApiService {
 
   private employees: EmployeeType[] = [];
   private expenses: Expense[] = [];
-  private visitors: VisitorNode[] = [];
   private candidates: Candidate[] = [];
   private goals: Goal[] = [];
   private hires: NewHireNode[] = [];
@@ -95,7 +108,6 @@ class ApiService {
   private leaves: LeaveRequest[] = [];
   private leaveBalances: LeaveBalance[] = [];
   private attendance: AttendanceRecord[] = [];
-  private assets: Asset[] = [];
   private jobs: JobVacancy[] = [];
   private courses: Course[] = [];
   private benefitEnrollments: BenefitEnrollment[] = [];
@@ -106,13 +118,15 @@ class ApiService {
   private rules: BusinessRule[] = [];
   private grades: Grade[] = [];
   private designations: Designation[] = [];
+  private visitors: VisitorNode[] = [];
+  private assets: Asset[] = [];
   private rateLimiter: RateLimiter;
   private apiUrl: string;
   private authToken: string | null = null;
 
   constructor() {
-    this.rateLimiter = new RateLimiter(100, 60000); // 100 requests per minute
-    this.apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+    this.rateLimiter = new RateLimiter(1000, 60000); // 1000 requests per minute
+    this.apiUrl = API_CONFIG.BASE_URL;
     this.authToken = secureStorage.getItem('token');
 
     // One-time cache clear to ensure migration to DB-only source.
@@ -162,7 +176,7 @@ class ApiService {
    * Throws an error if rate limit is exceeded
    */
   private enforceRateLimit(): void {
-    if (!this.rateLimiter.canMakeRequest()) {
+    if (!this.rateLimiter.peekRequest()) {
       const remainingTime = this.rateLimiter.getRemainingTime();
       throw new Error(
         `Rate limit exceeded. Please wait ${Math.ceil(remainingTime / 1000)} seconds before making another request.`
@@ -172,11 +186,18 @@ class ApiService {
 
   public getHeaders(): Record<string, string> {
     const orgId = localStorage.getItem('selected_org_id');
-    return {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
-      ...(orgId ? { 'x-organization-id': orgId } : {}),
     };
+
+    // Only attach x-organization-id if it's a valid string and not "null"/"undefined"
+    // This prevents accidental filtering when Root/Admin should see everything
+    if (orgId && orgId !== 'null' && orgId !== 'undefined') {
+      headers['x-organization-id'] = orgId;
+    }
+
+    return headers;
   }
 
   // Helper for testing to reset state
@@ -200,9 +221,8 @@ class ApiService {
     this.growthTrends = [];
     this.milestones = [];
     this.logs = [];
-    this.milestones = [];
-    this.logs = [];
     this.rules = [];
+    this.rateLimiter = new RateLimiter(1000, 60000);
     sessionStorage.clear();
     secureStorage.clear();
   }
@@ -264,27 +284,117 @@ class ApiService {
     }
   }
 
-  public async post(endpoint: string, data?: any): Promise<any> {
+  public async post<T = any>(endpoint: string, data?: any, options: any = {}): Promise<T> {
     const url = `${this.apiUrl}${endpoint}`;
-    const response = await this.request(url, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    const opts = { method: 'POST', ...options } as RequestInit;
+    let finalUrl = url;
+    if (options && options.params) {
+      const qs = new URLSearchParams(options.params as any).toString();
+      finalUrl = qs ? `${url}?${qs}` : url;
+      delete (opts as any).params;
+    }
+    const body = data instanceof FormData ? (data as any) : JSON.stringify(data);
+    const response = await this.request(finalUrl, { ...opts, body });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw { response: { data: errorData, status: response.status } };
     }
-    return response.json();
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return (await response.text()) as unknown as T;
+    }
+    const json = await response.json().catch(() => ({}));
+    return convertKeysToCamel(json) as T;
   }
 
-  public async get(endpoint: string): Promise<any> {
+  public async get<T = any>(endpoint: string, options: any = {}): Promise<T> {
     const url = `${this.apiUrl}${endpoint}`;
-    const response = await this.request(url, { method: 'GET' });
+    const opts = { method: 'GET', ...options } as RequestInit;
+    let finalUrl = url;
+    if (options && options.params) {
+      const qs = new URLSearchParams(options.params as any).toString();
+      finalUrl = qs ? `${url}?${qs}` : url;
+      delete (opts as any).params;
+    }
+    const response = await this.request(finalUrl, opts);
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw { response: { data: errorData, status: response.status } };
     }
-    return response.json();
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return (await response.text()) as unknown as T;
+    }
+    const json = await response.json().catch(() => ({}));
+    return convertKeysToCamel(json) as T;
+  }
+
+  public async put<T = any>(endpoint: string, data?: any, options: any = {}): Promise<T> {
+    const url = `${this.apiUrl}${endpoint}`;
+    const opts = { method: 'PUT', ...options } as RequestInit;
+    let finalUrl = url;
+    if (options && options.params) {
+      const qs = new URLSearchParams(options.params as any).toString();
+      finalUrl = qs ? `${url}?${qs}` : url;
+      delete (opts as any).params;
+    }
+    const body = data instanceof FormData ? (data as any) : JSON.stringify(data);
+    const response = await this.request(finalUrl, { ...opts, body });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw { response: { data: errorData, status: response.status } };
+    }
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return (await response.text()) as unknown as T;
+    }
+    const json = await response.json().catch(() => ({}));
+    return convertKeysToCamel(json) as T;
+  }
+
+  public async patch<T = any>(endpoint: string, data?: any, options: any = {}): Promise<T> {
+    const url = `${this.apiUrl}${endpoint}`;
+    const opts = { method: 'PATCH', ...options } as RequestInit;
+    let finalUrl = url;
+    if (options && options.params) {
+      const qs = new URLSearchParams(options.params as any).toString();
+      finalUrl = qs ? `${url}?${qs}` : url;
+      delete (opts as any).params;
+    }
+    const body = data instanceof FormData ? (data as any) : JSON.stringify(data);
+    const response = await this.request(finalUrl, { ...opts, body });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw { response: { data: errorData, status: response.status } };
+    }
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return (await response.text()) as unknown as T;
+    }
+    const json = await response.json().catch(() => ({}));
+    return convertKeysToCamel(json) as T;
+  }
+
+  public async delete<T = any>(endpoint: string, options: any = {}): Promise<T> {
+    const url = `${this.apiUrl}${endpoint}`;
+    const opts = { method: 'DELETE', ...options } as RequestInit;
+    let finalUrl = url;
+    if (options && options.params) {
+      const qs = new URLSearchParams(options.params as any).toString();
+      finalUrl = qs ? `${url}?${qs}` : url;
+      delete (opts as any).params;
+    }
+    const response = await this.request(finalUrl, opts);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw { response: { data: errorData, status: response.status } };
+    }
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return (await response.text()) as unknown as T;
+    }
+    const json = await response.json().catch(() => ({}));
+    return convertKeysToCamel(json) as T;
   }
 
   async checkHealth(): Promise<{ status: string; database: string; timestamp: string }> {
@@ -305,25 +415,32 @@ class ApiService {
       });
 
       if (!response.ok) {
-        throw new Error('Backend login failed');
+        if (response.status === 401) {
+          Logger.warn(`Authentication failed for user: ${username}`);
+          return false;
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Backend login failed');
       }
 
       const data = await response.json();
       if (data.access_token) {
         this.authToken = data.access_token;
         const storageType = rememberMe ? 'local' : 'session';
-        secureStorage.setItem('token', data.access_token, storageType);
-
-        // Store the full user object returned from backend
-        if (data.user) {
-          secureStorage.setItem('current_user', JSON.stringify(data.user), storageType);
+        try {
+          secureStorage.setItem('token', data.access_token, storageType);
+          if (data.user) {
+            secureStorage.setItem('current_user', JSON.stringify(data.user), storageType);
+          }
+        } catch (storageErr) {
+          Logger.warn('Failed to persist token to storage', String(storageErr));
         }
         return true;
       }
       return false;
-    } catch (e) {
-      Logger.error('Login failed or backend unavailable (Strict Mode)', String(e));
-      throw e;
+    } catch (e: any) {
+      Logger.error(`Network Error hitting ${this.apiUrl}/auth/login`, String(e));
+      throw e; // Rethrow so the UI can catch the network error specifically
     }
   }
 
@@ -378,11 +495,7 @@ class ApiService {
   // --- Employees ---
   async getEmployees(): Promise<EmployeeType[]> {
     try {
-      const response = await this.request(`${this.apiUrl}/employees`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
+      const data = await this.get('/employees');
       this.employees = data;
       return data;
     } catch (error) {
@@ -412,28 +525,35 @@ class ApiService {
 
   // --- Organization & Master Data ---
   async getOrganizations(): Promise<OrganizationProfile[]> {
-    const response = await this.request(`${this.apiUrl}/organizations`);
-    if (!response.ok) {
-      return [];
+    /**
+     * Get organizations based on user role.
+     * - Root: Returns ALL organizations (system-wide full access)
+     * - Super Admin / Other roles: Returns only their assigned organization (org-scoped)
+     *
+     * CRITICAL: Only Root has system-wide access. All others are org-scoped.
+     */
+    try {
+      return await this.get('/organizations');
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      Logger.error(`Failed to fetch organizations: ${msg}`);
+      // Re-throw to allow calling code to handle (don't silently fail - this makes orgs disappear!)
+      throw error;
     }
-    return await response.json();
   }
 
   async getOrganizationById(id: string): Promise<OrganizationProfile> {
-    const response = await this.request(`${this.apiUrl}/organizations/${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch organization');
-    }
-    return await response.json();
+    return await this.get(`/organizations/${id}`);
   }
 
-  async createOrganization(org: Partial<OrganizationProfile>): Promise<OrganizationProfile> {
+  async createOrganization(org: any): Promise<OrganizationProfile> {
     const response = await this.request(`${this.apiUrl}/organizations`, {
       method: 'POST',
       body: JSON.stringify(org),
     });
     if (!response.ok) {
-      throw new Error('Failed to create organization');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to create organization');
     }
     return await response.json();
   }
@@ -463,11 +583,12 @@ class ApiService {
 
   // --- Holidays ---
   async getHolidays(): Promise<Holiday[]> {
-    const response = await this.request(`${this.apiUrl}/holidays`);
-    if (!response.ok) {
+    try {
+      return await this.get('/holidays');
+    } catch (error) {
+      Logger.warn('Failed to fetch holidays from backend, returning empty array');
       return [];
     }
-    return await response.json();
   }
 
   async saveHoliday(holiday: Holiday): Promise<Holiday> {
@@ -504,11 +625,12 @@ class ApiService {
 
   // --- Banks ---
   async getBanks(): Promise<Bank[]> {
-    const response = await this.request(`${this.apiUrl}/banks`);
-    if (!response.ok) {
+    try {
+      return await this.get('/banks');
+    } catch (error) {
+      Logger.warn('Failed to fetch banks from backend, returning empty array');
       return [];
     }
-    return await response.json();
   }
 
   async saveBank(bank: Bank): Promise<Bank> {
@@ -542,11 +664,7 @@ class ApiService {
   }
 
   async getSystemFlags(): Promise<SystemFlags> {
-    const response = await this.request(`${this.apiUrl}/system/flags`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch system flags');
-    }
-    return await response.json();
+    return await this.get('/system/flags');
   }
 
   async updateSystemFlags(flags: Partial<SystemFlags>): Promise<SystemFlags> {
@@ -568,11 +686,12 @@ class ApiService {
   }
 
   async getRolePermissions(): Promise<Record<string, string[]>> {
-    const response = await this.request(`${this.apiUrl}/rbac/permissions`);
-    if (!response.ok) {
+    try {
+      return await this.get('/rbac/permissions');
+    } catch (error) {
+      Logger.warn('Failed to fetch role permissions from backend, returning empty record');
       return {};
     }
-    return await response.json();
   }
 
   async updateRolePermissions(role: string, permissions: string[]): Promise<string[]> {
@@ -587,11 +706,12 @@ class ApiService {
   }
 
   async getShifts(): Promise<Shift[]> {
-    const response = await this.request(`${this.apiUrl}/shifts`);
-    if (!response.ok) {
+    try {
+      return await this.get('/shifts');
+    } catch (error) {
+      Logger.warn('Failed to fetch shifts from backend, returning empty array');
       return [];
     }
-    return await response.json();
   }
 
   async saveShift(shift: Shift): Promise<Shift> {
@@ -688,7 +808,16 @@ class ApiService {
       });
 
       if (!response.ok) {
-        throw new Error(`Backend error: ${response.statusText}`);
+        let errorMessage = `Backend error: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.detail) {
+            errorMessage = errorData.detail;
+          }
+        } catch (err) {
+          // ignore JSON parsing errors from non-JSON responses
+        }
+        throw new Error(errorMessage);
       }
 
       // Update local state
@@ -702,123 +831,28 @@ class ApiService {
   // --- Expenses ---
   // --- Expenses ---
   async getExpenses(): Promise<Expense[]> {
-    try {
-      const response = await this.request(`${this.apiUrl}/expenses`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      this.expenses = data;
-      return data;
-    } catch (error) {
-      Logger.warn('Backend unavailable, returning empty array for expenses', error);
-      this.expenses = [];
-      return [];
-    }
+    return this.get('/expenses');
   }
 
-  async saveExpense(expense: Expense): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.expenses.findIndex((e) => e.id === expense.id);
-      if (index !== -1) {
-        this.expenses[index] = expense;
-      } else {
-        this.expenses.push(expense);
-      }
-      secureStorage.setItem('expenses', JSON.stringify(this.expenses));
-      setTimeout(resolve, 500);
-    });
+  async saveExpense(expense: Partial<Expense>): Promise<Expense> {
+    return this.post('/expenses', expense);
   }
 
   async deleteExpense(id: string): Promise<void> {
-    const response = await this.request(`${this.apiUrl}/expenses/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete expense');
-    }
-    this.expenses = this.expenses.filter((e) => e.id !== id);
+    await this.delete(`/expenses/${id}`);
   }
 
-  async updateExpenseStatus(id: string, status: Expense['status']): Promise<void> {
-    const response = await this.request(`${this.apiUrl}/expenses/${id}/status`, {
-      method: 'PUT',
-      body: JSON.stringify({ status }),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update expense status');
-    }
-
-    const expense = this.expenses.find((e) => e.id === id);
-    if (expense) {
-      expense.status = status;
-    }
-  }
-
-  // --- Visitors ---
-  async getVisitors(): Promise<VisitorNode[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(this.visitors), 500);
-    });
-  }
-
-  async saveVisitor(visitor: VisitorNode): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.visitors.findIndex((v) => v.id === visitor.id);
-      if (index !== -1) {
-        this.visitors[index] = visitor;
-      } else {
-        this.visitors.unshift(visitor); // Add to top
-      }
-      setTimeout(resolve, 500);
-    });
-  }
-
-  async updateVisitorStatus(
-    id: string,
-    status: VisitorNode['status'],
-    checkOutTime?: string
-  ): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.visitors.findIndex((v) => v.id === id);
-      if (index !== -1) {
-        this.visitors[index].status = status;
-        if (checkOutTime) {
-          this.visitors[index].checkOut = checkOutTime;
-        }
-      }
-      setTimeout(resolve, 500);
-    });
-  }
-
-  async deleteVisitor(id: string): Promise<void> {
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      // If backend call was successful, update local state
-      this.visitors = this.visitors.filter((v) => v.id !== id);
-    } catch (error) {
-      Logger.warn('Backend unavailable, deleting visitor failed', error);
-      const filtered = this.visitors.filter((v) => v.id !== id);
-      this.visitors = filtered;
-    }
+  async updateExpenseStatus(id: string, status: Expense['status']): Promise<Expense> {
+    return this.post('/expenses', { id, status }); // Save handles updates
   }
 
   // --- Candidates ---
   async getCandidates(): Promise<Candidate[]> {
     try {
-      const response = await this.request(`${this.apiUrl}/candidates`);
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      return data;
+      return await this.get('/candidates');
     } catch (error) {
       Logger.warn('Backend unavailable, returning local/empty data', error);
-      return new Promise((resolve) => {
-        setTimeout(() => resolve(this.candidates), 500);
-      });
+      return [];
     }
   }
 
@@ -890,146 +924,32 @@ class ApiService {
   }
 
   // --- Goals ---
-  async getGoals(): Promise<Goal[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(this.goals), 500);
-    });
+  async getGoals(employeeId?: string): Promise<Goal[]> {
+    return this.get('/performance/goals', { params: { employee_id: employeeId } });
   }
 
-  async saveGoal(goal: Goal): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.goals.findIndex((g) => g.id === goal.id);
-      if (index !== -1) {
-        this.goals[index] = goal;
-      } else {
-        this.goals.push(goal);
-      }
-      setTimeout(resolve, 500);
-    });
+  async saveGoal(goal: Partial<Goal>): Promise<Goal> {
+    return this.post('/performance/goals', goal);
   }
 
   async deleteGoal(id: string): Promise<void> {
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      // If backend call was successful, update local state
-      this.goals = this.goals.filter((g) => g.id !== id);
-    } catch (error) {
-      Logger.warn('Backend unavailable, deletion failed', error);
-    }
+    await this.delete(`/performance/goals/${id}`);
   }
 
-  // --- Hires ---
-  async getHires(): Promise<NewHireNode[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(this.hires), 500);
-    });
-  }
-
-  async saveHire(hire: NewHireNode): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.hires.findIndex((h) => h.id === hire.id);
-      if (index !== -1) {
-        this.hires[index] = hire;
-      } else {
-        this.hires.unshift(hire);
-      }
-      setTimeout(resolve, 500);
-    });
-  }
-
-  async updateHireStep(hireId: string, stepId: string): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.hires.findIndex((h) => h.id === hireId);
-      if (index !== -1) {
-        const hire = this.hires[index];
-        const newSteps = hire.steps.map((step) =>
-          step.id === stepId ? { ...step, done: !step.done } : step
-        );
-        const doneCount = newSteps.filter((s) => s.done).length;
-        const newProgress = Math.round((doneCount / newSteps.length) * 100);
-
-        this.hires[index] = { ...hire, steps: newSteps, progress: newProgress };
-      }
-      setTimeout(resolve, 500);
-    });
-  }
-
-  // --- Exits ---
-  async getExits(): Promise<ExitNode[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(this.exits), 500);
-    });
-  }
-
-  async saveExit(exit: ExitNode): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.exits.findIndex((e) => e.id === exit.id);
-      if (index !== -1) {
-        this.exits[index] = exit;
-      } else {
-        this.exits.unshift(exit);
-      }
-      setTimeout(resolve, 500);
-    });
-  }
-
-  async updateExitChecklist(exitId: string, itemId: string): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.exits.findIndex((e) => e.id === exitId);
-      if (index !== -1) {
-        const exit = this.exits[index];
-        const newChecklist = exit.checklist.map((item) =>
-          item.id === itemId ? { ...item, done: !item.done } : item
-        );
-        const doneCount = newChecklist.filter((i) => i.done).length;
-        const newStatus = doneCount === newChecklist.length ? 'Cleared' : 'In Progress';
-
-        this.exits[index] = { ...exit, checklist: newChecklist, status: newStatus as any };
-      }
-      setTimeout(resolve, 500);
-    });
-  }
+  // --- Hires & Exits [Migrated to Backend] ---
 
   // --- Leaves & Attendance [Migrated to Backend] ---
-
-  // --- Assets ---
-  async getAssets(): Promise<Asset[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(this.assets), 500);
-    });
-  }
-
-  async saveAsset(asset: Asset): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.assets.findIndex((a) => a.id === asset.id);
-      if (index !== -1) {
-        this.assets[index] = asset;
-      } else {
-        this.assets.unshift(asset);
-      }
-      setTimeout(resolve, 500);
-    });
-  }
-  async updateAssetStatus(id: string, status: Asset['status']): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.assets.findIndex((a) => a.id === id);
-      if (index !== -1) {
-        this.assets[index].status = status;
-      }
-      setTimeout(resolve, 500);
-    });
-  }
 
   // --- Organization Profile ---
 
   // --- Job Postings ---
   async getJobs(): Promise<JobVacancy[]> {
-    const response = await this.request(`${this.apiUrl}/jobs`);
-    if (!response.ok) {
+    try {
+      return await this.get('/jobs');
+    } catch (error) {
+      Logger.warn('Failed to fetch jobs', error);
       return [];
     }
-    return await response.json();
   }
 
   async saveJob(job: JobVacancy): Promise<void> {
@@ -1067,21 +987,11 @@ class ApiService {
 
   // --- Learning ---
   async getCourses(): Promise<Course[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(this.courses), 500);
-    });
+    return this.get('/learning/courses');
   }
 
-  async saveCourse(course: Course): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.courses.findIndex((c) => c.id === course.id);
-      if (index !== -1) {
-        this.courses[index] = course;
-      } else {
-        this.courses.unshift(course);
-      }
-      setTimeout(resolve, 500);
-    });
+  async saveCourse(course: Course): Promise<Course> {
+    return this.post('/learning/courses', course);
   }
 
   async updateCourseProgress(
@@ -1089,49 +999,87 @@ class ApiService {
     progress: number,
     status: Course['status'],
     score: number
-  ): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.courses.findIndex((c) => c.id === id);
-      if (index !== -1) {
-        this.courses[index] = { ...this.courses[index], progress, status, score };
-      }
-      setTimeout(resolve, 500);
-    });
+  ): Promise<Course> {
+    return this.put(`/learning/courses/${id}/progress`, { progress, status, score });
   }
 
   // --- Benefits ---
   async getBenefitEnrollments(): Promise<BenefitEnrollment[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(this.benefitEnrollments), 500);
-    });
+    return this.get('/benefits/enrollments');
   }
 
   async getBenefitTiers(): Promise<BenefitTier[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(this.benefitTiers), 500);
-    });
+    return this.get('/benefits/tiers');
   }
 
-  async saveBenefitEnrollment(enrollment: BenefitEnrollment): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.benefitEnrollments.findIndex((e) => e.id === enrollment.id);
-      if (index !== -1) {
-        this.benefitEnrollments[index] = enrollment;
-      } else {
-        this.benefitEnrollments.unshift(enrollment);
-      }
-      setTimeout(resolve, 500);
-    });
+  async saveBenefitEnrollment(enrollment: BenefitEnrollment): Promise<BenefitEnrollment> {
+    return this.post('/benefits/enrollments', enrollment);
   }
 
-  async updateBenefitEnrollmentTier(id: string, tier: BenefitEnrollment['tier']): Promise<void> {
-    return new Promise((resolve) => {
-      const index = this.benefitEnrollments.findIndex((e) => e.id === id);
-      if (index !== -1) {
-        this.benefitEnrollments[index].tier = tier;
-      }
-      setTimeout(resolve, 500);
-    });
+  async updateBenefitEnrollmentTier(
+    id: string,
+    tier: BenefitEnrollment['tier']
+  ): Promise<BenefitEnrollment> {
+    return this.put(`/benefits/enrollments/${id}/tier`, { tier });
+  }
+
+  // --- Rewards & Recognition ---
+  async getRewards(): Promise<Reward[]> {
+    return this.get('/rewards');
+  }
+
+  async getRecognitions(): Promise<Recognition[]> {
+    return this.get('/rewards/recognitions');
+  }
+
+  async getRewardPoints(employeeId: string): Promise<RewardPoint | null> {
+    return this.get(`/rewards/points/${employeeId}`);
+  }
+
+  async getRewardTransactions(employeeId: string): Promise<RewardPointTransaction[]> {
+    return this.get(`/rewards/points/${employeeId}/transactions`);
+  }
+
+  async saveRecognition(recognition: Partial<Recognition>): Promise<Recognition> {
+    return this.post('/rewards/recognitions', recognition);
+  }
+
+  async redeemReward(rewardId: number, employeeId: string): Promise<boolean> {
+    return this.post(`/rewards/redeem/${rewardId}`, null, { params: { employee_id: employeeId } });
+  }
+
+  async saveReward(reward: Partial<Reward>): Promise<Reward> {
+    return this.post('/rewards', reward);
+  }
+
+  // --- Promotions & Increments ---
+  async getPromotionCycles(): Promise<PromotionCycle[]> {
+    return this.get('/promotions/cycles');
+  }
+
+  async savePromotionCycle(cycle: Partial<PromotionCycle>): Promise<PromotionCycle> {
+    return this.post('/promotions/cycles', cycle);
+  }
+
+  async getPromotionRequests(employeeId?: string): Promise<PromotionRequest[]> {
+    const params: any = {};
+    if (employeeId) {
+      params.employee_id = employeeId;
+    }
+    return this.get('/promotions/requests', { params });
+  }
+
+  async savePromotionRequest(request: Partial<PromotionRequest>): Promise<PromotionRequest> {
+    return this.post('/promotions/requests', request);
+  }
+
+  async approvePromotionRequest(approval: {
+    requestId: number;
+    level: string;
+    status: string;
+    remarks?: string;
+  }): Promise<PromotionRequest> {
+    return this.post('/promotions/approve', approval);
   }
 
   // --- Dashboard ---
@@ -1352,12 +1300,7 @@ class ApiService {
   // --- Departments ---
   async getDepartments(): Promise<any[]> {
     try {
-      const response = await this.request(`${this.apiUrl}/departments`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch departments');
-      }
-      const data = await response.json();
-      return data;
+      return await this.get('/departments');
     } catch (error) {
       Logger.warn('Backend unavailable, returning empty departments', error);
       return [];
@@ -1365,31 +1308,13 @@ class ApiService {
   }
 
   async saveDepartment(department: any): Promise<any> {
-    this.enforceRateLimit();
-    try {
-      const response = await this.request(`${this.apiUrl}/departments`, {
-        method: 'POST',
-        body: JSON.stringify(department),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to save department');
-      }
-      return await response.json();
-    } catch (error) {
-      Logger.error('Backend unavailable, save department failed', error);
-      throw error;
-    }
+    return this.post('/departments', department);
   }
 
   // --- Sub-Departments ---
   async getSubDepartments(): Promise<any[]> {
     try {
-      const response = await this.request(`${this.apiUrl}/sub-departments`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch sub-departments');
-      }
-      const data = await response.json();
-      return data;
+      return await this.get('/sub-departments');
     } catch (error) {
       Logger.warn('Backend unavailable, returning empty sub-departments', error);
       return [];
@@ -1397,20 +1322,7 @@ class ApiService {
   }
 
   async saveSubDepartment(subDepartment: any): Promise<any> {
-    this.enforceRateLimit();
-    try {
-      const response = await this.request(`${this.apiUrl}/sub-departments`, {
-        method: 'POST',
-        body: JSON.stringify(subDepartment),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to save sub-department');
-      }
-      return await response.json();
-    } catch (error) {
-      Logger.error('Backend unavailable, save sub-department failed', error);
-      throw error;
-    }
+    return this.post('/sub-departments', subDepartment);
   }
 
   // --- Plants (Locations) ---
@@ -1419,31 +1331,21 @@ class ApiService {
 
   // --- RBAC ---
   async getAllRolePermissions(): Promise<Record<string, string[]>> {
-    const response = await this.request(`${this.apiUrl}/rbac/permissions`);
-    if (!response.ok) {
+    try {
+      return await this.get('/rbac/permissions');
+    } catch (error) {
       return {};
     }
-    return await response.json();
   }
 
   async saveRolePermissions(role: string, permissions: string[]): Promise<void> {
-    const response = await this.request(`${this.apiUrl}/rbac/permissions`, {
-      method: 'POST',
-      body: JSON.stringify({ role, permissions }),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to save permissions');
-    }
+    await this.post('/rbac/permissions', { role, permissions });
   }
 
   // --- Positions ---
   async getPositions(): Promise<any[]> {
     try {
-      const response = await this.request(`${this.apiUrl}/positions`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch positions');
-      }
-      return await response.json();
+      return await this.get('/positions');
     } catch (error) {
       Logger.warn('Backend unavailable, returning empty positions', error);
       return [];
@@ -1503,11 +1405,7 @@ class ApiService {
   // --- Grades ---
   async getGrades(): Promise<Grade[]> {
     try {
-      const response = await this.request(`${this.apiUrl}/grades`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch grades');
-      }
-      const data = await response.json();
+      const data = await this.get('/grades');
       this.grades = data;
       return data;
     } catch (error) {
@@ -1517,15 +1415,7 @@ class ApiService {
   }
 
   async saveGrade(grade: Grade): Promise<Grade> {
-    this.enforceRateLimit();
-    const response = await this.request(`${this.apiUrl}/grades`, {
-      method: 'POST',
-      body: JSON.stringify(grade),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to save grade');
-    }
-    return await response.json();
+    return this.post('/grades', grade);
   }
 
   async deleteGrade(id: string): Promise<void> {
@@ -1541,11 +1431,11 @@ class ApiService {
 
   // --- Designations ---
   async getDesignations(): Promise<Designation[]> {
-    const response = await this.request(`${this.apiUrl}/designations`);
-    if (!response.ok) {
+    try {
+      return await this.get('/designations');
+    } catch (error) {
       return [];
     }
-    return await response.json();
   }
 
   async saveDesignation(designation: Designation): Promise<Designation> {
@@ -2241,7 +2131,9 @@ class ApiService {
   async getAttendanceRecords(date?: string): Promise<AttendanceRecord[]> {
     const query = date ? `?date=${date}` : '';
     const response = await this.request(`${this.apiUrl}/hcm/attendance${query}`);
-    if (!response.ok) return [];
+    if (!response.ok) {
+      return [];
+    }
     return await response.json();
   }
 
@@ -2250,14 +2142,18 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error('Failed to create attendance');
+    if (!response.ok) {
+      throw new Error('Failed to create attendance');
+    }
     return await response.json();
   }
 
   // --- Payroll ---
   async getPayrollRecords(): Promise<any[]> {
     const response = await this.request(`${this.apiUrl}/hcm/payroll`);
-    if (!response.ok) return [];
+    if (!response.ok) {
+      return [];
+    }
     return await response.json();
   }
 
@@ -2266,14 +2162,18 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error('Failed to run payroll');
+    if (!response.ok) {
+      throw new Error('Failed to run payroll');
+    }
     return await response.json();
   }
 
   // --- Leaves ---
   async getLeaveRequests(): Promise<LeaveRequest[]> {
     const response = await this.request(`${this.apiUrl}/hcm/leaves`);
-    if (!response.ok) return [];
+    if (!response.ok) {
+      return [];
+    }
     return await response.json();
   }
 
@@ -2282,7 +2182,9 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error('Failed to create leave request');
+    if (!response.ok) {
+      throw new Error('Failed to create leave request');
+    }
     return await response.json();
   }
 
@@ -2291,13 +2193,216 @@ class ApiService {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
-    if (!response.ok) throw new Error('Failed to update leave status');
+    if (!response.ok) {
+      throw new Error('Failed to update leave status');
+    }
     return await response.json();
   }
 
   async getLeaveBalances(): Promise<LeaveBalance[]> {
     const response = await this.request(`${this.apiUrl}/hcm/leaves/balances`);
-    if (!response.ok) return [];
+    if (!response.ok) {
+      return [];
+    }
+    return await response.json();
+  }
+
+  // --- Overtime ---
+  async getOvertimeRequests(params?: {
+    status?: string;
+    employee_id?: string;
+  }): Promise<OTRequest[]> {
+    let url = `${this.apiUrl}/overtime`;
+    const queryParts = [];
+    if (params?.status) {
+      queryParts.push(`status=${params.status}`);
+    }
+    if (params?.employee_id) {
+      queryParts.push(`employee_id=${params.employee_id}`);
+    }
+    if (queryParts.length > 0) {
+      url += `?${queryParts.join('&')}`;
+    }
+
+    const response = await this.request(url);
+    if (!response.ok) {
+      return [];
+    }
+    return await response.json();
+  }
+
+  async createOvertimeRequest(data: Partial<OTRequest>): Promise<OTRequest> {
+    const response = await this.request(`${this.apiUrl}/overtime`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create overtime request');
+    }
+    return await response.json();
+  }
+
+  async updateOvertimeStatus(
+    id: string,
+    payload: { action: string; rejectionReason?: string }
+  ): Promise<OTRequest> {
+    const response = await this.request(`${this.apiUrl}/overtime/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update overtime status');
+    }
+    return await response.json();
+  }
+
+  // --- General Administration ---
+  async getAssets(organizationId?: string): Promise<Asset[]> {
+    const params = organizationId ? { params: { organization_id: organizationId } } : undefined;
+    return this.get('/gen-admin/assets', params);
+  }
+
+  async createAsset(asset: Partial<Asset>, organizationId: string): Promise<Asset> {
+    return this.post('/gen-admin/assets', asset, { params: { organization_id: organizationId } });
+  }
+
+  async getVisitors(organizationId?: string): Promise<VisitorNode[]> {
+    const params = organizationId ? { params: { organization_id: organizationId } } : undefined;
+    return this.get('/gen-admin/visitors', params);
+  }
+
+  async createVisitor(visitor: Partial<VisitorNode>, organizationId: string): Promise<VisitorNode> {
+    return this.post('/gen-admin/visitors', visitor, {
+      params: { organization_id: organizationId },
+    });
+  }
+
+  async checkoutVisitor(visitorId: string): Promise<VisitorNode> {
+    return this.put(`/gen-admin/visitors/${visitorId}/checkout`);
+  }
+
+  async getFacilities(organizationId: string): Promise<Facility[]> {
+    return this.get('/gen-admin/facilities', { params: { organization_id: organizationId } });
+  }
+
+  async createFacility(facility: Partial<Facility>, organizationId: string): Promise<Facility> {
+    return this.post('/gen-admin/facilities', facility, {
+      params: { organization_id: organizationId },
+    });
+  }
+
+  async createFacilityBooking(booking: Partial<FacilityBooking>): Promise<FacilityBooking> {
+    return this.post('/gen-admin/bookings', booking);
+  }
+
+  async getVehicles(organizationId: string): Promise<Vehicle[]> {
+    return this.get('/gen-admin/vehicles', { params: { organization_id: organizationId } });
+  }
+
+  async createVehicle(vehicle: Partial<Vehicle>, organizationId: string): Promise<Vehicle> {
+    return this.post('/gen-admin/vehicles', vehicle, {
+      params: { organization_id: organizationId },
+    });
+  }
+
+  async updateVehicle(
+    id: string,
+    vehicle: Partial<Vehicle>,
+    organizationId: string
+  ): Promise<Vehicle> {
+    return this.put(`/gen-admin/vehicles/${id}`, vehicle, {
+      params: { organization_id: organizationId },
+    });
+  }
+
+  async deleteVehicle(id: string): Promise<void> {
+    return this.delete(`/gen-admin/vehicles/${id}`);
+  }
+
+  async assignVehicleDriver(vehicleId: string, driverId: string): Promise<Vehicle> {
+    return this.put(`/gen-admin/vehicles/${vehicleId}/assign`, { driver_id: driverId });
+  }
+
+  async getVehicleMaintenance(vehicleId: string): Promise<any[]> {
+    return this.get(`/gen-admin/vehicles/${vehicleId}/maintenance`);
+  }
+
+  async logVehicleMaintenance(vehicleId: string, log: any): Promise<any> {
+    return this.post(`/gen-admin/vehicles/${vehicleId}/maintenance`, log);
+  }
+
+  async getComplianceRecords(organizationId: string): Promise<AdminCompliance[]> {
+    return this.get('/gen-admin/compliance', { params: { organization_id: organizationId } });
+  }
+
+  async createComplianceRecord(
+    record: Partial<AdminCompliance>,
+    organizationId: string
+  ): Promise<AdminCompliance> {
+    return this.post('/gen-admin/compliance', record, {
+      params: { organization_id: organizationId },
+    });
+  }
+
+  async getTravelRequests(organizationId: string): Promise<TravelRequest[]> {
+    return this.get('/gen-admin/travel', { params: { organization_id: organizationId } });
+  }
+
+  async createTravelRequest(
+    request: Partial<TravelRequest>,
+    organizationId: string
+  ): Promise<TravelRequest> {
+    return this.post('/gen-admin/travel', request, {
+      params: { organization_id: organizationId },
+    });
+  }
+
+  async updateTravelRequestStatus(
+    id: string,
+    status: string,
+    organizationId: string
+  ): Promise<TravelRequest> {
+    return this.put(
+      `/gen-admin/travel/${id}/status`,
+      { status },
+      {
+        params: { organization_id: organizationId },
+      }
+    );
+  }
+
+  // --- Onboarding ---
+  async getHires(): Promise<NewHireNode[]> {
+    return this.get('/onboarding/hires');
+  }
+
+  async saveHire(hire: NewHireNode): Promise<NewHireNode> {
+    return this.post('/onboarding/hires', hire);
+  }
+
+  async updateHireStep(hireId: string, stepId: string): Promise<NewHireNode> {
+    return this.put(`/onboarding/hires/${hireId}/steps/${stepId}`);
+  }
+
+  // --- Offboarding ---
+  async getExits(): Promise<ExitNode[]> {
+    return this.get('/offboarding/exits');
+  }
+
+  async saveExit(exit: Partial<ExitNode>): Promise<ExitNode> {
+    return this.post('/offboarding/exits', exit);
+  }
+
+  async updateExitChecklist(exitId: string, itemId: string): Promise<ExitNode> {
+    return this.put(`/offboarding/exits/${exitId}/checklist/${itemId}`);
+  }
+  async getSystemLogs(
+    lines: number = 100
+  ): Promise<{ logs: string[]; total: number; shown: number }> {
+    const response = await this.request(`${this.apiUrl}/system/logs?lines=${lines}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch system logs');
+    }
     return await response.json();
   }
 }

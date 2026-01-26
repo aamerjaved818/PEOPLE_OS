@@ -11,7 +11,7 @@ import {
   History,
   Download,
 } from 'lucide-react';
-import { formatCurrency } from '../../utils/formatting';
+import { formatCurrency } from '@/utils/formatting';
 
 interface PaystubModalProps {
   tx: any;

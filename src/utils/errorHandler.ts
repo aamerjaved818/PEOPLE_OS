@@ -134,8 +134,7 @@ export const logError = (error: AppError, context?: string): void => {
       stack: error.stack,
     });
   } else {
-    // In production, send to error tracking service (e.g., Sentry)
-    // Example: Sentry.captureException(error, { tags: { context } });
+    // Production logging (Sentry removed)
     console.error(`[${context || 'Error'}]`, error.code, error.message);
   }
 };

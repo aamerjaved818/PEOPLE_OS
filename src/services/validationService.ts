@@ -14,7 +14,7 @@ export const validate = (prompt: string, data?: any) => {
 
   // SQL Injection Detection
   const sqlPatterns = [
-    /(\%27)|(\')|(\-\-)|(\%23)|(#)/i,
+    /(%27)|(')|(--)|(%23)|(#)/i,
     /(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE)/i,
   ];
   if (sqlPatterns.some((pattern) => pattern.test(prompt))) {
@@ -33,7 +33,9 @@ export const validate = (prompt: string, data?: any) => {
 };
 
 export const sanitizePrompt = (prompt: string): string => {
-  if (!prompt) {return '';}
+  if (!prompt) {
+    return '';
+  }
 
   return prompt
     .trim()

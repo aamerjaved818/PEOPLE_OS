@@ -30,7 +30,7 @@ test_debug_output*.txt
 
 # Database Standardization
 *.db
-!backend/data/hunzal_hcm.db
+!backend/data/people_os_dev.db
 
 # Environment Variables
 .env

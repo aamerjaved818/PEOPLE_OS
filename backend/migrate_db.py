@@ -1,7 +1,7 @@
 import logging
 import sys
 from sqlalchemy import text
-from backend.database import get_engine
+from backend.database import engine, Base
 from backend.domains.core import models as core_models
 from backend.domains.hcm import models as hcm_models
 
@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 def run_migrations():
     """Run database migrations, verify schema, and seed system users."""
     # Get engine dynamically based on current APP_ENV
-    engine = get_engine()
     logger.info("🚀 Starting Production Database Migration...")
     logger.info(f"📂 Target DB: {engine.url}")
 

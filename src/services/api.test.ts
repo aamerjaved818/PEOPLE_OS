@@ -1,4 +1,3 @@
-
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { api } from './api';
 
@@ -6,6 +5,7 @@ describe('ApiService (Stateless Proxy)', () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
+    api.resetForTesting();
     vi.clearAllMocks();
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -21,26 +21,19 @@ describe('ApiService (Stateless Proxy)', () => {
   describe('Core Data Methods', () => {
     it('should fetch employees', async () => {
       const mockData = [{ id: '1', name: 'Test' }];
-      (global.fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockData
-      });
+      const spy = vi.spyOn(api, 'get').mockResolvedValue(mockData);
 
       const result = await api.getEmployees();
       expect(result).toEqual(mockData);
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/employees'),
-        expect.objectContaining({
-          headers: expect.objectContaining({ 'Content-Type': 'application/json' })
-        })
-      );
+      expect(spy).toHaveBeenCalledWith('/employees');
+      spy.mockRestore();
     });
 
     it('should save employee', async () => {
       const data = { name: 'New Emp' };
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: '1', ...data })
+        json: async () => ({ id: '1', ...data }),
       });
 
       const result = await api.saveEmployee(data as any);
@@ -49,7 +42,7 @@ describe('ApiService (Stateless Proxy)', () => {
         expect.stringContaining('/employees'),
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify(data)
+          body: JSON.stringify(data),
         })
       );
     });
@@ -66,12 +59,18 @@ describe('ApiService (Stateless Proxy)', () => {
   describe('Organization Structure', () => {
     it('should fetch plants/locations', async () => {
       await api.getPlants();
-      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/plants'), expect.anything());
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/plants'),
+        expect.anything()
+      );
     });
 
     it('should fetch departments', async () => {
       await api.getDepartments();
-      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/departments'), expect.anything());
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/departments'),
+        expect.anything()
+      );
     });
   });
 
@@ -91,7 +90,10 @@ describe('ApiService (Stateless Proxy)', () => {
   describe('System', () => {
     it('should fetch logs', async () => {
       await api.getAuditLogs();
-      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/audit-logs'), expect.anything());
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/audit-logs'),
+        expect.anything()
+      );
     });
   });
 });

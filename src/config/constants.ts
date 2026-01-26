@@ -4,8 +4,9 @@
  */
 
 // API Configuration
+// API Configuration
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
   RATE_LIMIT: {
@@ -16,18 +17,17 @@ export const API_CONFIG = {
 
 // Server Ports
 export const PORTS = {
-  BACKEND_API: 3002,
-  FRONTEND_DEV: 5173,
+  BACKEND_API: Number(import.meta.env.VITE_API_PORT) || 8000,
+  FRONTEND_DEV: Number(import.meta.env.VITE_FRONTEND_PORT) || 5173,
+  FRONTEND_PREVIEW: Number(import.meta.env.VITE_PREVIEW_PORT) || 9000,
   FRONTEND_TEST: 4040,
-  FRONTEND_PROD: 3000,
-  AI_ENGINE: 8000,
 } as const;
 
 // Environment URLs
 export const ENVIRONMENT_URLS = {
   DEVELOPMENT: `http://localhost:${PORTS.FRONTEND_DEV}`,
   TEST: `http://localhost:${PORTS.FRONTEND_TEST}`,
-  PRODUCTION: `http://localhost:${PORTS.FRONTEND_PROD}`,
+  PREVIEW: `http://localhost:${PORTS.FRONTEND_PREVIEW}`,
 } as const;
 
 // Database Configuration
@@ -67,9 +67,7 @@ export const LIMITS = {
 
 // Application Metadata
 export const APP_METADATA = {
-  NAME: 'PeopleOS HCM',
-  VERSION: '4.2.0',
-  API_VERSION: '1.0.0',
+  NAME: 'peopleOS eBusiness Suite',
   NODE_NAME: 'Production Node',
   CLUSTER_TYPE: 'Static Cluster',
 } as const;
@@ -94,11 +92,8 @@ export const SYSTEM_SECTIONS = [
 // CORS Origins
 export const CORS_ORIGINS = [
   `http://localhost:${PORTS.FRONTEND_DEV}`,
-  'http://localhost:5174',
-  'http://localhost:5175',
-  'http://localhost:5176',
-  'http://localhost:5177',
   `http://localhost:${PORTS.FRONTEND_TEST}`,
-  'http://localhost:5000',
-  `http://localhost:${PORTS.FRONTEND_PROD}`,
+  `http://localhost:${PORTS.FRONTEND_PREVIEW}`,
+  'http://localhost:8000',
+  'http://127.0.0.1:5173',
 ] as const;

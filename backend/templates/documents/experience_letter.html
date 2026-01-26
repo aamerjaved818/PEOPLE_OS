@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @page {
+        size: A4;
+        margin: 2cm;
+      }
+      body {
+        font-family: 'Times New Roman', serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .letterhead {
+        text-align: center;
+        border-bottom: 3px solid #2563eb;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+      .company-name {
+        font-size: 28px;
+        font-weight: bold;
+        color: #2563eb;
+        margin-bottom: 5px;
+      }
+      .company-details {
+        font-size: 12px;
+        color: #666;
+      }
+      .date {
+        text-align: right;
+        margin: 20px 0;
+        font-size: 14px;
+      }
+      .subject {
+        font-weight: bold;
+        margin: 20px 0;
+        font-size: 16px;
+        text-decoration: underline;
+      }
+      .content {
+        text-align: justify;
+        font-size: 14px;
+        margin: 20px 0;
+      }
+      .signature-section {
+        margin-top: 60px;
+      }
+      .signature-line {
+        border-top: 1px solid #333;
+        width: 200px;
+        margin-top: 80px;
+      }
+      .footer {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        font-size: 11px;
+        color: #666;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="letterhead">
+      <div class="company-name">{{ organization.name }}</div>
+      <div class="company-details">
+        {{ organization.address }}<br />
+        Email: {{ organization.email }} | Phone: {{ organization.phone }}
+      </div>
+    </div>
+
+    <div class="date">Date: {{ current_date }}</div>
+
+    <div class="subject">SUBJECT: TO WHOM IT MAY CONCERN</div>
+
+    <div class="content">
+      <p>
+        This is to certify that <strong>{{ employee.name }}</strong>, bearing Employee Code
+        <strong>{{ employee.employee_code }}</strong>, has been employed with {{ organization.name
+        }} since <strong>{{ employee.join_date }}</strong>.
+      </p>
+
+      <p>
+        During the tenure with us, {{ employee.name }} has been serving as
+        <strong>{{ employee.designation }}</strong> in the {{ employee.department }} department.
+      </p>
+
+      <p>
+        {{ employee.name }} has demonstrated professional competence, dedication, and integrity
+        throughout the employment period. The conduct and performance have been satisfactory.
+      </p>
+
+      <p>This certificate is being issued upon request for {{ purpose or 'official purposes' }}.</p>
+
+      <p>We wish {{ employee.name }} all the best in future endeavors.</p>
+    </div>
+
+    <div class="signature-section">
+      <p>Sincerely,</p>
+      <div class="signature-line"></div>
+      <p>
+        <strong>Human Resources Department</strong><br />
+        {{ organization.name }}
+      </p>
+    </div>
+
+    <div class="footer">
+      This is a system-generated document. No signature is required for validation.
+    </div>
+  </body>
+</html>

@@ -2,32 +2,23 @@ import bcrypt
 from datetime import datetime
 
 from backend.config import settings
-from backend.database import get_session_local
+from backend.database import get_session_local, engine
+from backend.domains.core import models as core_models
+from backend.domains.hcm import models as hcm_models
+
+# Ensure all tables are created before seeding
+core_models.Base.metadata.create_all(bind=engine)
+hcm_models.Base.metadata.create_all(bind=engine)
+
 from backend.domains.core.models import DBUser
 
 
 # Deterministic UUIDs for system users (same across all environments)
+# NOTE: Only Root users should be created as system-wide users.
+# Super Admin users are org-scoped and should not be auto-created here.
 SYSTEM_USERS = {
-    "admin": {
-        "id": "00000000-0000-0000-0000-000000000001",
-        "username": "admin",
-        "password": "admin",  # Default for new envs. Existing admins retain their old password.
-        "role": "Super Admin",
-        "name": "System Administrator",
-        "email": "admin@people-os.local",
-        "is_active": True,
-        "is_system_user": True,
-    },
-    ".amer": {
-        "id": "00000000-0000-0000-0000-000000000099",  # Assigning a deterministic ID for .amer persistence
-        "username": ".amer",
-        "password": "amer_password_placeholder", # Notes: Real password preserved in DB
-        "role": "Super Admin",  # Assuming highest privilege
-        "name": "Amer",
-        "email": "amer@people-os.local",
-        "is_active": True,
-        "is_system_user": True,
-    }
+    # Removed 'admin' Super Admin user - conflicts with RBAC rule (only Root has system-wide access)
+    # 'amer' intentionally omitted to prevent automatic creation of Root user
 }
 
 
