@@ -1,5 +1,4 @@
-import logging
-logger = logging.getLogger(__name__)
+from backend.logging_config import logger
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
