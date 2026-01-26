@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     server: {
-      port: parseInt(env.FRONTEND_PORT || '5173'),
+      port: parseInt(env.FRONTEND_PORT || '5000'),
       host: true,
       open: false,
     },
@@ -37,12 +37,26 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
-              if (id.includes('lucide-react')) return 'vendor-icons';
-              if (id.includes('react') || id.includes('react-dom')) return 'vendor-core';
-              if (id.includes('chart.js') || id.includes('recharts')) return 'vendor-charts';
-              return 'vendor';
+              // React Core
+              if (
+                id.includes('react') ||
+                id.includes('react-dom') ||
+                id.includes('react-router-dom')
+              ) {
+                return 'vendor-react';
+              }
+              // Icons (Large package)
+              if (id.includes('lucide-react')) {
+                return 'vendor-icons';
+              }
+              // Charts
+              if (id.includes('chart.js') || id.includes('recharts')) {
+                return 'vendor-charts';
+              }
+              // All other vendors
+              return 'vendor-utils';
             }
-            return undefined;
+            return null;
           },
         },
       },

@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { TEST_ENV } from '../config';
 
 test.describe('Global Designation & Assignment Verification', () => {
   // Port 5173 for Frontend (dev), 8000 for Backend
-  const BASE_URL = 'http://localhost:5173';
-  const API_URL = 'http://localhost:8000/api';
+  const BASE_URL = TEST_ENV.FRONTEND_URL;
+  const API_URL = TEST_ENV.API_URL;
 
   const timestamp = Date.now();
   const testGrade = {

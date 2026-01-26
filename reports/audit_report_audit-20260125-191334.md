@@ -53,7 +53,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/onboarding/hires' was removed from API.
+**Description:** Endpoint '/api/api/onboarding/hires' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -62,7 +62,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/gen-admin/compliance' was removed from API.
+**Description:** Endpoint '/api/gen-admin/compliance' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -71,7 +71,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/overtime' was removed from API.
+**Description:** Endpoint '/api/api/overtime' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -80,7 +80,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/benefits/enrollments' was removed from API.
+**Description:** Endpoint '/api/api/benefits/enrollments' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -89,7 +89,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/users' was removed from API.
+**Description:** Endpoint '/api/api/users' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -98,7 +98,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/rewards/redeem/{reward_id}' was removed from API.
+**Description:** Endpoint '/api/api/rewards/redeem/{reward_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -107,7 +107,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/system/api-keys' was removed from API.
+**Description:** Endpoint '/api/api/system/api-keys' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -116,7 +116,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/rewards/points/{employee_id}' was removed from API.
+**Description:** Endpoint '/api/api/rewards/points/{employee_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -125,7 +125,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/promotions/cycles' was removed from API.
+**Description:** Endpoint '/api/promotions/cycles' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -134,7 +134,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/promotions/approve' was removed from API.
+**Description:** Endpoint '/api/promotions/approve' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -143,7 +143,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/health' was removed from API.
+**Description:** Endpoint '/api/api/health' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -152,7 +152,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/self-service/team-directory' was removed from API.
+**Description:** Endpoint '/api/api/self-service/team-directory' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -161,7 +161,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/system/maintenance/backups' was removed from API.
+**Description:** Endpoint '/api/api/system/maintenance/backups' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -170,7 +170,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/holidays' was removed from API.
+**Description:** Endpoint '/api/api/holidays' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -179,7 +179,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/payroll-settings' was removed from API.
+**Description:** Endpoint '/api/api/payroll-settings' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -188,7 +188,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/attendance/validate-bulk' was removed from API.
+**Description:** Endpoint '/api/api/attendance/validate-bulk' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -197,7 +197,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/gen-admin/assets' was removed from API.
+**Description:** Endpoint '/api/gen-admin/assets' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -206,7 +206,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/employees/bulk-import' was removed from API.
+**Description:** Endpoint '/api/api/employees/bulk-import' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -215,7 +215,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/designations' was removed from API.
+**Description:** Endpoint '/api/api/designations' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -224,7 +224,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/performance/goals/{goal_id}' was removed from API.
+**Description:** Endpoint '/api/api/performance/goals/{goal_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -233,7 +233,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/self-service/payslips' was removed from API.
+**Description:** Endpoint '/api/api/self-service/payslips' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -242,7 +242,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/payroll/runs/process' was removed from API.
+**Description:** Endpoint '/api/api/payroll/runs/process' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -251,7 +251,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/job-levels' was removed from API.
+**Description:** Endpoint '/api/api/job-levels' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -260,7 +260,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/payroll/generate' was removed from API.
+**Description:** Endpoint '/api/api/payroll/generate' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -269,7 +269,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/departments/{dept_id}' was removed from API.
+**Description:** Endpoint '/api/api/departments/{dept_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -278,7 +278,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/attendance/corrections' was removed from API.
+**Description:** Endpoint '/api/api/attendance/corrections' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -287,7 +287,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/users/{user_id}' was removed from API.
+**Description:** Endpoint '/api/api/users/{user_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -296,7 +296,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/attendance/corrections/{correction_id}/status' was removed from API.
+**Description:** Endpoint '/api/api/attendance/corrections/{correction_id}/status' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -305,7 +305,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/jobs' was removed from API.
+**Description:** Endpoint '/api/api/jobs' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -314,7 +314,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/offboarding/exits/{exit_id}/checklist/{item_id}' was removed from API.
+**Description:** Endpoint '/api/api/offboarding/exits/{exit_id}/checklist/{item_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -323,7 +323,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/system/logs' was removed from API.
+**Description:** Endpoint '/api/api/system/logs' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -332,7 +332,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/organizations/{org_id}' was removed from API.
+**Description:** Endpoint '/api/api/organizations/{org_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -341,7 +341,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/plants' was removed from API.
+**Description:** Endpoint '/api/api/plants' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -350,7 +350,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/overtime/{request_id}/status' was removed from API.
+**Description:** Endpoint '/api/api/overtime/{request_id}/status' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -359,7 +359,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/shifts' was removed from API.
+**Description:** Endpoint '/api/api/shifts' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -368,7 +368,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/payroll/components' was removed from API.
+**Description:** Endpoint '/api/api/payroll/components' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -377,7 +377,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/self-service/notifications' was removed from API.
+**Description:** Endpoint '/api/api/self-service/notifications' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -386,7 +386,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/offboarding/exits' was removed from API.
+**Description:** Endpoint '/api/api/offboarding/exits' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -395,7 +395,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/rewards/recognitions' was removed from API.
+**Description:** Endpoint '/api/api/rewards/recognitions' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -404,7 +404,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/employees/{employee_id}' was removed from API.
+**Description:** Endpoint '/api/api/employees/{employee_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -413,7 +413,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/rewards/points/{employee_id}/transactions' was removed from API.
+**Description:** Endpoint '/api/api/rewards/points/{employee_id}/transactions' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -422,7 +422,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/attendance/bulk' was removed from API.
+**Description:** Endpoint '/api/api/attendance/bulk' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -431,7 +431,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/benefits/tiers' was removed from API.
+**Description:** Endpoint '/api/api/benefits/tiers' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -440,7 +440,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/plants/{plant_id}' was removed from API.
+**Description:** Endpoint '/api/api/plants/{plant_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -449,7 +449,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/self-service/profile' was removed from API.
+**Description:** Endpoint '/api/api/self-service/profile' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -458,7 +458,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/employees' was removed from API.
+**Description:** Endpoint '/api/api/employees' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -467,7 +467,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/candidates' was removed from API.
+**Description:** Endpoint '/api/api/candidates' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -476,7 +476,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/payroll/tax-slabs' was removed from API.
+**Description:** Endpoint '/api/api/payroll/tax-slabs' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -494,7 +494,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/learning/courses/{course_id}/progress' was removed from API.
+**Description:** Endpoint '/api/api/learning/courses/{course_id}/progress' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -503,7 +503,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/benefits/enrollments/{enrollment_id}/tier' was removed from API.
+**Description:** Endpoint '/api/api/benefits/enrollments/{enrollment_id}/tier' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -512,7 +512,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/gen-admin/bookings' was removed from API.
+**Description:** Endpoint '/api/gen-admin/bookings' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -521,7 +521,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/rewards' was removed from API.
+**Description:** Endpoint '/api/api/rewards' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -530,7 +530,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/organizations' was removed from API.
+**Description:** Endpoint '/api/api/organizations' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -539,7 +539,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/attendance' was removed from API.
+**Description:** Endpoint '/api/api/attendance' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -557,7 +557,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/gen-admin/facilities' was removed from API.
+**Description:** Endpoint '/api/gen-admin/facilities' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -566,7 +566,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/departments' was removed from API.
+**Description:** Endpoint '/api/api/departments' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -575,7 +575,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/gen-admin/visitors' was removed from API.
+**Description:** Endpoint '/api/gen-admin/visitors' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -584,7 +584,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/gen-admin/visitors/{visitor_id}/checkout' was removed from API.
+**Description:** Endpoint '/api/gen-admin/visitors/{visitor_id}/checkout' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -593,7 +593,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/tax-calculation/{employee_id}/{tax_year}' was removed from API.
+**Description:** Endpoint '/api/api/tax-calculation/{employee_id}/{tax_year}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -602,7 +602,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/expenses' was removed from API.
+**Description:** Endpoint '/api/api/expenses' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -611,7 +611,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/auth/login' was removed from API.
+**Description:** Endpoint '/api/api/auth/login' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -620,7 +620,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/payroll' was removed from API.
+**Description:** Endpoint '/api/api/payroll' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -629,7 +629,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/banks' was removed from API.
+**Description:** Endpoint '/api/api/banks' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -638,7 +638,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/rbac/permissions' was removed from API.
+**Description:** Endpoint '/api/api/rbac/permissions' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -647,7 +647,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/self-service/document-requests' was removed from API.
+**Description:** Endpoint '/api/api/self-service/document-requests' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -656,7 +656,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/performance/goals' was removed from API.
+**Description:** Endpoint '/api/api/performance/goals' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -665,7 +665,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/learning/courses' was removed from API.
+**Description:** Endpoint '/api/api/learning/courses' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -674,7 +674,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/holidays/{holiday_id}' was removed from API.
+**Description:** Endpoint '/api/api/holidays/{holiday_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -683,7 +683,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/onboarding/hires/{hire_id}/steps/{step_id}' was removed from API.
+**Description:** Endpoint '/api/api/onboarding/hires/{hire_id}/steps/{step_id}' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -692,7 +692,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/promotions/requests' was removed from API.
+**Description:** Endpoint '/api/promotions/requests' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -701,7 +701,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/employees/search' was removed from API.
+**Description:** Endpoint '/api/api/employees/search' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -710,7 +710,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/gen-admin/vehicles' was removed from API.
+**Description:** Endpoint '/api/gen-admin/vehicles' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -719,7 +719,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/attendance/search' was removed from API.
+**Description:** Endpoint '/api/api/attendance/search' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -728,7 +728,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/payroll/runs' was removed from API.
+**Description:** Endpoint '/api/api/payroll/runs' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -737,7 +737,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/grades' was removed from API.
+**Description:** Endpoint '/api/api/grades' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -746,7 +746,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/system/audit/run' was removed from API.
+**Description:** Endpoint '/api/api/system/audit/run' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 
@@ -755,7 +755,7 @@
 ### Breaking Change: Endpoint Removed
 
 **Dimension:** API  
-**Description:** Endpoint '/api/v1/api/v1/system/flags' was removed from API.
+**Description:** Endpoint '/api/api/system/flags' was removed from API.
 
 **Recommendation:** Restore endpoint or bump API version.
 

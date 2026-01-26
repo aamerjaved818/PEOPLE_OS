@@ -1,5 +1,9 @@
+import os
 import requests
 import json
+
+API_PORT = os.getenv("API_PORT", "8000")
+API_URL = f"http://localhost:{API_PORT}/api"
 
 # Test login endpoint to see if isSystemUser is now included
 test_users = [
@@ -12,7 +16,7 @@ print("Testing login endpoint responses:\n")
 for test in test_users:
     try:
         resp = requests.post(
-            'http://localhost:8000/api/v1/auth/login',
+            f'{API_URL}/auth/login',
             json=test,
             timeout=5
         )

@@ -1,12 +1,16 @@
+import os
 import requests
 import json
 import time
+
+API_PORT = os.getenv("API_PORT", "8000")
+API_URL = f"http://localhost:{API_PORT}/api"
 
 # Test the complete login and verify what gets stored
 time.sleep(2)
 
 resp = requests.post(
-    'http://localhost:8000/api/v1/auth/login',
+    f'{API_URL}/auth/login',
     json={'username': 'root', 'password': 'root'}
 )
 

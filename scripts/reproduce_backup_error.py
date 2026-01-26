@@ -1,11 +1,13 @@
+import os
 import requests
 
-BASE_URL = "http://localhost:8000"
+API_PORT = os.getenv("API_PORT", "8000")
+BASE_URL = f"http://localhost:{API_PORT}"
 
 # 1. Login to get token (assuming generic admin credentials, or we test without auth first)
 def login(username, password):
     try:
-        resp = requests.post(f"{BASE_URL}/api/v1/auth/login", json={"username": username, "password": password})
+        resp = requests.post(f"{BASE_URL}/api/auth/login", json={"username": username, "password": password})
         if resp.status_code == 200:
             return resp.json()["access_token"]
     except Exception as e:
@@ -17,8 +19,8 @@ def test_backup_create(token):
     headers = {"Authorization": f"Bearer {token}"} if token else {}
     try:
         # Trying the likely endpoint for creating backup
-        resp = requests.post(f"{BASE_URL}/api/v1/system/maintenance/backups", headers=headers)
-        print(f"POST /api/v1/system/maintenance/backups Status: {resp.status_code}")
+        resp = requests.post(f"{BASE_URL}/api/system/maintenance/backups", headers=headers)
+        print(f"POST /api/system/maintenance/backups Status: {resp.status_code}")
         print(f"Response: {resp.text}")
     except Exception as e:
         print(f"Request failed: {e}")
@@ -28,8 +30,8 @@ def test_restore_auth(token):
     headers = {"Authorization": f"Bearer {token}"} if token else {}
     try:
         # Trying to restore (dummy filename)
-        resp = requests.post(f"{BASE_URL}/api/v1/system/maintenance/restore/dummy.bak", headers=headers)
-        print(f"POST /api/v1/system/maintenance/restore/dummy.bak Status: {resp.status_code}")
+        resp = requests.post(f"{BASE_URL}/api/system/maintenance/restore/dummy.bak", headers=headers)
+        print(f"POST /api/system/maintenance/restore/dummy.bak Status: {resp.status_code}")
         print(f"Response: {resp.text}")
     except Exception as e:
         print(f"Request failed: {e}")

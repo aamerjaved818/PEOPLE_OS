@@ -1,12 +1,16 @@
+import os
 import requests
 import time
+
+API_PORT = os.getenv("API_PORT", "8000")
+API_URL = f"http://localhost:{API_PORT}/api"
 
 time.sleep(2)  # Wait for backend to start
 
 try:
     # Try to login with the Root user we created
     login_resp = requests.post(
-        'http://localhost:8000/api/v1/auth/login',
+        f'{API_URL}/auth/login',
         json={'username': '.amer', 'password': 'RootAdmin123!'},
         timeout=5
     )
@@ -20,7 +24,7 @@ try:
         # Now use the token to get users
         headers = {'Authorization': f'Bearer {token}'}
         users_resp = requests.get(
-            'http://localhost:8000/api/v1/users',
+            f'{API_URL}/users',
             headers=headers,
             timeout=5
         )

@@ -234,7 +234,7 @@ class EnvironmentConfigurator:
 
 7. TEST THE SYSTEM
    ────────────────
-   $ curl -X GET http://localhost:8000/api/v1/analytics/schedules
+   $ curl -X GET http://localhost:8000/api/analytics/schedules
 
    Or use the React UI:
    $ npm start

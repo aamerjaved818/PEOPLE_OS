@@ -1,9 +1,11 @@
 
+import os
 import requests
 import sys
 import time
 
-BASE_URL = "http://localhost:8000"
+API_PORT = os.getenv("API_PORT", "8000")
+BASE_URL = f"http://localhost:{API_PORT}"
 RED = "\033[91m"
 GREEN = "\033[92m"
 RESET = "\033[0m"
@@ -20,8 +22,8 @@ def run_audit():
 
     # 1. Health Check
     try:
-        print("Checking System Health (/api/v1/health)...")
-        response = requests.get(f"{BASE_URL}/api/v1/health", timeout=5)
+        print("Checking System Health (/api/health)...")
+        response = requests.get(f"{BASE_URL}/api/health", timeout=5)
         if response.status_code == 200:
             data = response.json()
             # Expect "Optimal" or "Degraded"
@@ -40,7 +42,7 @@ def run_audit():
     try:
         print("\nVerifying Login Flow (admin)...")
         payload = {"username": "admin", "password": "admin"}
-        response = requests.post(f"{BASE_URL}/api/v1/auth/login", json=payload, timeout=5)
+        response = requests.post(f"{BASE_URL}/api/auth/login", json=payload, timeout=5)
         
         if response.status_code == 200:
             data = response.json()
@@ -58,10 +60,10 @@ def run_audit():
 
     # 3. Verify Token
     try:
-        print("\nVerifying Protected Route (GET /api/v1/users)...")
+        print("\nVerifying Protected Route (GET /api/users)...")
         headers = {"Authorization": f"Bearer {token}"}
-        # /api/v1/users requires SystemAdmin, which admin should be
-        response = requests.get(f"{BASE_URL}/api/v1/users", headers=headers, params={"limit": 1}, timeout=5)
+        # /api/users requires SystemAdmin, which admin should be
+        response = requests.get(f"{BASE_URL}/api/users", headers=headers, params={"limit": 1}, timeout=5)
         
         if response.status_code == 200:
             users_list = response.json()

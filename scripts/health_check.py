@@ -19,7 +19,7 @@ def check_health():
     # 1. Check Backend Connectivity
     # Use settings.PORT but fallback to 8000 if not set or if there's an issue
     port = getattr(settings, 'PORT', 8000)
-    health_url = f"http://localhost:{port}/api/v1/health"
+    health_url = f"http://localhost:{port}/api/health"
     print(f"🔗 Checking Backend: {health_url}")
     try:
         response = requests.get(health_url, timeout=5)

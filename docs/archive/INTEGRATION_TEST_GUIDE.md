@@ -240,7 +240,7 @@ GET /health
   "timestamp": "2026-01-23T10:30:00Z"
 }
 
-GET /api/v1/analytics/schedules
+GET /api/analytics/schedules
 []  // Empty initially, populated after creating schedules
 
 GET /docs

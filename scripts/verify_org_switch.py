@@ -161,7 +161,7 @@ def run_test():
     print(f"Setup Complete. Org1: {org1_id}, Org2: {org2_id}")
 
     # Login
-    response = client.post("/api/v1/auth/login", json={"username": "verifier", "password": "password123"})
+    response = client.post("/api/auth/login", json={"username": "verifier", "password": "password123"})
     if response.status_code != 200:
         print("Login Failed", response.text)
         return
@@ -173,7 +173,7 @@ def run_test():
 
     print("\n--- TEST 1: Get Employees with User Role (Should return Org 1) ---")
     try:
-        resp1 = client.get("/api/v1/employees", headers=headers)
+        resp1 = client.get("/api/employees", headers=headers)
         print(f"Status: {resp1.status_code}")
         employees1 = resp1.json()
         print(f"Response Body: {employees1}")
@@ -199,7 +199,7 @@ def run_test():
     headers_switched = headers.copy()
     headers_switched["x-organization-id"] = org2_id
     
-    resp2 = client.get("/api/v1/employees", headers=headers_switched)
+    resp2 = client.get("/api/employees", headers=headers_switched)
     print(f"Status: {resp2.status_code}")
     employees2 = resp2.json()
     ids2 = [e['id'] for e in employees2]

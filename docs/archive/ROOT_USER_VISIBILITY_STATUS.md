@@ -37,7 +37,7 @@ RULE: The Root user and their role/permissions are ONLY visible to Root.
 
 - **Location**: `backend/routers/auth.py` (line 73-78)
 - **Protection**: Route requires role validation and passes current_user
-- **Endpoint**: `GET /api/v1/users` only returns filtered results
+- **Endpoint**: `GET /api/users` only returns filtered results
 
 ### 3. Frontend Protection ✅
 
@@ -64,7 +64,7 @@ RULE: The Root user and their role/permissions are ONLY visible to Root.
 ### Data Flow - Root User Requests List
 
 ```
-Root → GET /api/v1/users
+Root → GET /api/users
   ↓
 API validates role ✓ (Root authorized)
   ↓
@@ -78,7 +78,7 @@ Frontend: Root visible in UserManagement
 ### Data Flow - Non-Root User Requests List
 
 ```
-SystemAdmin → GET /api/v1/users
+SystemAdmin → GET /api/users
   ↓
 API validates role ✓ (SystemAdmin authorized)
   ↓

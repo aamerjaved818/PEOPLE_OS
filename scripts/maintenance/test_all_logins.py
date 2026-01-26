@@ -1,5 +1,9 @@
+import os
 import requests
 import json
+
+API_PORT = os.getenv("API_PORT", "8000")
+API_URL = f"http://localhost:{API_PORT}/api"
 
 # Test with different variations
 test_cases = [
@@ -14,7 +18,7 @@ print("Testing login endpoint with various credentials:\n")
 for test in test_cases:
     try:
         resp = requests.post(
-            'http://localhost:8000/api/v1/auth/login',
+            f'{API_URL}/auth/login',
             json=test,
             timeout=5
         )

@@ -18,9 +18,9 @@ export const API_CONFIG = {
 // Server Ports
 export const PORTS = {
   BACKEND_API: Number(import.meta.env.VITE_API_PORT) || 8000,
-  FRONTEND_DEV: Number(import.meta.env.VITE_FRONTEND_PORT) || 5173,
+  FRONTEND_DEV: Number(import.meta.env.VITE_FRONTEND_PORT) || 5000,
   FRONTEND_PREVIEW: Number(import.meta.env.VITE_PREVIEW_PORT) || 9000,
-  FRONTEND_TEST: 4040,
+  FRONTEND_TEST: Number(import.meta.env.VITE_FRONTEND_TEST_PORT) || 4000,
 } as const;
 
 // Environment URLs
@@ -70,6 +70,7 @@ export const APP_METADATA = {
   NAME: 'peopleOS eBusiness Suite',
   NODE_NAME: 'Production Node',
   CLUSTER_TYPE: 'Static Cluster',
+  VERSION: '1.0.0',
 } as const;
 
 // Employee Code Prefix
@@ -94,6 +95,6 @@ export const CORS_ORIGINS = [
   `http://localhost:${PORTS.FRONTEND_DEV}`,
   `http://localhost:${PORTS.FRONTEND_TEST}`,
   `http://localhost:${PORTS.FRONTEND_PREVIEW}`,
-  'http://localhost:8000',
-  'http://127.0.0.1:5173',
+  `http://localhost:${PORTS.BACKEND_API}`,
+  'http://127.0.0.1:5000',
 ] as const;

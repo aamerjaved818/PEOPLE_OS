@@ -30,15 +30,15 @@
 
 ### API Endpoints (11/11)
 
-- [x] POST /api/v1/analytics/schedules (create)
-- [x] GET /api/v1/analytics/schedules (list)
-- [x] GET /api/v1/analytics/schedules/{id} (get)
-- [x] PUT /api/v1/analytics/schedules/{id} (update)
-- [x] DELETE /api/v1/analytics/schedules/{id} (delete)
-- [x] POST /api/v1/analytics/schedules/{id}/pause
-- [x] POST /api/v1/analytics/schedules/{id}/resume
-- [x] POST /api/v1/analytics/schedules/{id}/trigger
-- [x] GET /api/v1/analytics/schedules/{id}/task-status/{task_id}
+- [x] POST /api/analytics/schedules (create)
+- [x] GET /api/analytics/schedules (list)
+- [x] GET /api/analytics/schedules/{id} (get)
+- [x] PUT /api/analytics/schedules/{id} (update)
+- [x] DELETE /api/analytics/schedules/{id} (delete)
+- [x] POST /api/analytics/schedules/{id}/pause
+- [x] POST /api/analytics/schedules/{id}/resume
+- [x] POST /api/analytics/schedules/{id}/trigger
+- [x] GET /api/analytics/schedules/{id}/task-status/{task_id}
 - [x] Error handling and authentication
 - [x] Request/response validation
 
@@ -185,9 +185,9 @@
   - Update report directory
 
 - [ ] **Step 10: Test API endpoints**
-  - POST /api/v1/analytics/schedules
-  - GET /api/v1/analytics/schedules
-  - POST /api/v1/analytics/schedules/{id}/trigger
+  - POST /api/analytics/schedules
+  - GET /api/analytics/schedules
+  - POST /api/analytics/schedules/{id}/trigger
 
 ### Testing (Pending)
 

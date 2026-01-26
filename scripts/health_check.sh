@@ -13,7 +13,8 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Configuration
-API_URL="http://localhost:8000"
+API_PORT="${API_PORT:-8000}"
+API_URL="http://localhost:${API_PORT}"
 REDIS_HOST="localhost"
 REDIS_PORT="6379"
 CELERY_APP="backend.services.async_tasks"
@@ -71,7 +72,7 @@ check_schedules_endpoint() {
     log_info "Checking Schedules API..."
     ((TOTAL_CHECKS++))
     
-    response=$(curl -s -m $TIMEOUT -w "\n%{http_code}" "${API_URL}/api/v1/analytics/schedules")
+    response=$(curl -s -m $TIMEOUT -w "\n%{http_code}" "${API_URL}/api/analytics/schedules")
     http_code=$(echo "$response" | tail -n1)
     
     if [ "$http_code" = "200" ]; then

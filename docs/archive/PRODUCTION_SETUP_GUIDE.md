@@ -253,7 +253,7 @@ Configuration ->
 ### Check API Server
 
 ```bash
-curl http://localhost:8000/api/v1/analytics/schedules
+curl http://localhost:8000/api/analytics/schedules
 # Should return: []
 ```
 
@@ -288,7 +288,7 @@ psql -c "SELECT COUNT(*) FROM report_schedules;" your_database
 ### Create a Test Schedule via API
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/analytics/schedules \
+curl -X POST http://localhost:8000/api/analytics/schedules \
   -H "Content-Type: application/json" \
   -d '{
     "report_name": "Test Report",
@@ -303,7 +303,7 @@ curl -X POST http://localhost:8000/api/v1/analytics/schedules \
 ### List Schedules
 
 ```bash
-curl http://localhost:8000/api/v1/analytics/schedules
+curl http://localhost:8000/api/analytics/schedules
 ```
 
 ### Monitor Task Execution

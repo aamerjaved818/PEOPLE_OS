@@ -2,10 +2,15 @@
 Monitor backend activity by watching API calls
 Shows what data is being requested when you navigate
 """
+import os
 import requests
 import json
 import time
 from datetime import datetime
+
+# Configuration from environment
+API_PORT = os.getenv("API_PORT", "8000")
+API_URL = f"http://localhost:{API_PORT}/api"
 
 print("\n" + "="*80)
 print(" "*20 + "PEOPLE OS API MONITOR")
@@ -16,7 +21,7 @@ print("Open your browser and navigate to the System Administrators page to see a
 # Get auth token first
 try:
     login_r = requests.post(
-        'http://localhost:8000/api/v1/auth/login',
+        f'{API_URL}/auth/login',
         json={'username': 'root', 'password': 'root'},
         timeout=5
     )
@@ -46,7 +51,7 @@ previous_data = {}
 while True:
     try:
         for name, endpoint in endpoints:
-            r = requests.get(f'http://localhost:8000/api/v1{endpoint}', headers=headers, timeout=2)
+            r = requests.get(f'{API_URL}{endpoint}', headers=headers, timeout=2)
             
             if r.status_code == 200:
                 data = r.json()

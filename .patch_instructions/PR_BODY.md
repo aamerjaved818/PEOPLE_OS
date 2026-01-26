@@ -15,7 +15,7 @@ Files to review:
 Testing done:
 
 - `python system_test.py` — all tests passed (health, auth, system flags, payroll settings, users, organizations, CORS).
-- Manual check: `/api/v1/users` returns 3 users; `/api/v1/system/flags` and `/api/v1/payroll-settings` return 200.
+- Manual check: `/api/users` returns 3 users; `/api/system/flags` and `/api/payroll-settings` return 200.
 - Frontend behavior: debounced `fetchProfile` prevents request storms; adaptive clamp limited to dev prevents accidental 429s during local development.
 
 How to test locally:

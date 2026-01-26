@@ -2,7 +2,7 @@ import requests
 import json
 
 # URL for the employees list endpoint
-url = "http://localhost:8001/api/v1/employees?skip=0&limit=10"
+url = "http://localhost:8001/api/employees?skip=0&limit=10"
 
 try:
     response = requests.get(url)

@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { TEST_ENV } from '../config';
 
 test.describe('Organization Structure - Department & Sub-Department CRUD', () => {
-  const BASE_URL = 'http://localhost:3000';
-  const API_URL = 'http://localhost:8000/api';
+  const BASE_URL = TEST_ENV.FRONTEND_URL;
+  const API_URL = TEST_ENV.API_URL;
 
   // Test data
   const testDept1 = {

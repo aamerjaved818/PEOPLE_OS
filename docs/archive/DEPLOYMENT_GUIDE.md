@@ -89,7 +89,7 @@ npm run dev
 
 - [ ] Approve leave → Check email sent (if SMTP configured)
 - [ ] Approve document request → Check notification created
-- [ ] View notifications at `/api/v1/notifications`
+- [ ] View notifications at `/api/notifications`
 
 ### Payslips
 
@@ -104,44 +104,44 @@ npm run dev
 ### Self-Service
 
 ```
-GET    /api/v1/self-service/profile
-PUT    /api/v1/self-service/profile
-PUT    /api/v1/self-service/emergency-contact
-POST   /api/v1/self-service/document-requests
-GET    /api/v1/self-service/document-requests
-GET    /api/v1/self-service/documents
-GET    /api/v1/self-service/payslips
-GET    /api/v1/self-service/team-directory
-POST   /api/v1/self-service/info-update-request
+GET    /api/self-service/profile
+PUT    /api/self-service/profile
+PUT    /api/self-service/emergency-contact
+POST   /api/self-service/document-requests
+GET    /api/self-service/document-requests
+GET    /api/self-service/documents
+GET    /api/self-service/payslips
+GET    /api/self-service/team-directory
+POST   /api/self-service/info-update-request
 ```
 
 ### File Upload
 
 ```
-POST   /api/v1/upload/profile-photo
-POST   /api/v1/upload/document
-DELETE /api/v1/files/{id}
+POST   /api/upload/profile-photo
+POST   /api/upload/document
+DELETE /api/files/{id}
 ```
 
 ### Notifications
 
 ```
-GET    /api/v1/notifications
-PUT    /api/v1/notifications/{id}/read
-GET    /api/v1/notifications/unread-count
-PUT    /api/v1/notifications/mark-all-read
+GET    /api/notifications
+PUT    /api/notifications/{id}/read
+GET    /api/notifications/unread-count
+PUT    /api/notifications/mark-all-read
 ```
 
 ### Enhanced Leaves
 
 ```
-GET    /api/v1/hcm/leave-types
-POST   /api/v1/hcm/leave-types
-PUT    /api/v1/hcm/leaves/{id}/approve
-GET    /api/v1/hcm/leaves/my-requests
-GET    /api/v1/hcm/leaves/pending-approvals
-GET    /api/v1/hcm/leaves/calendar
-POST   /api/v1/hcm/leaves/carry-forward
+GET    /api/hcm/leave-types
+POST   /api/hcm/leave-types
+PUT    /api/hcm/leaves/{id}/approve
+GET    /api/hcm/leaves/my-requests
+GET    /api/hcm/leaves/pending-approvals
+GET    /api/hcm/leaves/calendar
+POST   /api/hcm/leaves/carry-forward
 ```
 
 ---

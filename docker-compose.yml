@@ -67,7 +67,7 @@ services:
       API_PORT: 8000
       DEBUG: ${DEBUG:-false}
     ports:
-      - '8000:8000'
+      - '${API_PORT:-8000}:${API_PORT:-8000}'
     depends_on:
       redis:
         condition: service_healthy

@@ -1,12 +1,16 @@
+import os
 import requests
 import json
 import time
+
+API_PORT = os.getenv("API_PORT", "8000")
+API_URL = f"http://localhost:{API_PORT}/api"
 
 print("=== SIMULATING FRONTEND MASTERDATA FETCH ===\n")
 
 # Step 1: Login
 print("1. Logging in...")
-login_r = requests.post('http://localhost:8000/api/v1/auth/login', 
+login_r = requests.post(f'{API_URL}/auth/login', 
                        json={'username': 'root', 'password': 'root'})
 if login_r.status_code != 200:
     print(f"   ERROR: Login failed with {login_r.status_code}")
@@ -29,7 +33,7 @@ endpoints = [
 
 for endpoint, label in endpoints:
     try:
-        r = requests.get(f'http://localhost:8000/api/v1{endpoint}', headers=headers, timeout=3)
+        r = requests.get(f'http://localhost:8000/api{endpoint}', headers=headers, timeout=3)
         if r.status_code == 200:
             data = r.json()
             if isinstance(data, list):
@@ -43,7 +47,7 @@ for endpoint, label in endpoints:
 
 # Step 3: Check that users include isSystemUser
 print("\n3. Verifying users have isSystemUser field...")
-r = requests.get('http://localhost:8000/api/v1/users', headers=headers)
+r = requests.get(f'{API_URL}/users', headers=headers)
 users = r.json()
 for u in users:
     is_sys = u.get('isSystemUser')

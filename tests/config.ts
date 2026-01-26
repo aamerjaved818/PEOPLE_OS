@@ -3,6 +3,11 @@
  * Comprehensive Playwright setup for critical path testing
  */
 
+export const TEST_ENV = {
+  FRONTEND_URL: `http://localhost:${process.env.FRONTEND_PORT || 5000}`,
+  API_URL: `http://localhost:${process.env.API_PORT || 8000}/api`,
+};
+
 export const TEST_CONFIG = {
   // Critical user flows that must be tested
   CRITICAL_PATHS: [

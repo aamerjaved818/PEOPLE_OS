@@ -291,7 +291,7 @@ pytest tests/test_phase4b_part3_integration.py -v
 ### Create Test Schedule
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/analytics/schedules \
+curl -X POST http://localhost:8000/api/analytics/schedules \
   -H "Content-Type: application/json" \
   -d '{"report_name":"Test","report_type":"sales","format":"pdf","frequency":"daily","recipients":["test@example.com"]}'
 ```

@@ -45,6 +45,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   onEdit,
   onExit,
   onDelete,
+  filteredEmployees,
   upcomingEvents,
 }) => {
   const { theme } = useTheme();

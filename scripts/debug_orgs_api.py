@@ -1,12 +1,14 @@
+import os
 import requests
 import json
 
-BASE_URL = "http://localhost:8000"
+API_PORT = os.getenv("API_PORT", "8000")
+BASE_URL = f"http://localhost:{API_PORT}"
 
 def get_orgs():
-    print(f"GET {BASE_URL}/api/v1/organizations")
+    print(f"GET {BASE_URL}/api/organizations")
     try:
-        resp = requests.get(f"{BASE_URL}/api/v1/organizations")
+        resp = requests.get(f"{BASE_URL}/api/organizations")
         print(f"Status: {resp.status_code}")
         if resp.status_code == 200:
             data = resp.json()

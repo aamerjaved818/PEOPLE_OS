@@ -1,12 +1,16 @@
+import os
 import requests
 import time
+
+API_PORT = os.getenv("API_PORT", "8000")
+API_URL = f"http://localhost:{API_PORT}/api"
 
 # Test the users API with authentication
 time.sleep(2)
 
 # Login first
 login_resp = requests.post(
-    'http://localhost:8000/api/v1/auth/login',
+    f'{API_URL}/auth/login',
     json={'username': 'root', 'password': 'root'},
     timeout=5
 )
@@ -18,7 +22,7 @@ if login_resp.status_code == 200:
     # Fetch users multiple times to see if the API returns consistent data
     print("Testing users API multiple times:\n")
     for i in range(3):
-        resp = requests.get('http://localhost:8000/api/v1/users', headers=headers, timeout=5)
+        resp = requests.get('http://localhost:8000/api/users', headers=headers, timeout=5)
         if resp.ok:
             users = resp.json()
             print(f"Call {i+1}: Found {len(users)} users")

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ShieldCheck,
   TrendingUp,
-  Rocket,
   LayoutDashboard,
   Building,
   Settings,
@@ -28,69 +28,36 @@ import {
   History,
 } from 'lucide-react';
 import { useRBAC } from '@/contexts/RBACContext';
-import { RoleGuard } from '../auth/RoleGuard';
-import { ModuleType } from '@/types';
 import { ToastProvider } from '../ui/Toast';
-// ModuleSkeleton is used dynamically via Suspense fallback if needed
 import { useUIStore } from '@/store/uiStore';
 import { useOrgStore } from '@/store/orgStore';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLayout } from '@/contexts/LayoutContext';
 import GlassCard from '../ui/GlassCard';
 import ThemeSwitcher from '../ui/ThemeSwitcher';
+import AppRoutes from '../../routes';
 
 // Lazy Load Core Components
 const AIInsightsPanel = React.lazy(() => import('../AIInsightsPanel'));
-
-// Lazy Load Modules
-
-const Dashboard = React.lazy(() => import('../../modules/dashboard'));
-const PayrollEngine = React.lazy(() => import('../../modules/payroll'));
-const ExpensesTravel = React.lazy(() => import('../../modules/expenses'));
-const AnalyticsInsights = React.lazy(() => import('../../modules/analytics'));
-const GeneralAdministration = React.lazy(() => import('../../modules/gen-admin'));
-const HCMModule = React.lazy(() => import('../../modules/hcm'));
-
-const SystemSettings = React.lazy(() => import('../../modules/system-settings'));
-const OrganizationSetup = React.lazy(() => import('../../modules/org-setup'));
-const SelfService = React.lazy(() => import('../../modules/self-service'));
-const LearningModule = React.lazy(() => import('../../modules/learning'));
-const PerformanceModule = React.lazy(() => import('../../modules/performance'));
-const Benefits = React.lazy(() => import('../../modules/benefits'));
-const RewardsModule = React.lazy(() => import('../../modules/rewards'));
-
-const PromotionsModule = React.lazy(() => import('../../modules/promotions'));
-const SystemAudit = React.lazy(() => import('../../modules/system-audit'));
-const OrgAudit = React.lazy(() => import('../../modules/org-audit'));
-
-// Legacy Wrapper for modules that haven't been converted to the new Layout System
-const LegacyModuleWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="h-full w-full overflow-y-auto overscroll-contain custom-scrollbar px-6 md:px-10 pb-10">
-    <div className="w-full pb-20">{children}</div>
-  </div>
-);
 
 interface AuthenticatedAppProps {
   onLogout: () => void;
 }
 
 const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { sidebar, metrics } = useLayout();
   const { hasPermission } = useRBAC();
 
-  // Track if component has hydrated to prevent first-paint layout shift
   const [hasHydrated, setHasHydrated] = useState(false);
-
-  // Ref + state to measure sidebar width so it can auto-fit content
   const asideRef = useRef<HTMLElement | null>(null);
-  // Initialize with computed value based on sidebar state to avoid layout shift
   const [computedSidebarWidth, setComputedSidebarWidth] = useState<number>(
     sidebar.isOpen ? metrics.sidebarWidth || 320 : 0
   );
   const widthMeasuredRef = useRef(false);
 
-  // Mark as hydrated after first render
   useEffect(() => {
     setHasHydrated(true);
   }, []);
@@ -113,22 +80,18 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
       }
     }
 
-    // Use double requestAnimationFrame to ensure DOM is fully laid out before measuring
     frameId = requestAnimationFrame(() => {
       frameId = requestAnimationFrame(() => {
         const el = asideRef.current;
         updateWidth(el);
-
         try {
           ro = new ResizeObserver(() => updateWidth(el));
           if (el && ro) {
             ro.observe(el);
           }
         } catch {
-          // ResizeObserver not supported: fallback to window resize
           window.addEventListener('resize', () => updateWidth(el));
         }
-
         window.addEventListener('resize', () => updateWidth(el));
       });
     });
@@ -143,29 +106,21 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
       if (ro) {
         try {
           ro.disconnect();
-        } catch {
-          /* ignore */
-        }
+        } catch {}
       }
       window.removeEventListener('resize', () => updateWidth(null));
     };
   }, [sidebar.isOpen, metrics.sidebarWidth]);
-  const { activeModule, setActiveModule, setSidebarOpen, colorTheme } = useUIStore();
 
+  const { setSidebarOpen, colorTheme } = useUIStore();
   const { currentUser } = useOrgStore();
+
   const isProfileInactive =
     currentUser?.userType === 'OrgUser' && currentUser?.profileStatus === 'Inactive';
 
-  // Global Org Data Initialization - Handled by App.tsx bootstrap
-  // Small artificial delay or check can be added if needed, but App.tsx ensures data is ready
-
   const [isAIPanelOpen, setAIPanelOpen] = useState(false);
 
-  // Notifications feature placeholder - to be implemented
-  // const notifications = [...];
-
-  // broadcastCount removed - for future notification feature
-
+  // Configuration (Mock/Local)
   const [config, setConfig] = useState(() => {
     const saved = localStorage.getItem('PeopleOS_config');
     return saved
@@ -212,53 +167,6 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
           },
         };
   });
-
-  const moduleLabelMap: Record<ModuleType, string> = {
-    dashboard: 'Dashboard',
-    admin: 'General Administration',
-    hcm: 'Human Capital Mgmt',
-    employees: 'Employee',
-    'org-settings': 'Org Setup',
-    recruitment: 'Recruitment / ATS',
-    'job-postings': 'Job Postings',
-    onboarding: 'Onboarding',
-    offboarding: 'Offboarding',
-    attendance: 'Time & Attendance',
-    leaves: 'Leave & Absence',
-    overtime: 'Overtime',
-    payroll: 'Payroll',
-    'tax-compliance': 'Tax & Compliance',
-    compensation: 'Compensation (C&B)',
-    benefits: 'Benefits',
-    performance: 'Performance Mgmt',
-    promotions: 'Increments & Promotions',
-    learning: 'L&D (LMS)',
-    skills: 'Skills & Competency',
-    succession: 'Talent & Succession',
-    engagement: 'Employee Engagement',
-    rewards: 'Recognition & Rewards',
-    relations: 'Employee Relations',
-    'health-safety': 'Health & Safety (EHS)',
-
-    expenses: 'Expense Mgmt',
-    alumni: 'Alumni Mgmt',
-    analytics: 'HR Analytics & BI',
-    workflow: 'Workflow & Automation',
-    'self-service': 'Self Service',
-    'people-os-chat': 'AI Chat',
-    assets: 'Asset Management',
-    visitors: 'Visitor Management',
-    travel: 'Travel',
-    assistance: 'Assistance',
-    'system-audit': 'System Audit',
-    'org-audit': 'Organization Audit',
-    'system-settings': 'System Settings',
-    integration: 'Integrations',
-    'system-health': 'System Health',
-    neural: 'AI Core',
-  };
-
-  // Theme is handled centrally by ThemeContext; no local DOM theme mutations here.
 
   // Apply Color Theme
   useEffect(() => {
@@ -350,143 +258,12 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
       .filter((group) => group.items.length > 0);
   }, [hasPermission, navGroups]);
 
-  const renderModule = () => {
-    if (config.enabledModules[activeModule] === false) {
-      return <Dashboard />;
-    }
-
-    switch (activeModule) {
-      // --- Core Modules (Group 1 - Independent & Self-Managed) ---
-      case 'dashboard':
-        return <Dashboard />;
-
-      case 'admin':
-        return <GeneralAdministration />;
-
-      case 'hcm':
-        return (
-          <RoleGuard permission="view_employees">
-            <HCMModule />
-          </RoleGuard>
-        );
-
-      case 'org-settings':
-        return (
-          <RoleGuard permission="manage_master_data">
-            <OrganizationSetup />
-          </RoleGuard>
-        );
-
-      case 'system-settings':
-        return (
-          <RoleGuard permission="system_config">
-            <SystemSettings />
-          </RoleGuard>
-        );
-
-      case 'system-audit':
-        return (
-          <RoleGuard permission="system_config">
-            <SystemAudit />
-          </RoleGuard>
-        );
-
-      case 'org-audit':
-        return (
-          <RoleGuard permission="manage_master_data">
-            <OrgAudit />
-          </RoleGuard>
-        );
-
-      // --- Functional Modules (Succession Management) ---
-      case 'payroll':
-        return (
-          <LegacyModuleWrapper>
-            <PayrollEngine />
-          </LegacyModuleWrapper>
-        );
-      case 'expenses':
-        return (
-          <LegacyModuleWrapper>
-            <ExpensesTravel />
-          </LegacyModuleWrapper>
-        );
-      case 'analytics':
-        return (
-          <LegacyModuleWrapper>
-            <AnalyticsInsights />
-          </LegacyModuleWrapper>
-        );
-      case 'self-service':
-        return (
-          <LegacyModuleWrapper>
-            <SelfService />
-          </LegacyModuleWrapper>
-        );
-      case 'learning':
-        return (
-          <LegacyModuleWrapper>
-            <LearningModule />
-          </LegacyModuleWrapper>
-        );
-      case 'performance':
-        return (
-          <LegacyModuleWrapper>
-            <PerformanceModule />
-          </LegacyModuleWrapper>
-        );
-      case 'promotions':
-        return (
-          <LegacyModuleWrapper>
-            <PromotionsModule />
-          </LegacyModuleWrapper>
-        );
-      case 'benefits':
-        return (
-          <LegacyModuleWrapper>
-            <Benefits />
-          </LegacyModuleWrapper>
-        );
-
-      case 'rewards':
-        return (
-          <LegacyModuleWrapper>
-            <RewardsModule />
-          </LegacyModuleWrapper>
-        );
-      case 'tax-compliance':
-      case 'compensation':
-      case 'skills':
-      case 'succession':
-      case 'engagement':
-      case 'relations':
-      case 'health-safety':
-      case 'alumni':
-      case 'workflow':
-      case 'integration':
-        return (
-          <LegacyModuleWrapper>
-            <div className="flex flex-col items-center justify-center h-full text-center p-10">
-              <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-                <Rocket className="w-12 h-12 text-primary" />
-              </div>
-              <h2 className="text-3xl font-black text-text-primary uppercase tracking-tight">
-                {moduleLabelMap[activeModule]}
-              </h2>
-              <p className="text-text-muted mt-2 font-medium max-w-md">
-                This module is currently under development. Check back soon for updates!
-              </p>
-            </div>
-          </LegacyModuleWrapper>
-        );
-      default:
-        return (
-          <LegacyModuleWrapper>
-            <Dashboard />
-          </LegacyModuleWrapper>
-        );
-    }
+  // Determine active module based on URL
+  const getActiveModuleFromPath = () => {
+    const path = location.pathname.split('/')[1];
+    return path || 'dashboard';
   };
+  const activeModule = getActiveModuleFromPath();
 
   if (isProfileInactive) {
     return (
@@ -529,8 +306,6 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
     );
   }
 
-  // Robust Sidebar Margin Calculation
-  // Use safe fallback until ResizeObserver has measured the actual sidebar width
   const safeSidebarWidth = metrics?.sidebarWidth || 280;
   const currentSidebarMargin = sidebar.isOpen
     ? widthMeasuredRef.current
@@ -585,7 +360,7 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
                     <button
                       key={item.id}
                       onClick={() => {
-                        setActiveModule(item.id as ModuleType);
+                        navigate(`/${item.id}`);
                         if (window.innerWidth < 768) {
                           setSidebarOpen(false);
                         }
@@ -596,8 +371,6 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
                           : 'text-slate-400 hover:bg-slate-800/60 hover:text-blue-400 hover:border-blue-500/10 hover:translate-x-1 border border-transparent'
                       }`}
                       title={item.label}
-                      aria-label={`Navigate to ${item.label}`}
-                      aria-current={activeModule === item.id ? 'page' : undefined}
                     >
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all border ${
@@ -632,7 +405,6 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
             ))}
           </nav>
 
-          {/* User Profile & Logout Footer */}
           <div className="p-4 border-t border-blue-500/20 bg-slate-900/50 shrink-0 mb-4">
             {currentUser && (
               <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-800/50 border border-white/5 mb-3 backdrop-blur-sm transition-colors hover:bg-slate-800/80">
@@ -675,7 +447,6 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
               <button
                 onClick={onLogout}
                 className="col-span-4 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-800 hover:bg-red-500/10 text-slate-400 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all duration-300 group shadow-sm hover:shadow-red-500/10"
-                aria-label="Log Out"
               >
                 <LogOut
                   size={16}
@@ -693,17 +464,12 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
           }`}
           style={
             hasHydrated
-              ? {
-                  marginLeft: currentSidebarMargin,
-                }
+              ? { marginLeft: currentSidebarMargin }
               : sidebar.isOpen
-                ? {
-                    marginLeft: 280,
-                  }
+                ? { marginLeft: 280 }
                 : { marginLeft: 0 }
           }
         >
-          {/* Top Header - Calm Control Strip */}
           <header className="h-16 bg-surface border-b border-blue-500/20 sticky top-0 z-50 px-8 flex items-center justify-between transition-all duration-300 shrink-0 shadow-lg">
             <div className="flex items-center gap-4">
               <button
@@ -715,13 +481,16 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
               </button>
               <div className="flex items-center gap-3 text-sm font-medium text-text-muted">
                 <span className="text-text-primary font-black uppercase tracking-wider text-[0.8rem]">
-                  {moduleLabelMap[activeModule]}
+                  {activeModule}
+                </span>
+                <span className="text-blue-500/30">/</span>
+                <span className="text-text-muted text-[0.7rem] uppercase tracking-wide">
+                  Overview
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-6">
-              {/* Environment Badge - Standardized */}
               {import.meta.env.VITE_APP_ENV !== 'production' &&
                 import.meta.env.MODE !== 'production' && (
                   <div
@@ -751,10 +520,7 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
             </div>
 
             <div className="flex items-center gap-4">
-              {/* Theme Switcher */}
               <ThemeSwitcher compact={false} />
-
-              {/* AI Assistant Button */}
               <button
                 onClick={() => setAIPanelOpen(!isAIPanelOpen)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 ${
@@ -771,18 +537,14 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
             </div>
           </header>
 
-          <div
-            className="flex-1 overflow-hidden"
-            style={{
-              height: 'calc(100vh - 64px)', // Deduct header height
-            }}
-          >
+          <div className="flex-1 overflow-hidden" style={{ height: 'calc(100vh - 64px)' }}>
             <GlassCard className="m-4 h-full overflow-hidden">
-              <div className="h-full overflow-hidden">{renderModule()}</div>
+              <div className="h-full overflow-hidden">
+                <AppRoutes />
+              </div>
             </GlassCard>
           </div>
 
-          {/* AI Panel Overlay */}
           <React.Suspense fallback={null}>
             {isAIPanelOpen && (
               <div className="absolute top-16 right-0 w-[400px] h-[calc(100vh-64px)] z-40 animate-in slide-in-from-right duration-300 shadow-2xl">

@@ -45,6 +45,7 @@ import {
   PromotionApproval,
   TravelRequest,
 } from '../types';
+import { API_CONFIG } from '@/config/constants';
 // Mock data imports removed to enforce strict backend dependency
 import { RateLimiter } from '../utils/security';
 import { GovernanceEngine } from '@/system/GovernanceEngine';

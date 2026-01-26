@@ -389,7 +389,7 @@ bash scripts/health_check.sh
 ### 5. Create Test Schedule
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/analytics/schedules \
+curl -X POST http://localhost:8000/api/analytics/schedules \
   -H "Content-Type: application/json" \
   -d '{
     "report_name": "Test Report",

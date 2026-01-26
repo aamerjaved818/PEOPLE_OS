@@ -39,7 +39,7 @@ export default defineConfig({
 
   use: {
     // Base URL for tests (Production Build)
-    baseURL: `http://localhost:${process.env.FRONTEND_PORT || 5173}`,
+    baseURL: `http://localhost:${process.env.FRONTEND_PORT || 5000}`,
 
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
@@ -59,7 +59,7 @@ export default defineConfig({
   //Run local dev server before starting the tests
   webServer: {
     command: 'npm run dev',
-    url: `http://localhost:${process.env.FRONTEND_PORT || 5173}`,
+    url: `http://localhost:${process.env.FRONTEND_PORT || 5000}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

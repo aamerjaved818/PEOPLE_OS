@@ -74,7 +74,7 @@ def scan_api_endpoints():
             
         routes = []
         for line in lines:
-            if "@app." in line and "/api/v1/" in line:
+            if "@app." in line and "/api/" in line:
                 # excessively simple parser
                 method = line.split("@app.")[1].split("(")[0].upper()
                 path = line.split('"')[1]
@@ -84,12 +84,12 @@ def scan_api_endpoints():
         
         # Verify specific critical routes exist
         required_routes = [
-            "GET /api/v1/organizations",
-            "GET /api/v1/job-levels",
-            "GET /api/v1/grades",
-            "DELETE /api/v1/grades/{grade_id}",
-            "PUT /api/v1/grades/{grade_id}",
-            "DELETE /api/v1/employees/{employee_id}"
+            "GET /api/organizations",
+            "GET /api/job-levels",
+            "GET /api/grades",
+            "DELETE /api/grades/{grade_id}",
+            "PUT /api/grades/{grade_id}",
+            "DELETE /api/employees/{employee_id}"
         ]
         
         for route in required_routes:

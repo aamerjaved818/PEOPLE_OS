@@ -2,10 +2,17 @@
 PEOPLE OS - COMPREHENSIVE SYSTEM TEST
 Tests all components: Database, Backend, Frontend Readiness, and Data Integrity
 """
+import os
 import requests
 import json
 import time
 from datetime import datetime
+
+# Configuration from environment
+API_PORT = os.getenv("API_PORT", "8000")
+FRONTEND_PORT = os.getenv("FRONTEND_PORT", "5173")
+API_URL = f"http://localhost:{API_PORT}/api"
+FRONTEND_URL = f"http://localhost:{FRONTEND_PORT}"
 
 # Color codes
 GREEN = '\033[92m'
@@ -39,7 +46,7 @@ subsection("Backend Status")
 
 # Check if backend is running
 try:
-    r = requests.get('http://localhost:8000/api/v1/health', timeout=3)
+    r = requests.get(f'{API_URL}/health', timeout=3)
     backend_ok = r.status_code == 200
     test_result(backend_ok, "Backend health endpoint", f"Status: {r.status_code}")
 except Exception as e:
@@ -52,7 +59,7 @@ if not backend_ok:
 
 # Check database connectivity
 try:
-    r = requests.get('http://localhost:8000/api/v1/health', timeout=3)
+    r = requests.get(f'{API_URL}/health', timeout=3)
     health = r.json()
     db_ok = health.get('database') == 'Connected'
     test_result(db_ok, "Database connection", f"Status: {health.get('database')}")
@@ -69,7 +76,7 @@ subsection("User Authentication")
 # Test root/root login
 try:
     r = requests.post(
-        'http://localhost:8000/api/v1/auth/login',
+        f'{API_URL}/auth/login',
         json={'username': 'root', 'password': 'root'},
         timeout=5
     )
@@ -114,7 +121,7 @@ endpoints_to_test = [
 endpoint_results = {}
 for name, endpoint in endpoints_to_test:
     try:
-        r = requests.get(f'http://localhost:8000/api/v1{endpoint}', headers=headers, timeout=5)
+        r = requests.get(f'{API_URL}{endpoint}', headers=headers, timeout=5)
         endpoint_ok = r.status_code == 200
         endpoint_results[endpoint] = endpoint_ok
         
@@ -136,7 +143,7 @@ section("PART 4: USER DATA VALIDATION")
 subsection("Database User Records")
 
 try:
-    r = requests.get('http://localhost:8000/api/v1/users', headers=headers, timeout=5)
+    r = requests.get(f'{API_URL}/users', headers=headers, timeout=5)
     if r.status_code == 200:
         users = r.json()
         
@@ -193,7 +200,7 @@ section("PART 5: SYSTEM ADMINISTRATOR FILTER LOGIC")
 subsection("Access Control Component Validation")
 
 try:
-    r = requests.get('http://localhost:8000/api/v1/users', headers=headers, timeout=5)
+    r = requests.get(f'{API_URL}/users', headers=headers, timeout=5)
     if r.status_code == 200:
         users = r.json()
         
@@ -242,11 +249,11 @@ subsection("Cross-Origin Resource Sharing (CORS)")
 try:
     # Test CORS preflight
     cors_headers = {
-        'Origin': 'http://localhost:5173',
+        'Origin': FRONTEND_URL,
         'Access-Control-Request-Method': 'GET'
     }
     
-    r = requests.options('http://localhost:8000/api/v1/users', headers=cors_headers, timeout=5)
+    r = requests.options(f'{API_URL}/users', headers=cors_headers, timeout=5)
     
     cors_ok = 'access-control-allow-origin' in r.headers
     allow_origin = r.headers.get('access-control-allow-origin', 'NOT SET')
@@ -254,7 +261,7 @@ try:
     test_result(cors_ok, "CORS headers present", f"Allow-Origin: {allow_origin}")
     
     # Check specific origin
-    origin_match = allow_origin == '*' or 'localhost:5173' in allow_origin
+    origin_match = allow_origin == '*' or FRONTEND_PORT in allow_origin
     test_result(origin_match, "localhost:5173 allowed", f"Value: {allow_origin}")
 except Exception as e:
     test_result(False, "CORS validation", f"Error: {str(e)[:60]}")
@@ -275,7 +282,7 @@ frontend_ready = [
     ("All data endpoints responding", all_endpoints_ok),
     ("Users with isSystemUser field present", 'isSystemUser' in user),
     ("System administrators found (2+)", len(system_users) >= 2),
-    ("CORS configured for localhost:5173", cors_ok),
+    (f"CORS configured for localhost:{FRONTEND_PORT}", cors_ok),
 ]
 
 for requirement, status in frontend_ready:
@@ -292,7 +299,7 @@ if ready:
     print(f"{GREEN}{BOLD}✓ ALL SYSTEM TESTS PASSED{RESET}\n")
     print(f"{BOLD}System Status: READY FOR PRODUCTION{RESET}\n")
     print(f"{YELLOW}Next Steps:{RESET}")
-    print(f"  1. Open http://localhost:5173 in your browser")
+    print(f"  1. Open {FRONTEND_URL} in your browser")
     print(f"  2. Hard refresh: Ctrl+Shift+R")
     print(f"  3. Log in with: root / root")
     print(f"  4. Navigate to: System Settings → Access Control → System Administrators")

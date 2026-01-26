@@ -21,10 +21,9 @@ ENV_FILE = PROJECT_ROOT / ".env"
 def load_env_config():
     """Load configuration from .env file without external dependencies."""
     config = {
-        "API_PORT": None,
+        "API_PORT": 8000,
         "FRONTEND_PORT": None,
         "PREVIEW_PORT": None,
-        "PORT": 8000,
         "APP_ENV": "development"
     }
     

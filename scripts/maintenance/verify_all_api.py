@@ -2,10 +2,17 @@
 Comprehensive API Endpoint Verification
 Tests all critical endpoints used by the frontend
 """
+import os
 import requests
 import json
 import time
 from datetime import datetime
+
+# Configuration from environment
+API_PORT = os.getenv("API_PORT", "8000")
+FRONTEND_PORT = os.getenv("FRONTEND_PORT", "5173")
+API_URL_BASE = f"http://localhost:{API_PORT}/api"
+FRONTEND_URL = f"http://localhost:{FRONTEND_PORT}"
 
 print("\n" + "="*90)
 print(" "*25 + "PEOPLE OS API ENDPOINT VERIFICATION")
@@ -21,7 +28,7 @@ BOLD = '\033[1m'
 def test_endpoint(name, method, endpoint, headers=None, json_data=None, expected_status=200):
     """Test a single endpoint"""
     try:
-        url = f'http://localhost:8000/api/v1{endpoint}'
+        url = f'{API_URL_BASE}{endpoint}'
         
         if method == 'GET':
             r = requests.get(url, headers=headers, timeout=5)
@@ -67,7 +74,7 @@ print(f"\n{BOLD}2. AUTHENTICATION{RESET}")
 print("-" * 90)
 
 login_resp = requests.post(
-    'http://localhost:8000/api/v1/auth/login',
+    f'{API_URL_BASE}/auth/login',
     json={'username': 'root', 'password': 'root'},
     timeout=5
 )
@@ -121,7 +128,7 @@ print(f"\n{BOLD}5. USER DATA VALIDATION{RESET}")
 print("-" * 90)
 
 try:
-    users_resp = requests.get('http://localhost:8000/api/v1/users', headers=headers, timeout=5)
+    users_resp = requests.get(f'{API_URL_BASE}/users', headers=headers, timeout=5)
     if users_resp.status_code == 200:
         users = users_resp.json()
         print(f"  Total users in database: {len(users)}\n")
@@ -162,7 +169,7 @@ print(f"\n{BOLD}6. SYSTEM ADMINISTRATORS VERIFICATION{RESET}")
 print("-" * 90)
 
 try:
-    users_resp = requests.get('http://localhost:8000/api/v1/users', headers=headers, timeout=5)
+    users_resp = requests.get(f'{API_URL_BASE}/users', headers=headers, timeout=5)
     if users_resp.status_code == 200:
         users = users_resp.json()
         system_users = [u for u in users if u.get('isSystemUser') or u.get('is_system_user')]
@@ -192,7 +199,7 @@ if passed_tests == total_tests:
     print(f"{GREEN}✓ ALL TESTS PASSED ({passed_tests}/{total_tests}){RESET}")
     print(f"\n{BOLD}Status: READY FOR FRONTEND TESTING{RESET}")
     print("\nYou can now:")
-    print("  1. Open http://localhost:5173 in your browser")
+    print(f"  1. Open {FRONTEND_URL} in your browser")
     print("  2. Log in with: root / root")
     print("  3. Navigate to: System Settings → Access Control → System Administrators")
     print("  4. Verify that .amer and root are displayed without blinking")

@@ -209,7 +209,7 @@ verify_services() {
     log_info "Verifying services..."
     
     # Check API
-    if curl -s http://localhost:8000/docs > /dev/null 2>&1; then
+    if curl -s http://localhost:$API_PORT/docs > /dev/null 2>&1; then
         log_success "API is responding"
     else
         log_warning "API not responding yet (may still be starting)"
@@ -232,9 +232,9 @@ print_startup_summary() {
     echo "╚════════════════════════════════════════════════════════════════╝"
     echo ""
     echo "📊 Service URLs:"
-    echo "  API Documentation: http://localhost:8000/docs"
-    echo "  API Health:        http://localhost:8000/health"
-    echo "  Schedules API:     http://localhost:8000/api/v1/analytics/schedules"
+    echo "  API Documentation: http://localhost:$API_PORT/docs"
+    echo "  API Health:        http://localhost:$API_PORT/health"
+    echo "  Schedules API:     http://localhost:$API_PORT/api/v1/analytics/schedules"
     echo ""
     echo "📝 Log Files:"
     echo "  Application:       $LOG_DIR/app.log"
@@ -244,7 +244,7 @@ print_startup_summary() {
     echo "  Scheduler:         $LOG_DIR/scheduler.log"
     echo ""
     echo "🛠️  Common Commands:"
-    echo "  View Schedules:           curl http://localhost:8000/api/v1/analytics/schedules"
+    echo "  View Schedules:           curl http://localhost:$API_PORT/api/v1/analytics/schedules"
     echo "  Check Celery Queue:       celery -A backend.services.async_tasks inspect active"
     echo "  Monitor Tasks:            tail -f $LOG_DIR/celery_worker.log"
     echo "  Stop Services:            bash scripts/stop_services.sh"

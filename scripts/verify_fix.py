@@ -1,8 +1,11 @@
+import os
 import requests
 import json
 
+API_PORT = os.getenv("API_PORT", "8000")
+
 def verify_employee():
-    url = "http://localhost:8000/api/v1/employees/ENERGY01-0001"
+    url = f"http://localhost:{API_PORT}/api/employees/ENERGY01-0001"
     try:
         response = requests.get(url)
         response.raise_for_status()

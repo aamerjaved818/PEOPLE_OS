@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock, User, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { sanitizeInput } from '@/utils/security';
 import { api } from '@/services/api';
+import { API_CONFIG } from '@/config/constants';
 import GlassCard from '@/components/ui/GlassCard';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Input } from '@/components/ui/Input';
@@ -47,7 +48,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const isNetworkError =
         !err.response && (err.name === 'TypeError' || err.message?.includes('fetch'));
       if (isNetworkError) {
-        const targetUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        const targetUrl = API_CONFIG.BASE_URL;
         setError(`Cannot reach server at ${targetUrl}. Please check if the backend is running.`);
       } else {
         setError(err.message || 'Login failed. Please check your credentials.');

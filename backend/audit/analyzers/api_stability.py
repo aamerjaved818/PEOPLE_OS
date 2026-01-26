@@ -125,16 +125,19 @@ class APIAnalyzer:
             metrics["versioned_endpoints"] = versioned_count
 
             if metrics["total_endpoints"] > 0 and metrics["versioned_endpoints"] == 0:
-                findings.append(
-                    AuditFinding(
-                        id=str(uuid.uuid4()),
-                        dimension="API",
-                        severity="Minor",
-                        title="No explicit API versioning",
-                        description="Endpoints do not use /v1/ or similar prefixes.",
-                        recommendation="Adopt URI versioning (e.g. /api/v1/resource).",
+                # User preference: No versioning. Only flag if it doesn't even use /api/
+                has_api_prefix = any(path.startswith("/api") for path in paths.keys())
+                if not has_api_prefix:
+                    findings.append(
+                        AuditFinding(
+                            id=str(uuid.uuid4()),
+                            dimension="API",
+                            severity="Minor",
+                            title="No base API prefix",
+                            description="Endpoints do not use /api/ prefix.",
+                            recommendation="Adopt a base prefix (e.g. /api/resource).",
+                        )
                     )
-                )
 
             # 3. Compare with Baseline
             if self.baseline_path.exists():

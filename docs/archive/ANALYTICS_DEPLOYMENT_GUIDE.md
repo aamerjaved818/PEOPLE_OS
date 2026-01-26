@@ -29,7 +29,7 @@ Create `.env` file in project root:
 
 ```env
 # Frontend
-REACT_APP_API_BASE_URL=http://localhost:8000/api/v1
+REACT_APP_API_BASE_URL=http://localhost:8000/api
 REACT_APP_ENV=production
 
 # Backend
@@ -107,20 +107,20 @@ project_root/
 **Get Dashboard Summary**
 
 ```
-GET /api/v1/analytics/dashboard
+GET /api/analytics/dashboard
 Authorization: Bearer {token}
 ```
 
 **Get Headcount Trends**
 
 ```
-GET /api/v1/analytics/headcount-trends?period=current
+GET /api/analytics/headcount-trends?period=current
 ```
 
 **Get Recruitment Funnel**
 
 ```
-GET /api/v1/analytics/recruitment-funnel
+GET /api/analytics/recruitment-funnel
 ```
 
 ### Report Endpoints
@@ -128,7 +128,7 @@ GET /api/v1/analytics/recruitment-funnel
 **Download Report**
 
 ```
-POST /api/v1/analytics/download-report
+POST /api/analytics/download-report
 {
   "report_type": "workforce",
   "format": "pdf",
@@ -139,13 +139,13 @@ POST /api/v1/analytics/download-report
 **List Reports**
 
 ```
-GET /api/v1/analytics/reports
+GET /api/analytics/reports
 ```
 
 **Delete Report**
 
 ```
-DELETE /api/v1/analytics/reports/{reportId}
+DELETE /api/analytics/reports/{reportId}
 ```
 
 ---
@@ -210,7 +210,7 @@ invalidate_cache_for_model('Department') # On department changes
 
 ```bash
 curl -H "Authorization: Bearer {token}" \
-  http://localhost:8000/api/v1/analytics/dashboard
+  http://localhost:8000/api/analytics/dashboard
 # Expected: ~50ms (cached)
 ```
 
@@ -219,7 +219,7 @@ curl -H "Authorization: Bearer {token}" \
 ```bash
 ab -n 100 -c 10 \
   -H "Authorization: Bearer {token}" \
-  http://localhost:8000/api/v1/analytics/dashboard
+  http://localhost:8000/api/analytics/dashboard
 # Expected: <100ms average
 ```
 
