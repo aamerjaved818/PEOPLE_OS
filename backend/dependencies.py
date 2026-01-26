@@ -10,32 +10,22 @@ from jwt import PyJWTError as JWTError
 import bcrypt
 from passlib.context import CryptContext
 
-from backend.database import SessionLocal
+from backend.database import SessionLocal, get_db
 from backend import schemas
 from backend.config import settings, auth_config
 from backend.permissions_config import DEFAULT_ROLE_PERMISSIONS, SUPER_ROLES, SYSTEM_ROOT_ROLES
 
-# Logger
-import logging
-logger = logging.getLogger(__name__)
+from backend.logging_config import logger
 
-# Constants
-SECRET_KEY = os.getenv("SECRET_KEY", "change_this_in_production_9s8d7f98s7d9f8s7")
-ALGORITHM = "HS256"
+# Security Constants from settings
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
 
 # Role Hierarchy - Import from single source of truth
 ORG_SETUP_ROLES = SUPER_ROLES | {"Business Admin"}
 
 # OAuth2 Scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-
-# Database Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # Password Utils
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

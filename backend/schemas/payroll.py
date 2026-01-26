@@ -2,7 +2,7 @@
 import json
 from datetime import datetime
 from typing import Optional, List, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from .shared import AuditBase
 
 # --- Salary Components ---
@@ -20,15 +20,12 @@ class SalaryComponentCreate(BaseModel):
     is_active: bool = Field(True, alias="isActive")
     display_order: int = Field(0, alias="displayOrder")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class SalaryComponent(SalaryComponentCreate):
     id: str
     created_at: Optional[datetime] = Field(None, alias="createdAt")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class EmployeeSalaryStructureCreate(BaseModel):
     employee_id: str = Field(..., alias="employeeId")
@@ -39,17 +36,14 @@ class EmployeeSalaryStructureCreate(BaseModel):
     effective_to: Optional[str] = Field(None, alias="effectiveTo")
     is_active: bool = Field(True, alias="isActive")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class EmployeeSalaryStructure(EmployeeSalaryStructureCreate):
     id: int
     component_name: Optional[str] = Field(None, alias="componentName")
     component_type: Optional[str] = Field(None, alias="componentType")
     
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 # --- Tax Schemas ---
 class TaxSlabCreate(BaseModel):
@@ -62,14 +56,11 @@ class TaxSlabCreate(BaseModel):
     excess_over: float = Field(0.0, alias="excessOver")
     is_active: bool = Field(True, alias="isActive")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class TaxSlab(TaxSlabCreate):
     id: str
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class TaxDeductionTypeCreate(BaseModel):
     organization_id: str = Field(..., alias="organizationId")
@@ -87,14 +78,11 @@ class TaxDeductionTypeCreate(BaseModel):
     requires_ntn: bool = Field(False, alias="requiresNtn")
     is_active: bool = Field(True, alias="isActive")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class TaxDeductionType(TaxDeductionTypeCreate):
     id: str
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class EmployeeTaxDeductionCreate(BaseModel):
     employee_id: str = Field(..., alias="employeeId")
@@ -105,8 +93,7 @@ class EmployeeTaxDeductionCreate(BaseModel):
     institution_name: Optional[str] = Field(None, alias="institutionName")
     institution_ntn: Optional[str] = Field(None, alias="institutionNtn")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class EmployeeTaxDeduction(EmployeeTaxDeductionCreate):
     id: int
@@ -115,9 +102,7 @@ class EmployeeTaxDeduction(EmployeeTaxDeductionCreate):
     deduction_type_name: Optional[str] = Field(None, alias="deductionTypeName")
     deduction_section: Optional[str] = Field(None, alias="deductionSection")
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class TaxCalculationDetail(BaseModel):
     employee_id: str = Field(..., alias="employeeId")
@@ -134,8 +119,7 @@ class TaxCalculationDetail(BaseModel):
     annual_tax_payable: float = Field(..., alias="annualTaxPayable")
     monthly_tax: float = Field(..., alias="monthlyTax")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 # --- Payroll Run & Ledger ---
@@ -151,22 +135,19 @@ class PayrollLedgerCreate(BaseModel):
     status: str = "Draft"
     payment_mode: Optional[str] = Field(None, alias="paymentMode")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PayrollLedger(PayrollLedgerCreate, AuditBase):
     id: int
     employee_name: Optional[str] = Field(None, alias="employeeName")
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PayrollRunCreate(BaseModel):
     organization_id: str = Field(..., alias="organizationId")
     period_month: str = Field(..., alias="periodMonth")
     period_year: str = Field(..., alias="periodYear")
     notes: Optional[str] = None
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PayrollRun(PayrollRunCreate):
     id: str
@@ -180,9 +161,7 @@ class PayrollRun(PayrollRunCreate):
     processed_by: Optional[str] = Field(None, alias="processedBy")
     approved_at: Optional[str] = Field(None, alias="approvedAt")
     approved_by: Optional[str] = Field(None, alias="approvedBy")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class PayslipDetail(BaseModel):
     id: int
@@ -212,9 +191,7 @@ class PayslipDetail(BaseModel):
     overtime_hours: float = Field(0.0, alias="overtimeHours")
     overtime_amount: float = Field(0.0, alias="overtimeAmount")
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class PayrollSummary(BaseModel):
     payroll_run_id: str = Field(..., alias="payrollRunId")
@@ -224,12 +201,10 @@ class PayrollSummary(BaseModel):
     total_deductions: float = Field(..., alias="totalDeductions")
     total_net: float = Field(..., alias="totalNet")
     status: str
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PayrollGenerateRequest(BaseModel):
     period_month: str = Field(..., alias="periodMonth")
     period_year: str = Field(..., alias="periodYear")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)

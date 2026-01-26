@@ -1,7 +1,7 @@
 
 from typing import Optional, List
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from .shared import AuditBase
 
 class LoginRequest(BaseModel):
@@ -23,8 +23,7 @@ class ApiKeyResponse(ApiKeyBase, AuditBase):
     last_used: Optional[datetime] = None
     revoked: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ApiKeyCreateResponse(ApiKeyResponse):
     """Returned only at creation time with the full key"""
@@ -40,8 +39,7 @@ class RolePermission(BaseModel):
     role: str
     permission: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class RolePermissionCreate(BaseModel):
     role: str
@@ -57,5 +55,4 @@ class User(BaseModel):
     is_active: bool = True
     is_system_user: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

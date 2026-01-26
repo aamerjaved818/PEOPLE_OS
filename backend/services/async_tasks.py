@@ -3,21 +3,24 @@ Async Report Generation Task Service
 Handles background report generation and delivery
 """
 
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timedelta
+from typing import Optional, List
 import logging
-from celery import Celery, Task
-from functools import wraps
 import os
+from celery import Celery, Task
+from celery.schedules import crontab
+from functools import wraps
+
+from backend.config import settings
 
 logger = logging.getLogger(__name__)
 
 
 # Initialize Celery
 celery_app = Celery(
-    'reports',
-    broker=os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0'),
-    backend=os.getenv('CELERY_RESULT_URL', 'redis://localhost:6379/1'),
+    'peopleOS',
+    broker=settings.CELERY_BROKER_URL,
+    backend=settings.CELERY_RESULT_URL,
 )
 
 celery_app.conf.update(
@@ -29,6 +32,19 @@ celery_app.conf.update(
     task_track_started=True,
     task_time_limit=30 * 60,  # 30 minutes
     task_soft_time_limit=25 * 60,  # 25 minutes
+    
+    # Priority Queuing & Worker Tuning
+    task_default_queue='default',
+    task_routes={
+        'backend.services.async_tasks.audit_log_task': {'queue': 'audit_logs'},
+        'backend.services.async_tasks.generate_and_deliver_report': {'queue': 'reports'},
+        'backend.services.async_tasks.cleanup_old_audit_logs': {'queue': 'audit_logs'},
+    },
+    worker_prefetch_multiplier=10,
+    task_acks_late=True,
+    broker_transport_options={
+        'visibility_timeout': 3600,  # 1 hour
+    },
 )
 
 
@@ -162,6 +178,90 @@ def generate_and_deliver_report(
         raise self.retry(exc=e)
 
 
+@celery_app.task(
+    bind=True,
+    name='backend.services.async_tasks.audit_log_task',
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_backoff_max=60,
+    max_retries=5,
+    retry_jitter=True
+)
+def audit_log_task(
+    self,
+    organization_id: Optional[str],
+    user: str,
+    action: str,
+    status: str,
+    time: str,
+    details: Optional[str] = None,
+) -> dict:
+    """Asynchronously creates an audit log entry in the database."""
+    from backend.database import SessionLocal
+    from backend.schemas.shared import AuditLogCreate
+    from backend.crud.core import create_audit_log
+
+    db = SessionLocal()
+    try:
+        # Parse time back to datetime if it came as string
+        audit_time = datetime.fromisoformat(time) if isinstance(time, str) else time
+        
+        log_data = AuditLogCreate(
+            organizationId=organization_id,
+            user=user,
+            action=action,
+            status=status,
+            time=audit_time,
+            details=details,
+        )
+        
+        db_log = create_audit_log(db, log_data)
+        logger.info(f"✅ Audit Log created via Celery: {db_log.id}")
+        
+        return {
+            'status': 'success',
+            'log_id': db_log.id,
+            'user': user,
+            'action': action,
+        }
+    except Exception as e:
+        logger.error(f"❌ Failed to create audit log: {e}")
+        raise self.retry(exc=e)
+    finally:
+        db.close()
+
+
+@celery_app.task(bind=True, max_retries=3)
+def cleanup_old_audit_logs(self, days_to_keep: int = 90) -> dict:
+    """Deletes audit log entries older than a specified number of days."""
+    from backend.database import SessionLocal
+    from backend.domains.core.models import DBAuditLog
+    
+    db = SessionLocal()
+    try:
+        cutoff_date = datetime.utcnow() - timedelta(days=days_to_keep)
+        logger.info(f"Starting audit log cleanup. Older than: {cutoff_date}")
+
+        # Bulk delete using ORM
+        deleted_count = db.query(DBAuditLog).filter(
+            DBAuditLog.time < cutoff_date
+        ).delete(synchronize_session=False)
+        
+        db.commit()
+        logger.info(f"✅ Audit Log Cleanup complete. Deleted {deleted_count} records.")
+        
+        return {
+            'status': 'success',
+            'deleted_count': deleted_count,
+            'cutoff_date': cutoff_date.isoformat(),
+        }
+    except Exception as e:
+        logger.error(f"❌ Cleanup task failed: {e}")
+        raise self.retry(exc=e)
+    finally:
+        db.close()
+
+
 @celery_app.task(bind=True, base=ReportTask)
 def cleanup_old_reports(self, days: int = 30) -> dict:
     """
@@ -183,7 +283,7 @@ def cleanup_old_reports(self, days: int = 30) -> dict:
         db = SessionLocal()
         try:
             # Find and delete old report files
-            reports_dir = "/tmp/reports"
+            reports_dir = settings.REPORTS_DIR
             cutoff_date = datetime.utcnow() - timedelta(days=days)
             deleted_count = 0
 
@@ -320,6 +420,11 @@ celery_app.conf.beat_schedule = {
         'task': 'backend.services.async_tasks.cleanup_old_reports',
         'schedule': crontab(hour=2, minute=0),  # 2 AM daily
         'kwargs': {'days': 30}
+    },
+    'cleanup-old-audit-logs': {
+        'task': 'backend.services.async_tasks.cleanup_old_audit_logs',
+        'schedule': crontab(hour=3, minute=0),  # 3 AM daily
+        'kwargs': {'days_to_keep': 90}
     },
     'monitor-schedules': {
         'task': 'backend.services.async_tasks.monitor_schedules',

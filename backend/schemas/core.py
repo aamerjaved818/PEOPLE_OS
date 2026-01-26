@@ -2,7 +2,7 @@
 import json
 from datetime import datetime
 from typing import Optional, List, Union, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from .shared import AuditBase
 
 # --- User Schemas ---
@@ -16,8 +16,7 @@ class UserBase(BaseModel):
     status: Optional[str] = "Active"
     is_system_user: Optional[bool] = Field(None, alias="isSystemUser")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class UserCreate(UserBase):
     id: Optional[str] = None
@@ -35,16 +34,13 @@ class UserUpdate(BaseModel):
     email: Optional[str] = None
     is_system_user: Optional[bool] = Field(None, alias="isSystemUser")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class User(UserBase, AuditBase):
     id: str
     is_active: bool = True
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 # --- System Settings Schemas ---
 class SystemFlagsBase(BaseModel):
@@ -113,8 +109,7 @@ class SystemFlags(SystemFlagsBase, AuditBase):
     organization_id: str
     db_optimization_last_run: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ===== AI Configuration =====
 class AIConfigurationBase(BaseModel):
@@ -123,8 +118,7 @@ class AIConfigurationBase(BaseModel):
     api_keys: Optional[dict] = Field(default_factory=dict, alias="apiKeys")
     agents: Optional[dict] = Field(default_factory=dict)
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class AIConfigurationCreate(AIConfigurationBase):
     pass
@@ -135,15 +129,13 @@ class AIConfigurationUpdate(BaseModel):
     api_keys: Optional[dict] = Field(None, alias="apiKeys")
     agents: Optional[dict] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class AIConfigurationResponse(AIConfigurationBase, AuditBase):
     id: str
     organization_id: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ===== Notification Settings =====
 class NotificationSettingsBase(BaseModel):
@@ -218,15 +210,13 @@ class NotificationSettingsUpdate(BaseModel):
 class NotificationSettings(NotificationSettingsBase, AuditBase):
     id: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class NotificationSettingsResponse(NotificationSettingsBase, AuditBase):
     id: str
     organization_id: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ===== Webhook Schemas =====
 class WebhookBase(BaseModel):
@@ -262,8 +252,7 @@ class WebhookLogResponse(BaseModel):
     error_message: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class WebhookLogList(BaseModel):
     logs: list[WebhookLogResponse]
@@ -293,8 +282,7 @@ class BackgroundJobResponse(BaseModel):
     max_retries: int
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class BackgroundJobList(BaseModel):
     jobs: list[BackgroundJobResponse]
@@ -308,8 +296,7 @@ class ComplianceSettingsBase(BaseModel):
     social_security_rate: float = Field(0.0, alias="socialSecurityRate")
     organization_id: str = Field(..., alias="organizationId")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class ComplianceSettingsCreate(ComplianceSettingsBase):
     pass
@@ -318,8 +305,7 @@ class ComplianceSettings(ComplianceSettingsBase, AuditBase):
     id: str
     failure_count: int = 0
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PayrollSettingsBase(BaseModel):
     currency: str = "PKR"
@@ -348,8 +334,7 @@ class PayrollSettingsBase(BaseModel):
                 return {}
         return v
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PayrollSettingsCreate(PayrollSettingsBase):
     id: Optional[str] = None
@@ -357,5 +342,4 @@ class PayrollSettingsCreate(PayrollSettingsBase):
 class PayrollSettings(PayrollSettingsBase, AuditBase):
     id: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

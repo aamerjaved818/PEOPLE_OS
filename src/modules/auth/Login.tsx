@@ -8,11 +8,15 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
+import { useOrgStore } from '@/store/orgStore';
+import { secureStorage } from '@/utils/secureStorage';
+
 interface LoginProps {
   onLogin: () => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const { setCurrentUser } = useOrgStore();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,6 +38,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const loginSuccess = await api.login(safeUsername, safePassword, false);
 
       if (loginSuccess) {
+        const userJson = secureStorage.getItem('current_user');
+        if (userJson) {
+          try {
+            setCurrentUser(JSON.parse(userJson));
+          } catch (e) {
+            console.error('Failed to parse user from storage', e);
+          }
+        }
         setSuccess(true);
         // Quick success animation then proceed
         setTimeout(() => {

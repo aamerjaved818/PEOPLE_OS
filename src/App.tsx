@@ -12,6 +12,8 @@ import { LayoutProvider } from './contexts/LayoutContext';
 const AuthenticatedApp = React.lazy(() => import('./components/layout/AuthenticatedApp'));
 const Login = React.lazy(() => import('./modules/auth/Login'));
 
+import { useOrgStore } from './store/orgStore';
+
 // Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,6 +25,18 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const { currentUser, setCurrentUser } = useOrgStore();
+
+  // Listen for auth:logout event from ApiService
+  React.useEffect(() => {
+    const handleLogout = () => {
+      setCurrentUser(null);
+      window.location.href = '/login';
+    };
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+  }, [setCurrentUser]);
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -36,14 +50,29 @@ function App() {
                       {/* Public Routes */}
                       <Route
                         path="/login"
-                        element={<Login onLogin={() => (window.location.href = '/dashboard')} />}
+                        element={
+                          currentUser ? (
+                            <Navigate to="/dashboard" replace />
+                          ) : (
+                            <Login onLogin={() => (window.location.href = '/dashboard')} />
+                          )
+                        }
                       />
 
-                      {/* Protected Routes - Handled by AuthenticatedApp which contains internal routing */}
+                      {/* Protected Routes */}
                       <Route
                         path="/*"
                         element={
-                          <AuthenticatedApp onLogout={() => (window.location.href = '/login')} />
+                          currentUser ? (
+                            <AuthenticatedApp
+                              onLogout={() => {
+                                setCurrentUser(null);
+                                window.location.href = '/login';
+                              }}
+                            />
+                          ) : (
+                            <Navigate to="/login" replace />
+                          )
                         }
                       />
                     </Routes>

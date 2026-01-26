@@ -17,6 +17,7 @@ from datetime import datetime
 from backend.config import settings, VALID_ENVIRONMENTS
 from backend.database import get_engine, get_session_local
 from backend.domains.core.models import DBPlatformEnvironment
+from backend.logging_config import logger
 
 
 def _compute_fingerprint_checksum(env_name: str) -> str:
@@ -36,7 +37,7 @@ def initialize_environment_fingerprint() -> None:
     try:
         existing = session.query(DBPlatformEnvironment).first()
         if existing:
-            print(f"[ENV] Database already fingerprinted: {existing.env_name}")
+            logger.info(f"[ENV] Database already fingerprinted: {existing.env_name}")
             return
         
         env_name = settings.ENVIRONMENT
@@ -48,7 +49,7 @@ def initialize_environment_fingerprint() -> None:
         )
         session.add(fingerprint)
         session.commit()
-        print(f"[ENV] Database fingerprinted as: {env_name}")
+        logger.info(f"[ENV] Database fingerprinted as: {env_name}")
     finally:
         session.close()
 
@@ -72,7 +73,7 @@ def validate_environment_fingerprint() -> bool:
         db_env = fingerprint.env_name
         
         if current_env != db_env:
-            print(
+            logger.critical(
                 f"FATAL: Environment mismatch!\n"
                 f"  APP_ENV={current_env}\n"
                 f"  Database fingerprint={db_env}\n"
@@ -80,12 +81,11 @@ def validate_environment_fingerprint() -> bool:
                 f"This database belongs to the '{db_env}' environment.\n"
                 f"You are trying to connect with APP_ENV='{current_env}'.\n"
                 f"\n"
-                f"This is a HARD BLOCK to prevent data corruption.\n"
-                f"Check your configuration and connection string."
+                f"This is a HARD BLOCK to prevent data corruption."
             )
             sys.exit(1)
         
-        print(f"[ENV] Environment validated: {current_env}")
+        logger.info(f"[ENV] Environment validated: {current_env}")
         return True
     finally:
         session.close()

@@ -15,16 +15,16 @@ class ResultBase(BaseModel):
     message: str = "Operation successful"
     data: Optional[Any] = None
 
+
 class AuditLogBase(BaseModel):
     user: str
     action: str
     status: str
-    time: str
+    time: datetime
     details: Optional[str] = None
     organization_id: Optional[str] = Field(None, alias="organizationId")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class AuditLogCreate(AuditLogBase):
     pass
@@ -32,5 +32,4 @@ class AuditLogCreate(AuditLogBase):
 class AuditLog(AuditLogBase):
     id: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

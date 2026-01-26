@@ -1,7 +1,7 @@
 
 import json
 from typing import Optional, List, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from .shared import AuditBase
 
 # --- Plant ---
@@ -9,8 +9,7 @@ class PlantDivisionBase(BaseModel):
     name: str
     code: str
     is_active: bool = Field(True, alias="isActive")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PlantDivisionCreate(PlantDivisionBase):
     id: Optional[str] = None
@@ -20,8 +19,7 @@ class PlantDivision(PlantDivisionBase, AuditBase):
     id: str
     plant_id: Optional[str] = Field(None, alias="plantId")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PlantBase(BaseModel):
     name: str
@@ -32,8 +30,7 @@ class PlantBase(BaseModel):
     is_active: bool = Field(True, alias="isActive")
     current_sequence: int = Field(0, alias="currentSequence")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PlantCreate(PlantBase):
     id: Optional[str] = None
@@ -46,9 +43,7 @@ class Plant(PlantBase, AuditBase):
     divisions: list[PlantDivision] = Field(default=[])
     plant_id: Optional[str] = Field(None, alias="plantId")
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 # --- Organization ---
@@ -96,8 +91,7 @@ class OrganizationBase(BaseModel):
                 pass
         return v
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class OrganizationCreate(OrganizationBase):
     pass
@@ -135,8 +129,7 @@ class OrganizationUpdate(BaseModel):
     system_authority: Optional[str] = None
     approval_workflows: Optional[str] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Organization(OrganizationBase, AuditBase):
     id: str
@@ -151,8 +144,7 @@ class Organization(OrganizationBase, AuditBase):
                 return v
         return v
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class OrganizationList(OrganizationBase, AuditBase):
     id: str
@@ -166,8 +158,7 @@ class OrganizationList(OrganizationBase, AuditBase):
                 return v
         return v
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Org Elements ---
@@ -179,13 +170,11 @@ class DepartmentCreate(BaseModel):
     organization_id: Optional[str] = Field(None, alias="organizationId")
     hod_id: Optional[str] = Field(None, alias="hodId")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Department(DepartmentCreate, AuditBase):
     pass
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class SubDepartmentCreate(BaseModel):
     id: Optional[str] = None
@@ -195,13 +184,11 @@ class SubDepartmentCreate(BaseModel):
     is_active: bool = Field(True, alias="isActive")
     organization_id: Optional[str] = Field(None, alias="organizationId")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class SubDepartment(SubDepartmentCreate, AuditBase):
     pass
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class GradeCreate(BaseModel):
     id: Optional[str] = None
@@ -211,8 +198,7 @@ class GradeCreate(BaseModel):
     organization_id: Optional[str] = Field(None, alias="organizationId")
     job_level_id: Optional[str] = Field(None, alias="jobLevelId")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Grade(AuditBase):
     id: str
@@ -222,9 +208,7 @@ class Grade(AuditBase):
     organization_id: Optional[str] = None
     jobLevelId: str = Field(..., validation_alias="job_level_id")
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class DesignationCreate(BaseModel):
     id: Optional[str] = None
@@ -234,13 +218,11 @@ class DesignationCreate(BaseModel):
     is_active: bool = Field(True, alias="isActive")
     organization_id: Optional[str] = Field(None, alias="organizationId")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Designation(DesignationCreate, AuditBase):
     id: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ShiftCreate(BaseModel):
     id: Optional[str] = None
@@ -257,8 +239,7 @@ class ShiftCreate(BaseModel):
     color: Optional[str] = None
     description: Optional[str] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Shift(AuditBase):
     id: str
@@ -275,8 +256,7 @@ class Shift(AuditBase):
     color: Optional[str] = None
     description: Optional[str] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class EmploymentLevelCreate(BaseModel):
     id: Optional[str] = None
@@ -285,8 +265,7 @@ class EmploymentLevelCreate(BaseModel):
     description: Optional[str] = None
     is_active: bool = Field(True, alias="isActive")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class EmploymentLevel(AuditBase):
     id: str
@@ -295,8 +274,7 @@ class EmploymentLevel(AuditBase):
     description: Optional[str] = None
     is_active: bool = True
     organization_id: Optional[str] = None
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PositionCreate(BaseModel):
     id: Optional[str] = None
@@ -307,8 +285,7 @@ class PositionCreate(BaseModel):
     description: Optional[str] = None
     is_active: bool = True
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Position(AuditBase):
     id: str
@@ -319,8 +296,7 @@ class Position(AuditBase):
     description: Optional[str] = None
     is_active: bool = True
     organization_id: Optional[str] = None
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class JobLevelCreate(BaseModel):
     id: Optional[str] = None
@@ -329,13 +305,11 @@ class JobLevelCreate(BaseModel):
     description: Optional[str] = None
     is_active: bool = Field(True, alias="isActive")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class JobLevel(JobLevelCreate, AuditBase):
     id: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class HolidayCreate(BaseModel):
     id: Optional[str] = None
@@ -345,8 +319,7 @@ class HolidayCreate(BaseModel):
     is_recurring: bool = False
     description: Optional[str] = None
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Holiday(AuditBase):
     id: str
@@ -356,8 +329,7 @@ class Holiday(AuditBase):
     is_recurring: bool = False
     description: Optional[str] = None
     organization_id: Optional[str] = None
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class BankCreate(BaseModel):
     id: Optional[str] = None
@@ -370,8 +342,7 @@ class BankCreate(BaseModel):
     currency: str = "PKR"
     is_active: bool = True
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Bank(AuditBase):
     id: str
@@ -384,5 +355,4 @@ class Bank(AuditBase):
     currency: str = "PKR"
     is_active: bool = True
     organization_id: Optional[str] = None
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

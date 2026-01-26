@@ -1,18 +1,9 @@
 @echo off
-setlocal
-title peopleOS eBusiness Suite Launcher
-cd /d "%~dp0"
+REM Change directory to script location
+cd /d "D:\Projects\peopleOS"
 
-:: Quick check for .venv
-if exist ".venv\Scripts\python.exe" (
-    ".venv\Scripts\python.exe" start.py %*
-) else (
-    echo [WARN] .venv not found, attempting system python...
-    python start.py %*
-)
+REM Run the Python script
+python start.py
 
-if %ERRORLEVEL% neq 0 (
-    echo.
-    echo [ERROR] Launcher exited with code %ERRORLEVEL%
-    pause
-)
+REM Keep window open until you press a key
+pause

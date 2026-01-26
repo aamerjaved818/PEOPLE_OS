@@ -1,4 +1,4 @@
-from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Index, Integer, String)
+from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Index, Integer, String, JSON)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from backend.database import Base
@@ -214,12 +214,13 @@ class DBShift(Base, PrismaAuditMixin):
     work_days = Column(String)
     color = Column(String, nullable=True)
     description = Column(String, nullable=True)
-    isActive = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True)
     organization_id = Column(String, ForeignKey("core_organizations.id"), nullable=False, index=True)
 
     @property
-    def is_active(self):
-        return self.isActive
+    def isActive(self):
+        """Backwards compatibility for frontend camelCase"""
+        return self.is_active
 
     @property
     def startTime(self):
@@ -402,7 +403,7 @@ class DBBenefitTier(Base, AuditMixin):
     name = Column(String, nullable=False)
     color = Column(String)
     price = Column(String)
-    items = Column(String) # JSON list of strings
+    items = Column(JSON)  # Improved structured data
     icon = Column(String)
     popular = Column(Boolean, default=False)
     organization_id = Column(String, ForeignKey("core_organizations.id"), nullable=False, index=True)
@@ -633,7 +634,7 @@ class DBPayrollLedger(Base, AuditMixin):
     payment_reference = Column(String, nullable=True)
     
     # JSON for detailed component breakdown
-    salary_components_json = Column(String, nullable=True)  # JSON array of components
+    salary_components_json = Column(JSON, nullable=True)  # Improved structured data
     
     # Relationships
     employee = relationship("DBEmployee", backref="payroll_records")

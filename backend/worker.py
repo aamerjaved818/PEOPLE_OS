@@ -20,12 +20,7 @@ from backend import crud
 from backend.config import settings
 from backend.database import SessionLocal
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger('background_worker')
+from backend.logging_config import logger
 
 
 class JobExecutor:

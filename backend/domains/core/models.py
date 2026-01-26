@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Boolean, Column, DateTime, Float, ForeignKey, Integer, String
+    Boolean, Column, DateTime, Float, ForeignKey, Integer, String, JSON
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -20,7 +20,7 @@ class DBOrganization(Base, PrismaAuditMixin):
     code = Column(String, unique=True, index=True)
     name = Column(String, unique=True)
     is_active = Column(Boolean, default=True)
-    enabled_modules = Column(String, default='["hcm"]')  # JSON List
+    enabled_modules = Column(JSON, default=["hcm"])  # Improved structured data
     head_id = Column(String, ForeignKey("core_users.id"), nullable=True)  # Soft Link to Employee ID
 
     # Modern Fields
@@ -41,10 +41,10 @@ class DBOrganization(Base, PrismaAuditMixin):
     industry = Column(String, nullable=True)
     currency = Column(String, default="PKR")
     tax_year_end = Column(String, nullable=True)
-    social_links = Column(String, nullable=True)
+    social_links = Column(JSON, nullable=True)  # Improved structured data
     description = Column(String)
     system_authority = Column(String, nullable=True)
-    approval_workflows = Column(String, nullable=True)
+    approval_workflows = Column(JSON, nullable=True)  # Improved structured data
 
     # Relationships
     plants = relationship("DBHRPlant", back_populates="organization")
@@ -133,7 +133,7 @@ class DBDepartment(Base, PrismaAuditMixin):
     id = Column(String, primary_key=True, index=True)
     code = Column(String, unique=True, index=True)
     name = Column(String, unique=True)
-    isActive = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True)
     organization_id = Column(
         String, ForeignKey("core_organizations.id"), nullable=False, index=True
     )
@@ -143,8 +143,9 @@ class DBDepartment(Base, PrismaAuditMixin):
     description = Column(String, nullable=True)
 
     @property
-    def is_active(self):
-        return self.isActive
+    def isActive(self):
+        """Backwards compatibility for frontend camelCase"""
+        return self.is_active
 
     @property
     def managerId(self):
@@ -197,7 +198,8 @@ class DBAuditLog(Base):
     user = Column(String)
     action = Column(String)
     status = Column(String)
-    time = Column(String)
+    time = Column(DateTime)
+    details = Column(String, nullable=True)
 
 
 class DBApiKey(Base, PrismaAuditMixin):
@@ -225,8 +227,8 @@ class DBWebhook(Base, PrismaAuditMixin):
     )
     name = Column(String, index=True)
     url = Column(String)
-    event_types = Column(String)  # JSON
-    headers = Column(String, nullable=True)  # JSON
+    event_types = Column(JSON)  # Improved structured data
+    headers = Column(JSON, nullable=True)  # Improved structured data
     is_active = Column(Boolean, default=True)
     test_payload_sent = Column(Boolean, default=False)
     last_triggered = Column(DateTime, nullable=True)
@@ -244,7 +246,7 @@ class DBWebhookLog(Base, PrismaAuditMixin):
         String, ForeignKey("core_organizations.id"), index=True
     )
     event_type = Column(String)
-    payload = Column(String)  # JSON
+    payload = Column(JSON)  # Improved structured data
     response_status = Column(Integer, nullable=True)
     response_body = Column(String, nullable=True)
     delivery_status = Column(String)

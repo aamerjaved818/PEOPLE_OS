@@ -146,6 +146,24 @@ def print_status():
     print(f"  node_modules  {'[OK] Found' if node_modules else '[X] Missing'}")
 
 
+
+def tail_log(logfile: Path, lines: int = 20):
+    """Print the last N lines of a log file."""
+    if not logfile.exists():
+        return
+    
+    try:
+        with open(logfile, 'r', encoding='utf-8', errors='replace') as f:
+            # Efficient tail implementation for small-medium logs
+            content = f.readlines()
+            tail = content[-lines:]
+            print(f"\n{Colors.RED}--- Error Log ({logfile.name}) ---{Colors.END}")
+            for line in tail:
+                print(f"{Colors.YELLOW}{line.strip()}{Colors.END}")
+            print(f"{Colors.RED}-----------------------------------{Colors.END}\n")
+    except Exception as e:
+        print(f"{Colors.RED}Failed to read log: {e}{Colors.END}")
+
 def start_backend(python_exe: Path, env: str = "development") -> subprocess.Popen | None:
     """Start the backend server using the centralized entry point."""
     if port_in_use(BACKEND_PORT):
@@ -158,22 +176,28 @@ def start_backend(python_exe: Path, env: str = "development") -> subprocess.Pope
     env_vars["APP_ENV"] = env
     env_vars["API_PORT"] = str(BACKEND_PORT)
     
+    # Log file
+    log_file = PROJECT_ROOT / "logs" / "launcher_backend.log"
+    log_file.parent.mkdir(exist_ok=True)
+    
     # Use standard python -m execution
     cmd = [str(python_exe), '-m', 'backend.main']
     
-    proc = subprocess.Popen(
-        cmd,
-        cwd=PROJECT_ROOT,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        env=env_vars
-    )
+    with open(log_file, "w", encoding="utf-8") as out:
+        proc = subprocess.Popen(
+            cmd,
+            cwd=PROJECT_ROOT,
+            stdout=out,
+            stderr=subprocess.STDOUT, # Merge stderr into stdout
+            env=env_vars
+        )
     
     if wait_for_port(BACKEND_PORT, timeout=15):
         print(f"{Colors.GREEN}[OK] Running on :{BACKEND_PORT}{Colors.END}")
         return proc
     else:
         print(f"{Colors.RED}[X] Failed to start{Colors.END}")
+        tail_log(log_file)
         return None
 
 
@@ -191,12 +215,18 @@ def start_frontend(mode: str = "dev") -> subprocess.Popen | None:
         print(f"  {Colors.RED}[X] npm not found in PATH{Colors.END}")
         return None
     
+    # Log file
+    log_file = PROJECT_ROOT / "logs" / "launcher_frontend.log"
+    log_file.parent.mkdir(exist_ok=True)
+
     # Install deps if needed
     if not (PROJECT_ROOT / "node_modules").exists():
         print(f"  Installing dependencies...", end=" ", flush=True)
-        result = subprocess.run(["npm", "install"], cwd=PROJECT_ROOT, capture_output=True)
+        with open(log_file, "a", encoding="utf-8") as out:
+            result = subprocess.run(["npm", "install"], cwd=PROJECT_ROOT, stdout=out, stderr=subprocess.STDOUT)
         if result.returncode != 0:
-            print(f"{Colors.RED}[X] Failed{Colors.END}")
+            print(f"{Colors.RED}[X] Failed (check {log_file.name}){Colors.END}")
+            tail_log(log_file)
             return None
         print(f"{Colors.GREEN}[OK] Done{Colors.END}")
     
@@ -204,10 +234,11 @@ def start_frontend(mode: str = "dev") -> subprocess.Popen | None:
     if mode == "prod":
          # Build first
         print(f"  Building frontend...", end=" ", flush=True)
-        result = subprocess.run(["npm", "run", "build"], cwd=PROJECT_ROOT, capture_output=True)
+        with open(log_file, "a", encoding="utf-8") as out:
+            result = subprocess.run(["npm", "run", "build"], cwd=PROJECT_ROOT, stdout=out, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(f"{Colors.RED}[X] Build failed{Colors.END}")
-            # Continue anyway? No.
+            tail_log(log_file)
             return None
         print(f"{Colors.GREEN}[OK] Done{Colors.END}")
 
@@ -216,19 +247,21 @@ def start_frontend(mode: str = "dev") -> subprocess.Popen | None:
     # Use npm run command which leverages vite config for ports
     cmd = ["npm", "run", cmd_name]
     
-    proc = subprocess.Popen(
-        cmd,
-        cwd=PROJECT_ROOT,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        shell=True if os.name == 'nt' else False
-    )
+    with open(log_file, "w", encoding="utf-8") as out:
+        proc = subprocess.Popen(
+            cmd,
+            cwd=PROJECT_ROOT,
+            stdout=out,
+            stderr=subprocess.STDOUT,
+            shell=True if os.name == 'nt' else False
+        )
     
     if wait_for_port(port, timeout=30):
         print(f"{Colors.GREEN}[OK] Running on :{port}{Colors.END}")
         return proc
     else:
         print(f"{Colors.RED}[X] Failed to start{Colors.END}")
+        tail_log(log_file)
         return None
 
 
@@ -242,10 +275,10 @@ def start_dev():
         return
     
     # Start Backend
-    start_backend(venv_python, "development")
+    backend_proc = start_backend(venv_python, "development")
     
     # Start Frontend
-    start_frontend("dev")
+    frontend_proc = start_frontend("dev")
     
     print(f"\n{Colors.GREEN}{Colors.BOLD}Access Output:{Colors.END}")
     print(f"  Frontend: http://localhost:{FRONTEND_DEV_PORT}")
@@ -255,6 +288,24 @@ def start_dev():
         webbrowser.open(f"http://localhost:{FRONTEND_DEV_PORT}")
     except:
         pass
+    
+    # Wait for processes
+    try:
+        while True:
+            time.sleep(1)
+            # Check if processes are alive
+            if backend_proc and backend_proc.poll() is not None:
+                print(f"\n{Colors.RED}[!] Backend stopped unexpectedly{Colors.END}")
+                tail_log(PROJECT_ROOT / "logs" / "launcher_backend.log")
+                break
+            if frontend_proc and frontend_proc.poll() is not None:
+                print(f"\n{Colors.RED}[!] Frontend stopped unexpectedly{Colors.END}")
+                tail_log(PROJECT_ROOT / "logs" / "launcher_frontend.log")
+                break
+    except KeyboardInterrupt:
+        print(f"\n{Colors.YELLOW}Stopping servers...{Colors.END}")
+        if backend_proc: backend_proc.terminate()
+        if frontend_proc: frontend_proc.terminate()
 
 
 def start_prod():
@@ -267,10 +318,10 @@ def start_prod():
         return
     
     # Start Backend in Production Mode
-    start_backend(venv_python, "production")
+    backend_proc = start_backend(venv_python, "production")
     
     # Start Frontend in Preview Mode
-    start_frontend("prod")
+    frontend_proc = start_frontend("prod")
     
     print(f"\n{Colors.GREEN}{Colors.BOLD}Access Output:{Colors.END}")
     print(f"  Frontend: http://localhost:{FRONTEND_PROD_PORT}")
@@ -279,6 +330,14 @@ def start_prod():
         webbrowser.open(f"http://localhost:{FRONTEND_PROD_PORT}")
     except:
         pass
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print(f"\n{Colors.YELLOW}Stopping servers...{Colors.END}")
+        if backend_proc: backend_proc.terminate()
+        if frontend_proc: frontend_proc.terminate()
 
 
 def main():
@@ -307,7 +366,4 @@ def main():
         print(f"{Colors.RED}Unknown command: {command}{Colors.END}")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print(f"\n{Colors.YELLOW}Stopped.{Colors.END}")
+    main()

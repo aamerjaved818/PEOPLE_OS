@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS core_departments (
     id TEXT PRIMARY KEY,
     code TEXT UNIQUE NOT NULL,
     name TEXT UNIQUE NOT NULL,
-    isActive BOOLEAN DEFAULT 1,
+    is_active BOOLEAN DEFAULT 1,
     organization_id TEXT NOT NULL,
     hod_id TEXT,
     manager_id TEXT,
@@ -124,7 +124,8 @@ CREATE TABLE IF NOT EXISTS core_audit_logs (
     user TEXT NOT NULL,
     action TEXT NOT NULL,
     status TEXT,
-    time TEXT,
+    time DATETIME,
+    details TEXT,
     FOREIGN KEY (organization_id) REFERENCES core_organizations(id) ON DELETE SET NULL
 );
 
@@ -210,7 +211,7 @@ CREATE TABLE IF NOT EXISTS hcm_shifts (
     work_days TEXT,
     color TEXT,
     description TEXT,
-    isActive BOOLEAN DEFAULT 1,
+    is_active BOOLEAN DEFAULT 1,
     organization_id TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,

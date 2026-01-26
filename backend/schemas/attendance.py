@@ -2,7 +2,7 @@
 import json
 from datetime import datetime
 from typing import Optional, List, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from .shared import AuditBase
 
 # --- Attendance Schemas ---
@@ -22,8 +22,7 @@ class AttendanceCreate(BaseModel):
     location: Optional[str] = None
     remarks: Optional[str] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Attendance(AttendanceCreate, AuditBase):
     id: int
@@ -32,9 +31,7 @@ class Attendance(AttendanceCreate, AuditBase):
     shift_name: Optional[str] = Field(None, alias="shiftName")
     duration: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class AttendanceStats(BaseModel):
     present: int = 0
@@ -45,8 +42,7 @@ class AttendanceStats(BaseModel):
     total_employees: int = Field(0, alias="totalEmployees")
     date: str
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 # --- Attendance Search ---
 class AttendanceSearch(BaseModel):
@@ -92,8 +88,7 @@ class AttendanceRecordImport(BaseModel):
     plant_id: Optional[str] = Field(None, alias="plantId")
     shift_id: Optional[str] = Field(None, alias="shiftId")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class AttendanceRecordValidationResult(BaseModel):
     line_number: int
@@ -125,8 +120,7 @@ class AttendanceCorrectionApproval(BaseModel):
     action: str
     rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class AttendanceUpsertRequest(BaseModel):
     organization_id: str = Field(..., alias="organizationId")
@@ -138,8 +132,7 @@ class AttendanceUpsertRequest(BaseModel):
     plant_id: Optional[str] = Field(None, alias="plantId")
     shift_id: Optional[str] = Field(None, alias="shiftId")
     force_update: bool = False
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class AttendanceUpsertResult(BaseModel):
     employee_id: str
@@ -171,8 +164,7 @@ class AttendanceCorrectionCreate(BaseModel):
     requested_clock_out: Optional[str] = Field(None, alias="requestedClockOut")
     requested_status: Optional[str] = Field(None, alias="requestedStatus")
     reason: str
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class AttendanceCorrection(AttendanceCorrectionCreate, AuditBase):
     id: str
@@ -182,9 +174,7 @@ class AttendanceCorrection(AttendanceCorrectionCreate, AuditBase):
     approved_by: Optional[str] = Field(None, alias="approvedBy")
     approved_at: Optional[str] = Field(None, alias="approvedAt")
     rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class AttendanceCorrectionApproval(BaseModel):
     action: str
@@ -203,8 +193,7 @@ class LeaveTypeBase(BaseModel):
     requires_document: bool = Field(False, alias="requiresDocument")
     min_days_notice: int = Field(0, alias="minDaysNotice")
     is_active: bool = Field(True, alias="isActive")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class LeaveTypeCreate(LeaveTypeBase):
     organization_id: str = Field(..., alias="organizationId")
@@ -212,9 +201,7 @@ class LeaveTypeCreate(LeaveTypeBase):
 class LeaveType(LeaveTypeBase, AuditBase):
     id: str
     organization_id: str = Field(..., alias="organizationId")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class LeaveRequestCreate(BaseModel):
     organization_id: Optional[str] = Field(None, alias="organizationId")
@@ -228,8 +215,7 @@ class LeaveRequestCreate(BaseModel):
     reason: Optional[str] = None
     document_url: Optional[str] = Field(None, alias="documentUrl")
     status: str = "Pending"
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class LeaveRequest(LeaveRequestCreate, AuditBase):
     id: str
@@ -238,15 +224,12 @@ class LeaveRequest(LeaveRequestCreate, AuditBase):
     approved_at: Optional[str] = Field(None, alias="approvedAt")
     rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
     approver_name: Optional[str] = Field(None, alias="approverName")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class LeaveApproval(BaseModel):
     status: str
     rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class LeaveBalanceCreate(BaseModel):
     organization_id: Optional[str] = Field(None, alias="organizationId")
@@ -260,8 +243,7 @@ class LeaveBalanceCreate(BaseModel):
     casual_total: float = Field(10.0, alias="casualTotal")
     casual_used: float = Field(0.0, alias="casualUsed")
     unpaid_used: float = Field(0.0, alias="unpaidUsed")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class LeaveBalance(LeaveBalanceCreate, AuditBase):
     id: int
@@ -270,9 +252,7 @@ class LeaveBalance(LeaveBalanceCreate, AuditBase):
     used: Optional[float] = None
     annual: Optional[str] = None
     annual_available: Optional[float] = Field(None, alias="annualAvailable")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 # --- Overtime ---
@@ -283,8 +263,7 @@ class OvertimeRequestCreate(BaseModel):
     multiplier: float = 1.5
     reason: Optional[str] = None
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class OvertimeRequest(OvertimeRequestCreate, AuditBase):
     id: str
@@ -295,12 +274,9 @@ class OvertimeRequest(OvertimeRequestCreate, AuditBase):
     approved_at: Optional[str] = Field(None, alias="approvedAt")
     rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
     approver_name: Optional[str] = Field(None, alias="approverName")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class OvertimeApproval(BaseModel):
     action: str
     rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)

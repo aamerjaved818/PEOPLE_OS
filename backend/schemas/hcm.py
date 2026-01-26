@@ -2,7 +2,7 @@
 import json
 from datetime import datetime
 from typing import Optional, List, Union, Any
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from .shared import AuditBase
 from .core import User
 # from .org import Education, Experience, Family, Discipline, Increment # REMOVED: Defined locally
@@ -18,13 +18,11 @@ class EducationCreate(BaseModel):
     grade_gpa: str = Field(..., alias="gradeGpa")
     marks_obtained: float = Field(..., alias="marksObtained")
     total_marks: float = Field(..., alias="totalMarks")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Education(EducationCreate, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ExperienceCreate(BaseModel):
     org_name: str = Field(..., alias="orgName")
@@ -33,13 +31,11 @@ class ExperienceCreate(BaseModel):
     to: str
     gross_salary: float = Field(..., alias="grossSalary")
     remarks: str
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Experience(ExperienceCreate, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class FamilyCreate(BaseModel):
     name: str
@@ -48,8 +44,7 @@ class FamilyCreate(BaseModel):
 
 class Family(FamilyCreate, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DisciplineCreate(BaseModel):
     date: str
@@ -58,8 +53,7 @@ class DisciplineCreate(BaseModel):
 
 class Discipline(DisciplineCreate, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class IncrementCreate(BaseModel):
     effective_date: str = Field(..., alias="effectiveDate")
@@ -69,13 +63,11 @@ class IncrementCreate(BaseModel):
     new_house_rent: float | None = Field(0, alias="newHouseRent")
     new_utility_allowance: float | None = Field(0, alias="newUtilityAllowance")
     new_other_allowance: float | None = Field(0, alias="newOtherAllowance")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class Increment(IncrementCreate, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # --- Employee ---
 class EmployeeBase(BaseModel):
@@ -151,9 +143,7 @@ class EmployeeBase(BaseModel):
     def validate_phone(cls, v):
         return v # Simplified for now
 
-    class Config:
-        populate_by_name = True
-        by_alias = True
+    model_config = ConfigDict(populate_by_name=True, from_attributes=False)
 
 class EmployeeCreate(EmployeeBase):
     id: Optional[str] = None
@@ -204,10 +194,7 @@ class Employee(EmployeeBase, AuditBase):
     discipline: list["Discipline"] = []
     increments: list["Increment"] = []
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
-        by_alias = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 # --- Recruitment ---
@@ -226,8 +213,7 @@ class CandidateBase(BaseModel):
     avatar: Optional[str] = None
     organization_id: Optional[str] = Field(None, alias="organizationId")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class CandidateCreate(CandidateBase):
     id: str
@@ -239,8 +225,7 @@ class Candidate(CandidateBase, AuditBase):
         if isinstance(v, str):
             return v.split(",") if v else []
         return v
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class JobVacancyBase(BaseModel):
     title: str
@@ -254,16 +239,14 @@ class JobVacancyBase(BaseModel):
     requirements: list[str] = []
     salary_range: str = Field("", alias="salaryRange")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class JobVacancyCreate(JobVacancyBase):
     id: str
 
 class JobVacancy(JobVacancyBase, AuditBase):
     id: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Onboarding/Offboarding ---
@@ -277,8 +260,7 @@ class OnboardingStepCreate(OnboardingStepBase):
 class OnboardingStep(OnboardingStepBase, AuditBase):
     id: str
     hire_id: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class OnboardingHireBase(BaseModel):
     name: str
@@ -287,8 +269,7 @@ class OnboardingHireBase(BaseModel):
     start_date: str = Field(..., alias="startDate")
     progress: int = 0
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class OnboardingHireCreate(OnboardingHireBase):
     id: Optional[str] = None
@@ -297,8 +278,7 @@ class OnboardingHireCreate(OnboardingHireBase):
 class OnboardingHire(OnboardingHireBase, AuditBase):
     id: str
     steps: List[OnboardingStep] = []
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class OffboardingStepBase(BaseModel):
     label: str
@@ -310,8 +290,7 @@ class OffboardingStepCreate(OffboardingStepBase):
 class OffboardingStep(OffboardingStepBase, AuditBase):
     id: str
     exit_id: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class OffboardingExitBase(BaseModel):
     name: str
@@ -320,8 +299,7 @@ class OffboardingExitBase(BaseModel):
     last_date: str = Field(..., alias="lDate")
     status: str = "Initiated"
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class OffboardingExitCreate(OffboardingExitBase):
     id: Optional[str] = None
@@ -330,8 +308,7 @@ class OffboardingExitCreate(OffboardingExitBase):
 class OffboardingExit(OffboardingExitBase, AuditBase):
     id: str
     checklist: List[OffboardingStep] = []
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Performance ---
@@ -346,16 +323,14 @@ class GoalBase(BaseModel):
     description: str
     organization_id: Optional[str] = Field(None, alias="organizationId")
     employee_id: Optional[str] = Field(None, alias="employeeId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class GoalCreate(GoalBase):
     id: Optional[str] = None
 
 class Goal(GoalBase, AuditBase):
     id: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PerformanceReviewBase(BaseModel):
     employee_id: str = Field(..., alias="employeeId")
@@ -366,16 +341,14 @@ class PerformanceReviewBase(BaseModel):
     reviewer_id: str = Field(..., alias="reviewerId")
     review_date: str = Field(..., alias="reviewDate")
     organization_id: str = Field(..., alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PerformanceReviewCreate(PerformanceReviewBase):
     id: str
 
 class PerformanceReview(PerformanceReviewBase, AuditBase):
     id: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Learning ---
@@ -392,16 +365,14 @@ class CourseBase(BaseModel):
     score: Optional[int] = None
     organization_id: Optional[str] = Field(None, alias="organizationId")
     employee_id: Optional[str] = Field(None, alias="employeeId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class CourseCreate(CourseBase):
     pass
 
 class Course(CourseBase, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Benefits, Expenses, Rewards ---
@@ -413,16 +384,14 @@ class BenefitTierBase(BaseModel):
     icon: Optional[str] = None
     popular: bool = False
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class BenefitTierCreate(BenefitTierBase):
     pass
 
 class BenefitTier(BenefitTierBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class BenefitEnrollmentBase(BaseModel):
     name: str
@@ -431,16 +400,14 @@ class BenefitEnrollmentBase(BaseModel):
     status: str = "Pending"
     organization_id: Optional[str] = Field(None, alias="organizationId")
     employee_id: Optional[str] = Field(None, alias="employeeId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class BenefitEnrollmentCreate(BenefitEnrollmentBase):
     pass
 
 class BenefitEnrollment(BenefitEnrollmentBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ExpenseBase(BaseModel):
     employee_name: str = Field(..., alias="employeeName")
@@ -452,17 +419,14 @@ class ExpenseBase(BaseModel):
     receipt_url: Optional[str] = Field(None, alias="receiptUrl")
     organization_id: Optional[str] = Field(None, alias="organizationId")
     employee_id: Optional[str] = Field(None, alias="employeeId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class ExpenseCreate(ExpenseBase):
     id: Optional[str] = None
 
 class Expense(ExpenseBase, AuditBase):
     id: str
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class RewardBase(BaseModel):
     title: str
@@ -472,16 +436,14 @@ class RewardBase(BaseModel):
     image_url: Optional[str] = Field(None, alias="imageUrl")
     is_active: bool = Field(True, alias="isActive")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class RewardCreate(RewardBase):
     pass
 
 class Reward(RewardBase, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class RecognitionBase(BaseModel):
     sender_id: str = Field(..., alias="senderId")
@@ -490,16 +452,14 @@ class RecognitionBase(BaseModel):
     category: Optional[str] = None
     points_awarded: int = Field(0, alias="pointsAwarded")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class RecognitionCreate(RecognitionBase):
     pass
 
 class Recognition(RecognitionBase, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class RewardPointBase(BaseModel):
     employee_id: str = Field(..., alias="employeeId")
@@ -507,16 +467,14 @@ class RewardPointBase(BaseModel):
     total_earned: int = Field(0, alias="totalEarned")
     total_redeemed: int = Field(0, alias="totalRedeemed")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class RewardPointCreate(RewardPointBase):
     pass
 
 class RewardPoint(RewardPointBase, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class RewardPointTransactionBase(BaseModel):
     employee_id: str = Field(..., alias="employeeId")
@@ -525,16 +483,14 @@ class RewardPointTransactionBase(BaseModel):
     description: Optional[str] = None
     reference_id: Optional[str] = Field(None, alias="referenceId")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class RewardPointTransactionCreate(RewardPointTransactionBase):
     pass
 
 class RewardPointTransaction(RewardPointTransactionBase, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Promotion ---
@@ -544,23 +500,20 @@ class PromotionCycleBase(BaseModel):
     start_date: Optional[str] = Field(None, alias="startDate")
     end_date: Optional[str] = Field(None, alias="endDate")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PromotionCycleCreate(PromotionCycleBase):
     pass
 
 class PromotionCycle(PromotionCycleBase, AuditBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PromotionApprovalBase(BaseModel):
     level: str 
     status: str 
     remarks: Optional[str] = None
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PromotionApprovalCreate(PromotionApprovalBase):
     request_id: int = Field(..., alias="requestId")
@@ -569,8 +522,7 @@ class PromotionApproval(PromotionApprovalBase, AuditBase):
     id: int
     request_id: int = Field(..., alias="requestId")
     approver_id: str = Field(..., alias="approverId")
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PromotionRequestBase(BaseModel):
     cycle_id: Optional[int] = Field(None, alias="cycleId")
@@ -588,8 +540,7 @@ class PromotionRequestBase(BaseModel):
     status: str = "Pending"
     effective_date: str = Field(..., alias="effectiveDate")
     organization_id: Optional[str] = Field(None, alias="organizationId")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class PromotionRequestCreate(PromotionRequestBase):
     pass
@@ -597,23 +548,20 @@ class PromotionRequestCreate(PromotionRequestBase):
 class PromotionRequest(PromotionRequestBase, AuditBase):
     id: int
     approvals: List[PromotionApproval] = []
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Self Service ---
 class ProfileUpdate(BaseModel):
     profile_photo_url: Optional[str] = Field(None, alias="profilePhotoUrl")
     bio: Optional[str] = None
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class EmergencyContactUpdate(BaseModel):
     emergency_contact_name: Optional[str] = Field(None, alias="emergencyContactName")
     emergency_contact_phone: Optional[str] = Field(None, alias="emergencyContactPhone")
     emergency_contact_relation: Optional[str] = Field(None, alias="emergencyContactRelation")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class DocumentRequestCreate(BaseModel):
     organization_id: Optional[str] = Field(None, alias="organizationId")
@@ -621,8 +569,7 @@ class DocumentRequestCreate(BaseModel):
     document_type: str = Field(..., alias="documentType")
     purpose: Optional[str] = None
     additional_notes: Optional[str] = Field(None, alias="additionalNotes")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class DocumentRequest(DocumentRequestCreate, AuditBase):
     id: str
@@ -635,16 +582,13 @@ class DocumentRequest(DocumentRequestCreate, AuditBase):
     document_url: Optional[str] = Field(None, alias="documentUrl")
     employee_name: Optional[str] = Field(None, alias="employeeName")
     approver_name: Optional[str] = Field(None, alias="approverName")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class DocumentRequestApproval(BaseModel):
     status: str
     rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
     document_url: Optional[str] = Field(None, alias="documentUrl")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class EmployeeDocumentCreate(BaseModel):
     organization_id: Optional[str] = Field(None, alias="organizationId")
@@ -657,17 +601,14 @@ class EmployeeDocumentCreate(BaseModel):
     description: Optional[str] = None
     expiry_date: Optional[str] = Field(None, alias="expiryDate")
     is_private: bool = Field(True, alias="isPrivate")
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class EmployeeDocument(EmployeeDocumentCreate, AuditBase):
     id: str
     upload_date: str = Field(..., alias="uploadDate")
     uploaded_by: str = Field(..., alias="uploadedBy")
     uploader_name: Optional[str] = Field(None, alias="uploaderName")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class InfoUpdateRequestCreate(BaseModel):
     organization_id: Optional[str] = Field(None, alias="organizationId")
@@ -676,8 +617,7 @@ class InfoUpdateRequestCreate(BaseModel):
     current_value: Optional[str] = Field(None, alias="currentValue")
     new_value: str = Field(..., alias="newValue")
     reason: Optional[str] = None
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 class InfoUpdateRequest(InfoUpdateRequestCreate, AuditBase):
     id: str
@@ -687,9 +627,7 @@ class InfoUpdateRequest(InfoUpdateRequestCreate, AuditBase):
     approved_date: Optional[str] = Field(None, alias="approvedDate")
     rejection_reason: Optional[str] = Field(None, alias="rejectionReason")
     employee_name: Optional[str] = Field(None, alias="employeeName")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class TeamMember(BaseModel):
     id: str
@@ -701,9 +639,7 @@ class TeamMember(BaseModel):
     profile_photo_url: Optional[str] = Field(None, alias="profilePhotoUrl")
     bio: Optional[str] = None
     join_date: Optional[str] = Field(None, alias="joinDate")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class MyProfile(BaseModel):
     id: str
@@ -730,9 +666,7 @@ class MyProfile(BaseModel):
     bio: Optional[str] = None
     gross_salary: Optional[float] = Field(None, alias="grossSalary")
     bank_name: Optional[str] = Field(None, alias="bankName")
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 class AnalyticsDataPoint(BaseModel):
     name: str
@@ -758,5 +692,4 @@ class DashboardSummary(BaseModel):
     total_candidates: int
     department_distribution: List[AnalyticsDataPoint]
     gender_distribution: List[AnalyticsDataPoint]
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)

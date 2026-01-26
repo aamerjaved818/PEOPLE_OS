@@ -221,6 +221,7 @@ def create_audit_log(db: Session, log: schemas.AuditLogCreate):
         status=log.status,
         time=log.time,
         organization_id=log.organization_id,
+        details=log.details,
     )
     db.add(db_log)
     db.commit()
