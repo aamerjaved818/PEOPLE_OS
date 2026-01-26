@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { selfServiceApi } from '@/services/selfServiceApi';
+import { API_CONFIG } from '@/config/constants';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -112,7 +113,9 @@ export const PayslipViewer: React.FC = () => {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={() => window.open(`/api/v1/payroll/${payslip.id}/pdf`, '_blank')}
+                  onClick={() =>
+                    window.open(`${API_CONFIG.BASE_URL}/payroll/${payslip.id}/pdf`, '_blank')
+                  }
                 >
                   View Payslip
                 </Button>

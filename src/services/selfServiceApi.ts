@@ -67,46 +67,45 @@ export interface TeamMember {
 
 export const selfServiceApi = {
   // Profile Management
-  getMyProfile: () => api.get<MyProfile>('/api/v1/self-service/profile'),
+  getMyProfile: () => api.get<MyProfile>('/self-service/profile'),
 
   updateProfile: (data: { profilePhotoUrl?: string; bio?: string }) =>
-    api.put('/api/v1/self-service/profile', data),
+    api.put('/self-service/profile', data),
 
   updateEmergencyContact: (data: {
     emergencyContactName?: string;
     emergencyContactPhone?: string;
     emergencyContactRelation?: string;
-  }) => api.put('/api/v1/self-service/emergency-contact', data),
+  }) => api.put('/self-service/emergency-contact', data),
 
   uploadProfilePhoto: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return api.post('/api/v1/upload/profile-photo', formData);
+    return api.post('/upload/profile-photo', formData);
   },
 
   // Document Requests
   requestDocument: (data: { documentType: string; purpose?: string; additionalNotes?: string }) =>
-    api.post<DocumentRequest>('/api/v1/self-service/document-requests', data),
+    api.post<DocumentRequest>('/self-service/document-requests', data),
 
-  getMyDocumentRequests: () => api.get<DocumentRequest[]>('/api/v1/self-service/document-requests'),
+  getMyDocumentRequests: () => api.get<DocumentRequest[]>('/self-service/document-requests'),
 
   // Document Library
-  getMyDocuments: () => api.get<EmployeeDocument[]>('/api/v1/self-service/documents'),
+  getMyDocuments: () => api.get<EmployeeDocument[]>('/self-service/documents'),
 
   // Payslips
   getMyPayslips: (year?: number, month?: string) =>
-    api.get('/api/v1/self-service/payslips', { params: { year, month } }),
+    api.get('/self-service/payslips', { params: { year, month } }),
 
   // Team Directory
   getTeamDirectory: (departmentId?: string) =>
-    api.get<TeamMember[]>('/api/v1/self-service/team-directory', {
+    api.get<TeamMember[]>('/self-service/team-directory', {
       params: { department_id: departmentId },
     }),
 
-  getTeamMember: (employeeId: string) =>
-    api.get<TeamMember>(`/api/v1/self-service/team/${employeeId}`),
+  getTeamMember: (employeeId: string) => api.get<TeamMember>(`/self-service/team/${employeeId}`),
 
   // Info Update Requests
   requestInfoUpdate: (data: { fieldName: string; newValue: string; reason?: string }) =>
-    api.post('/api/v1/self-service/info-update-request', data),
+    api.post('/self-service/info-update-request', data),
 };

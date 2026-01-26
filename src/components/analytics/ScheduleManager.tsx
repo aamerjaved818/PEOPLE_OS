@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Pause, Play, Trash2, Zap, Edit2, Calendar } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { API_CONFIG } from '@/config/constants';
 
 interface Schedule {
   id: string;
@@ -44,7 +45,7 @@ const ScheduleManager: React.FC<ScheduleManagerProps> = ({ onScheduleCreated }) 
   const fetchSchedules = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/v1/analytics/schedules');
+      const response = await fetch(`${API_CONFIG.BASE_URL}/analytics/schedules`);
       if (!response.ok) {
         throw new Error('Failed to fetch schedules');
       }
@@ -72,7 +73,7 @@ const ScheduleManager: React.FC<ScheduleManagerProps> = ({ onScheduleCreated }) 
     }
 
     try {
-      const response = await fetch('/api/v1/analytics/schedules', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/analytics/schedules`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,9 +104,12 @@ const ScheduleManager: React.FC<ScheduleManagerProps> = ({ onScheduleCreated }) 
 
   const handlePause = async (scheduleId: string) => {
     try {
-      const response = await fetch(`/api/v1/analytics/schedules/${scheduleId}/pause`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}/analytics/schedules/${scheduleId}/pause`,
+        {
+          method: 'POST',
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to pause schedule');
@@ -118,9 +122,12 @@ const ScheduleManager: React.FC<ScheduleManagerProps> = ({ onScheduleCreated }) 
 
   const handleResume = async (scheduleId: string) => {
     try {
-      const response = await fetch(`/api/v1/analytics/schedules/${scheduleId}/resume`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}/analytics/schedules/${scheduleId}/resume`,
+        {
+          method: 'POST',
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to resume schedule');
@@ -137,7 +144,7 @@ const ScheduleManager: React.FC<ScheduleManagerProps> = ({ onScheduleCreated }) 
     }
 
     try {
-      const response = await fetch(`/api/v1/analytics/schedules/${scheduleId}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/analytics/schedules/${scheduleId}`, {
         method: 'DELETE',
       });
 
@@ -153,9 +160,12 @@ const ScheduleManager: React.FC<ScheduleManagerProps> = ({ onScheduleCreated }) 
   const handleTrigger = async (scheduleId: string) => {
     try {
       setTriggering(scheduleId);
-      const response = await fetch(`/api/v1/analytics/schedules/${scheduleId}/trigger`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}/analytics/schedules/${scheduleId}/trigger`,
+        {
+          method: 'POST',
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to trigger report');

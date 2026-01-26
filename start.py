@@ -157,7 +157,7 @@ def start_backend(python_exe: Path, env: str = "development") -> subprocess.Pope
     
     env_vars = os.environ.copy()
     env_vars["APP_ENV"] = env
-    env_vars["PORT"] = str(BACKEND_PORT)
+    env_vars["API_PORT"] = str(BACKEND_PORT)
     
     # Use standard python -m execution
     cmd = [str(python_exe), '-m', 'backend.main']

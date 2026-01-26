@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { API_CONFIG } from '@/config/constants';
 import './ReportDownloader.css';
 
 interface ReportDownloaderProps {
@@ -28,7 +29,7 @@ const ReportDownloader: React.FC<ReportDownloaderProps> = ({
     setError(null);
 
     try {
-      const response = await fetch('/api/v1/analytics/download-report', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/analytics/download-report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

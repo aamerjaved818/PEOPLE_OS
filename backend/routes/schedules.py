@@ -23,7 +23,7 @@ from backend.services.email_delivery import (
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/analytics/schedules", tags=["schedules"])
+router = APIRouter(prefix="/analytics/schedules", tags=["schedules"])
 
 
 @router.post("", response_model=ReportScheduleResponse)

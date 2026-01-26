@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Organization Structure - Department & Sub-Department CRUD', () => {
   const BASE_URL = 'http://localhost:3000';
-  const API_URL = 'http://localhost:8000/api/v1';
+  const API_URL = 'http://localhost:8000/api';
 
   // Test data
   const testDept1 = {

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Global Designation & Assignment Verification', () => {
   // Port 5173 for Frontend (dev), 8000 for Backend
   const BASE_URL = 'http://localhost:5173';
-  const API_URL = 'http://localhost:8000/api/v1';
+  const API_URL = 'http://localhost:8000/api';
 
   const timestamp = Date.now();
   const testGrade = {

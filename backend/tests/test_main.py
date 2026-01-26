@@ -4,5 +4,5 @@ from backend.main import app
 client = TestClient(app)
 
 def test_health_check():
-    response = client.get("/api/v1/health")
+    response = client.get("/api/health")
     assert response.status_code in [200, 200] # Flexible assertion

@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { API_CONFIG } from '@/config/constants';
 import './ReportViewer.css';
 
 interface GeneratedReport {
@@ -31,7 +32,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ isLoading = false, onDelete
     const fetchReports = async () => {
       try {
         setLoadingReports(true);
-        const response = await fetch('/api/v1/analytics/reports', {
+        const response = await fetch(`${API_CONFIG.BASE_URL}/analytics/reports`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}`,
           },
@@ -88,7 +89,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ isLoading = false, onDelete
     }
 
     try {
-      const response = await fetch(`/api/v1/analytics/reports/${reportId}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/analytics/reports/${reportId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}`,

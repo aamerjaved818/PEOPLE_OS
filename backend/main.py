@@ -67,15 +67,6 @@ app.add_middleware(
 )
 
 
-class APIVersionRedirectMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        path = request.scope.get("path", "")
-        if path.startswith("/api/") and not path.startswith("/api/v1/"):
-            request.scope["path"] = "/api/v1" + path[len("/api"):]
-        return await call_next(request)
-
-
-app.add_middleware(APIVersionRedirectMiddleware)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -254,30 +245,30 @@ from backend.routers import (
     hcm_promotions_router,
 )
 
-app.include_router(auth_router, prefix="/api/v1")
-app.include_router(core_org_router, prefix="/api/v1")
-app.include_router(hcm_employees_router, prefix="/api/v1")
-app.include_router(hcm_attendance_router, prefix="/api/v1")
-app.include_router(hcm_payroll_router, prefix="/api/v1")
-app.include_router(self_service_router, prefix="/api/v1")
-app.include_router(system_router, prefix="/api/v1")
-app.include_router(hcm_overtime_router, prefix="/api/v1")
-app.include_router(gen_admin_router, prefix="/api/v1")
-app.include_router(hcm_onboarding_router, prefix="/api/v1")
-app.include_router(hcm_offboarding_router, prefix="/api/v1")
-app.include_router(hcm_performance_router, prefix="/api/v1")
-app.include_router(hcm_learning_router, prefix="/api/v1")
-app.include_router(hcm_benefits_router, prefix="/api/v1")
-app.include_router(hcm_expenses_router, prefix="/api/v1")
-app.include_router(hcm_rewards_router, prefix="/api/v1")
-app.include_router(hcm_promotions_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/api")
+app.include_router(core_org_router, prefix="/api")
+app.include_router(hcm_employees_router, prefix="/api")
+app.include_router(hcm_attendance_router, prefix="/api")
+app.include_router(hcm_payroll_router, prefix="/api")
+app.include_router(self_service_router, prefix="/api")
+app.include_router(system_router, prefix="/api")
+app.include_router(hcm_overtime_router, prefix="/api")
+app.include_router(gen_admin_router, prefix="/api")
+app.include_router(hcm_onboarding_router, prefix="/api")
+app.include_router(hcm_offboarding_router, prefix="/api")
+app.include_router(hcm_performance_router, prefix="/api")
+app.include_router(hcm_learning_router, prefix="/api")
+app.include_router(hcm_benefits_router, prefix="/api")
+app.include_router(hcm_expenses_router, prefix="/api")
+app.include_router(hcm_rewards_router, prefix="/api")
+app.include_router(hcm_promotions_router, prefix="/api")
 
-@app.get("/api/v1", tags=["System"])
+@app.get("/api", tags=["System"])
 def read_root():
     return {"message": "peopleOS eBusiness Suite API Operating Normally"}
 
 
-@app.get("/api/v1/health", tags=["System"])
+@app.get("/api/health", tags=["System"])
 def health_root(db: Session = Depends(get_db)):
     try:
         # Lightweight DB check

@@ -12,7 +12,7 @@ from backend.dependencies import (
 )
 from backend.services.file_upload import file_upload_service
 
-router = APIRouter(prefix="/api/v1/self-service", tags=["Self-Service"])
+router = APIRouter(prefix="/self-service", tags=["Self-Service"])
 
 @router.get("/profile", response_model=schemas.MyProfile)
 def get_my_profile(
