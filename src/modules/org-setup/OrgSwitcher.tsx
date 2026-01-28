@@ -42,7 +42,7 @@ const OrgSwitcher: React.FC<OrgSwitcherProps> = ({ currentOrgId, onSwitch }) => 
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg bg-surface border border-white/10 hover:bg-white/5 transition-all group"
+        className="flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg bg-surface border border-border hover:bg-accent/50 transition-all group"
       >
         <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
           {activeOrg?.logo ? (
@@ -53,33 +53,40 @@ const OrgSwitcher: React.FC<OrgSwitcherProps> = ({ currentOrgId, onSwitch }) => 
         </div>
 
         <div className="text-left hidden md:block">
-          <p className="text-xs font-bold text-white leading-none max-w-[150px] truncate">
+          <p className="text-xs font-bold text-foreground leading-none max-w-[150px] truncate">
             {activeOrg?.name || 'Select Organization'}
           </p>
-          <p className="text-[10px] text-text-muted font-medium leading-none mt-0.5">
+          <p className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
             {activeOrg?.code || 'Switch Context'}
           </p>
         </div>
 
         <ChevronDown
           size={14}
-          className={`text-text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
       {isOpen && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute top-full left-0 mt-2 w-64 bg-surface border border-white/10 rounded-xl shadow-xl shadow-black/50 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 flex flex-col">
-            <div className="p-2 border-b border-white/5 bg-slate-950/30">
-              <p className="text-[10px] font-black uppercase tracking-wider text-text-muted px-2 py-1">
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+            role="button"
+            tabIndex={-1}
+            aria-label="Close menu"
+            onKeyDown={(e) => e.key === 'Escape' && setIsOpen(false)}
+          />
+          <div className="absolute top-full left-0 mt-2 w-64 bg-surface border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 flex flex-col">
+            <div className="p-2 border-b border-border bg-muted/30">
+              <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground px-2 py-1">
                 Switch Organization
               </p>
             </div>
 
-            <div className="max-h-[300px] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+            <div className="max-h-[300px] overflow-y-auto p-1 custom-scrollbar">
               {loading ? (
-                <div className="p-4 text-center text-xs text-text-muted">Loading...</div>
+                <div className="p-4 text-center text-xs text-muted-foreground">Loading...</div>
               ) : (
                 organizations.map((org) => (
                   <button
@@ -90,11 +97,11 @@ const OrgSwitcher: React.FC<OrgSwitcherProps> = ({ currentOrgId, onSwitch }) => 
                     }}
                     className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-all ${
                       currentOrgId === org.id
-                        ? 'bg-primary/10 text-white'
-                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                     }`}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0 border border-white/5">
+                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0 border border-border">
                       {org.logo ? (
                         <img
                           src={org.logo}

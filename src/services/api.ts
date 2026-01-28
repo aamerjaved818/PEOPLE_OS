@@ -130,31 +130,9 @@ class ApiService {
     this.apiUrl = API_CONFIG.BASE_URL;
     this.authToken = secureStorage.getItem('token');
 
-    // One-time cache clear to ensure migration to DB-only source.
-    // One-time cache clear to ensure migration to DB-only source.
-    if (!secureStorage.getItem('clean_slate_v3')) {
-      Logger.info('Enforcing clean slate v3. Clearing local cache...');
-      const token = this.authToken;
-      const dataVersion = secureStorage.getItem('data_version');
-      secureStorage.clear();
-      if (token) {
-        secureStorage.setItem('token', token);
-      }
-      if (dataVersion) {
-        secureStorage.setItem('data_version', dataVersion);
-      }
-      secureStorage.setItem('clean_slate_v3', 'true');
-    }
-
-    // Version check removed to prevent conflict.
-    // System now strictly relies on Backend.
-
-    // Try to load from sessionStorage, fallback to mock data
     // Data strict initialization
     this.employees = [];
-
     this.expenses = [];
-
     this.visitors = [];
 
     // Mock data initialization removed.
@@ -189,8 +167,13 @@ class ApiService {
     const orgId = localStorage.getItem('selected_org_id');
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
     };
+
+    // Use latest token from storage if private property is null (defensive)
+    const activeToken = this.authToken || secureStorage.getItem('token');
+    if (activeToken) {
+      headers['Authorization'] = `Bearer ${activeToken}`;
+    }
 
     // Only attach x-organization-id if it's a valid string and not "null"/"undefined"
     // This prevents accidental filtering when Root/Admin should see everything
@@ -234,55 +217,74 @@ class ApiService {
       throw new Error(`Rate limit exceeded. Please wait ${waitTime} seconds.`);
     }
 
-    const orgId = localStorage.getItem('selected_org_id');
     const headers = {
-      'Content-Type': 'application/json',
-      ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
-      ...(orgId ? { 'x-organization-id': orgId } : {}),
+      ...this.getHeaders(),
       ...options.headers,
     };
 
-    const startTime = performance.now();
     const method = options.method || 'GET';
-    Logger.debug(`[request] Starting ${method} ${url}`);
+    const retryAttempts = API_CONFIG.RETRY_ATTEMPTS;
+    const timeout = API_CONFIG.TIMEOUT;
+    let lastError: any;
 
-    try {
-      const response = await fetch(url, { ...options, headers });
-      const duration = performance.now() - startTime;
-      Logger.debug(
-        `[request] Completed ${method} ${url} in ${duration.toFixed(0)}ms, status: ${response.status}`
-      );
+    for (let attempt = 0; attempt <= retryAttempts; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      const startTime = performance.now();
 
-      if (response.status === 401) {
-        Logger.warn('Unauthorized access detected. Session invalid. Logging out...');
-        this.logout();
-        // Dispatch simplified event for App.tsx to handle redirect without reload loop
-        window.dispatchEvent(new Event('auth:logout'));
-        throw new Error('Session expired');
+      try {
+        if (attempt > 0) {
+          Logger.debug(`[request] Retry attempt ${attempt}/${retryAttempts} for ${method} ${url}`);
+        }
+
+        const response = await fetch(url, {
+          ...options,
+          headers,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        const duration = performance.now() - startTime;
+        Logger.debug(
+          `[request] Completed ${method} ${url} in ${duration.toFixed(0)}ms, status: ${response.status}`
+        );
+
+        if (response.status === 401) {
+          Logger.warn('Unauthorized access detected. Session invalid. Logging out...');
+          this.logout();
+          window.dispatchEvent(new Event('auth:logout'));
+          throw new Error('Session expired');
+        }
+
+        return response;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        lastError = error;
+        const duration = performance.now() - startTime;
+        const errorName = error instanceof Error ? error.name : 'Unknown';
+        const errorMsg = error instanceof Error ? error.message : String(error);
+
+        Logger.error(
+          `[request] Failed ${method} ${url} (Attempt ${attempt + 1}/${retryAttempts + 1}) after ${duration.toFixed(0)}ms: ${errorName} - ${errorMsg}`
+        );
+
+        if (attempt === retryAttempts) {
+          break;
+        }
+
+        // Don't retry on certain errors
+        if (errorName === 'AbortError' && attempt > 0) {
+          // If it already timed out once, maybe don't keep hammering if it's a hard limit,
+          // but we follow the retry policy usually.
+        }
+
+        const delay = Math.pow(2, attempt) * 1000;
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
-
-      return response;
-    } catch (error) {
-      const duration = performance.now() - startTime;
-      const errorName = error instanceof Error ? error.name : 'Unknown';
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      const isNetworkError =
-        errorMsg.toLowerCase().includes('failed to fetch') ||
-        errorMsg.toLowerCase().includes('networkerror');
-
-      const logMsg = `[request] Failed ${method} ${url} after ${duration.toFixed(0)}ms: ${errorName} - ${errorMsg}${
-        isNetworkError ? ' (Possible CORS or Connection Refused)' : ''
-      }`;
-
-      Logger.error(logMsg);
-
-      // Log stack trace for AbortError for debugging
-      if (error instanceof Error && error.name === 'AbortError') {
-        Logger.error(`[request] AbortError stack: ${error.stack}`);
-      }
-
-      throw error;
     }
+
+    throw lastError;
   }
 
   public async post<T = any>(endpoint: string, data?: any, options: any = {}): Promise<T> {
@@ -496,7 +498,7 @@ class ApiService {
   // --- Employees ---
   async getEmployees(): Promise<EmployeeType[]> {
     try {
-      const data = await this.get('/employees');
+      const data = await this.get('/hcm/employees');
       this.employees = data;
       return data;
     } catch (error) {
@@ -1385,6 +1387,15 @@ class ApiService {
       return await response.json();
     } catch (error) {
       Logger.error('Update position failed', error);
+      throw error;
+    }
+  }
+
+  async getInitialData(): Promise<any> {
+    try {
+      return await this.get('/system/initial-data');
+    } catch (error) {
+      Logger.error('Failed to fetch initial system data', error);
       throw error;
     }
   }

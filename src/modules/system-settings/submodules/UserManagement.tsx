@@ -30,7 +30,7 @@ const PermissionMatrix = React.memo(() => {
           <ShieldCheck size={20} className="text-primary" />
           PERMISSIONS
         </h3>
-        <p className="text-[0.65rem] text-text-muted mt-1.5 font-bold uppercase tracking-widest">
+        <p className="text-[0.65rem] text-text-secondary mt-1.5 font-bold uppercase tracking-widest">
           Role Permissions
         </p>
       </div>
@@ -348,8 +348,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ onSync: syncCallback })
                 adminUserModal.open();
               }}
               aria-label="Add New System Administrator"
+              disabled={true}
             >
-              <Plus size={16} strokeWidth={3} /> Add System Admin
+              <Plus size={16} strokeWidth={3} /> Add Root
             </Button>
           </div>
 
@@ -492,204 +493,206 @@ const UserManagement: React.FC<UserManagementProps> = ({ onSync: syncCallback })
         </div>
       )}
 
-      {/* Organization Users Management Section */}
-      <div
-        className="card-vibrant rounded-2xl shadow-sm overflow-hidden"
-        role="region"
-        aria-label="Organization Users Management"
-      >
-        {!currentOrganization && currentUser?.role !== 'Root' ? (
-          <div className="px-8 py-12 text-center bg-bg/50">
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center text-warning">
-                <Building size={24} />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-text-primary uppercase tracking-tight">
-                  No Organization Selected
-                </p>
-                <p className="text-[0.75rem] text-text-muted font-medium mt-1">
-                  Please navigate to the Organizations tab to select an organization first.
-                </p>
+      {/* Organization Users Management Section - Restricted to Org Super Admin & Root */}
+      {(currentUser?.role === 'Root' || ORG_SUPER_ROLES.has(currentUser?.role as any)) && (
+        <div
+          className="card-vibrant rounded-2xl shadow-sm overflow-hidden"
+          role="region"
+          aria-label="Organization Users Management"
+        >
+          {!currentOrganization && currentUser?.role !== 'Root' ? (
+            <div className="px-8 py-12 text-center bg-bg/50">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center text-warning">
+                  <Building size={24} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-text-primary uppercase tracking-tight">
+                    No Organization Selected
+                  </p>
+                  <p className="text-[0.75rem] text-text-muted font-medium mt-1">
+                    Please navigate to the Organizations tab to select an organization first.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <>
-            <div className="px-8 py-6 border-b border-border bg-bg/50 flex items-center justify-between">
-              <div>
-                <h3 className="font-black text-sm text-vibrant uppercase tracking-wider">
-                  {currentUser?.role === 'Root' && !currentOrganization
-                    ? 'All Organization Users'
-                    : 'Organization Users'}
-                </h3>
-                <p className="text-[0.625rem] text-text-muted font-bold mt-1.5 uppercase tracking-[0.2em]">
-                  {currentOrganization?.name
-                    ? `${currentOrganization.name} • Manage users and admins for this organization`
-                    : 'Global View • Managing users across all organizations (Root Access)'}
-                </p>
+          ) : (
+            <>
+              <div className="px-8 py-6 border-b border-border bg-bg/50 flex items-center justify-between">
+                <div>
+                  <h3 className="font-black text-sm text-vibrant uppercase tracking-wider">
+                    {currentUser?.role === 'Root' && !currentOrganization
+                      ? 'All Organization Users'
+                      : 'Organization Users'}
+                  </h3>
+                  <p className="text-[0.625rem] text-text-muted font-bold mt-1.5 uppercase tracking-[0.2em]">
+                    {currentOrganization?.name
+                      ? `${currentOrganization.name} • Manage users and admins for this organization`
+                      : 'Global View • Managing users across all organizations (Root Access)'}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  className="h-10 px-6 bg-primary hover:bg-primary/90 text-primary-foreground text-[0.65rem] font-black uppercase tracking-[0.15em] gap-3 rounded-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300"
+                  onClick={() => {
+                    setUserType('org');
+                    setFormData({
+                      username: '',
+                      name: '',
+                      email: '',
+                      role: 'HRManager',
+                      status: 'Active',
+                      isSystemUser: false,
+                    });
+                    orgUserModal.open();
+                  }}
+                  aria-label="Add New Organization User"
+                  disabled={!currentOrganization}
+                >
+                  <Plus size={16} strokeWidth={3} /> Add User
+                </Button>
               </div>
-              <Button
-                size="sm"
-                className="h-10 px-6 bg-primary hover:bg-primary/90 text-primary-foreground text-[0.65rem] font-black uppercase tracking-[0.15em] gap-3 rounded-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300"
-                onClick={() => {
-                  setUserType('org');
-                  setFormData({
-                    username: '',
-                    name: '',
-                    email: '',
-                    role: 'HRManager',
-                    status: 'Active',
-                    isSystemUser: false,
-                  });
-                  orgUserModal.open();
-                }}
-                aria-label="Add New Organization User"
-                disabled={!currentOrganization}
-              >
-                <Plus size={16} strokeWidth={3} /> Add User
-              </Button>
-            </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-bg/80 text-[0.6rem] uppercase text-text-muted font-black tracking-[0.25em] border-b border-border">
-                  <tr>
-                    <th scope="col" className="px-8 py-5">
-                      IDENTITY
-                    </th>
-                    {currentUser?.role === 'Root' && !currentOrganization && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-bg/80 text-[0.6rem] uppercase text-text-muted font-black tracking-[0.25em] border-b border-border">
+                    <tr>
                       <th scope="col" className="px-8 py-5">
-                        ORGANIZATION
+                        IDENTITY
                       </th>
-                    )}
-                    <th scope="col" className="px-8 py-5">
-                      ROLE / ACCESS
-                    </th>
-                    <th scope="col" className="px-8 py-5 text-center">
-                      SECURITY STATUS
-                    </th>
-                    <th scope="col" className="px-8 py-5 text-right">
-                      ACTIONS
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {orgUsers.map((user: any) => (
-                    <tr
-                      key={user.id}
-                      className="hover:bg-primary/5 transition-all duration-200 group"
-                    >
-                      <td className="px-8 py-5">
-                        <div className="flex items-center gap-4">
-                          <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[0.7rem] font-black border border-primary/20">
-                            {(user.name || user.username || 'U')
-                              .split(' ')
-                              .map((n: string) => n[0])
-                              .join('')
-                              .slice(0, 2)
-                              .toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="text-[0.75rem] font-black text-text-primary">
-                              {user.username}
-                            </p>
-                            <p className="text-[0.625rem] text-text-muted font-medium tracking-tight mt-0.5">
-                              {user.name || 'No Name Set'}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
                       {currentUser?.role === 'Root' && !currentOrganization && (
-                        <td className="px-8 py-5">
-                          {user.organizationId ? (
-                            <div className="inline-block px-3 py-1.5 bg-primary/5 border border-primary/10 rounded-lg">
-                              <span className="font-bold text-[0.6rem] text-primary uppercase tracking-wider">
-                                {organizations.find((o) => o.id === user.organizationId)?.name ||
-                                  'Unknown Org'}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-text-muted text-xs">-</span>
-                          )}
-                        </td>
+                        <th scope="col" className="px-8 py-5">
+                          ORGANIZATION
+                        </th>
                       )}
-                      <td className="px-8 py-5">
-                        <div className="inline-block px-4 py-2 bg-bg border border-border rounded-lg shadow-sm">
-                          <span className="font-black text-[0.625rem] tracking-[0.2em] text-primary uppercase">
-                            {user.role.toUpperCase()}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          {user.mfa_enabled && (
-                            <div className="px-2.5 py-1 rounded-[4px] bg-success/20 border border-success/40">
-                              <span className="text-[10px] font-black text-success tracking-tighter">
-                                MFA
-                              </span>
+                      <th scope="col" className="px-8 py-5">
+                        ROLE / ACCESS
+                      </th>
+                      <th scope="col" className="px-8 py-5 text-center">
+                        SECURITY STATUS
+                      </th>
+                      <th scope="col" className="px-8 py-5 text-right">
+                        ACTIONS
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {orgUsers.map((user: any) => (
+                      <tr
+                        key={user.id}
+                        className="hover:bg-primary/5 transition-all duration-200 group"
+                      >
+                        <td className="px-8 py-5">
+                          <div className="flex items-center gap-4">
+                            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[0.7rem] font-black border border-primary/20">
+                              {(user.name || user.username || 'U')
+                                .split(' ')
+                                .map((n: string) => n[0])
+                                .join('')
+                                .slice(0, 2)
+                                .toUpperCase()}
                             </div>
-                          )}
-                          <div className="px-2.5 py-1 rounded-[4px] bg-info/20 border border-info/40">
-                            <span className="text-[10px] font-black text-info tracking-tighter">
-                              ORG
+                            <div>
+                              <p className="text-[0.75rem] font-black text-text-primary">
+                                {user.username}
+                              </p>
+                              <p className="text-[0.625rem] text-text-muted font-medium tracking-tight mt-0.5">
+                                {user.name || 'No Name Set'}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        {currentUser?.role === 'Root' && !currentOrganization && (
+                          <td className="px-8 py-5">
+                            {user.organizationId ? (
+                              <div className="inline-block px-3 py-1.5 bg-primary/5 border border-primary/10 rounded-lg">
+                                <span className="font-bold text-[0.6rem] text-primary uppercase tracking-wider">
+                                  {organizations.find((o) => o.id === user.organizationId)?.name ||
+                                    'Unknown Org'}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-text-muted text-xs">-</span>
+                            )}
+                          </td>
+                        )}
+                        <td className="px-8 py-5">
+                          <div className="inline-block px-4 py-2 bg-bg border border-border rounded-lg shadow-sm">
+                            <span className="font-black text-[0.625rem] tracking-[0.2em] text-primary uppercase">
+                              {user.role.toUpperCase()}
                             </span>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5 text-right">
-                        <div className="flex items-center justify-end gap-2 transition-all">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-text-muted hover:text-primary hover:bg-primary/10"
-                            onClick={() => {
-                              setUserType('org');
-                              setFormData(user);
-                              orgUserModal.open();
-                            }}
-                            aria-label={`Edit ${user.name}`}
-                          >
-                            <Edit2 size={14} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-text-muted hover:text-danger hover:bg-danger/10"
-                            onClick={() => setUserToDelete(user)}
-                            aria-label={`Delete ${user.name}`}
-                          >
-                            <Trash2 size={14} />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {!errorEntities?.users && orgUsers.length === 0 && (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-12 text-center">
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="w-12 h-12 bg-muted-bg rounded-full flex items-center justify-center text-text-muted">
-                            <Users size={24} />
+                        </td>
+                        <td className="px-8 py-5 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            {user.mfa_enabled && (
+                              <div className="px-2.5 py-1 rounded-[4px] bg-success/20 border border-success/40">
+                                <span className="text-[10px] font-black text-success tracking-tighter">
+                                  MFA
+                                </span>
+                              </div>
+                            )}
+                            <div className="px-2.5 py-1 rounded-[4px] bg-info/20 border border-info/40">
+                              <span className="text-[10px] font-black text-info tracking-tighter">
+                                ORG
+                              </span>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-xs font-black text-text-primary uppercase tracking-tight">
-                              No organization users found
-                            </p>
-                            <p className="text-[0.6rem] text-text-muted font-bold mt-1 antialiased">
-                              Start by adding a new user to this organization.
-                            </p>
+                        </td>
+                        <td className="px-8 py-5 text-right">
+                          <div className="flex items-center justify-end gap-2 transition-all">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-text-muted hover:text-primary hover:bg-primary/10"
+                              onClick={() => {
+                                setUserType('org');
+                                setFormData(user);
+                                orgUserModal.open();
+                              }}
+                              aria-label={`Edit ${user.name}`}
+                            >
+                              <Edit2 size={14} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-text-muted hover:text-danger hover:bg-danger/10"
+                              onClick={() => setUserToDelete(user)}
+                              aria-label={`Delete ${user.name}`}
+                            >
+                              <Trash2 size={14} />
+                            </Button>
                           </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-      </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {!errorEntities?.users && orgUsers.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-12 text-center">
+                          <div className="flex flex-col items-center gap-3">
+                            <div className="w-12 h-12 bg-muted-bg rounded-full flex items-center justify-center text-text-muted">
+                              <Users size={24} />
+                            </div>
+                            <div>
+                              <p className="text-xs font-black text-text-primary uppercase tracking-tight">
+                                No organization users found
+                              </p>
+                              <p className="text-[0.6rem] text-text-muted font-bold mt-1 antialiased">
+                                Start by adding a new user to this organization.
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Permission Matrix Area - ONLY VISIBLE TO ROOT */}
       {currentUser?.role === 'Root' && <PermissionMatrix />}

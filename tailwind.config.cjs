@@ -9,44 +9,63 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: {
-        bg: 'var(--bg)',
-        surface: 'var(--surface)',
-        'muted-bg': 'var(--surface-elevated)',
-        elevated: 'var(--surface-elevated)',
-        primary: 'var(--primary)',
-        'primary-hover': 'var(--primary-hover)',
-        'primary-active': 'var(--primary-hover)',
-        'primary-soft': 'var(--primary-soft)',
-        text: {
-          primary: 'var(--text-primary)',
-          secondary: 'var(--text-secondary)',
-          muted: 'var(--text-muted)',
+      animation: {
+        shine: 'shine 5s linear infinite',
+        float: 'float 6s ease-in-out infinite',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        shine: {
+          '0%': { backgroundPosition: '200% center' },
+          '100%': { backgroundPosition: '-200% center' },
         },
-        border: 'var(--border)',
-        success: 'var(--success)',
-        warning: 'var(--warning)',
-        danger: 'var(--danger)',
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+      },
+      colors: {
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
         card: {
-          DEFAULT: 'var(--card)',
-          foreground: 'var(--card-foreground)',
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
         },
         popover: {
-          DEFAULT: 'var(--popover)',
-          foreground: 'var(--popover-foreground)',
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
         },
         muted: {
-          DEFAULT: 'var(--muted)',
-          foreground: 'var(--muted-foreground)',
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT: 'var(--accent)',
-          foreground: 'var(--accent-foreground)',
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
         },
         destructive: {
-          DEFAULT: 'var(--destructive)',
-          foreground: 'var(--destructive-foreground)',
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
         },
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+
+        // Legacy/Custom mappings mapped to new system
+        bg: 'hsl(var(--background))',
+        surface: 'hsl(var(--card))',
+        'muted-bg': 'hsl(var(--muted))',
+        elevated: 'hsl(var(--card))',
+
+        // Sidebar specific (kept as direct vars since they are hex in index.css)
         sidebar: {
           DEFAULT: 'var(--sidebar-bg)',
           surface: 'var(--sidebar-surface)',
@@ -55,6 +74,8 @@ module.exports = {
           border: 'var(--sidebar-border)',
           active: 'var(--sidebar-active)',
         },
+
+        // Vibrant palette (mapped to variables if they exist, or fallbacks)
         vibrant: {
           blue: 'var(--vibrant-blue)',
           pink: 'var(--vibrant-pink)',

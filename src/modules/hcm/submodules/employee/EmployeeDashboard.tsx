@@ -58,7 +58,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
       {/* Enhanced Search & Command Center */}
       {/* Enhanced Search & Command Center */}
-      <div className="p-8 bg-surface/40 backdrop-blur-2xl border border-border/60 rounded-[2rem] shadow-2xl relative overflow-hidden group hover:shadow-primary/5 transition-all duration-500">
+      <div className="p-8 bg-card/40 backdrop-blur-2xl border border-border/60 rounded-[2rem] shadow-2xl relative overflow-hidden group hover:shadow-primary/5 transition-all duration-500">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none transition-opacity group-hover:opacity-100"></div>
 
         {/* Decorative elements */}
@@ -94,7 +94,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                 aria-label="Search personnel"
               />
               <div className="pr-2 flex items-center">
-                <span className="px-2 py-1 rounded-lg bg-surface border border-border text-[0.5rem] font-black text-text-muted uppercase tracking-widest hidden md:block">
+                <span className="px-2 py-1 rounded-lg bg-card border border-border text-[0.5rem] font-black text-muted-foreground uppercase tracking-widest hidden md:block">
                   CMD+K
                 </span>
               </div>
@@ -103,7 +103,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             <div className="flex gap-3 w-full md:w-auto">
               <Button
                 variant="ghost"
-                className="h-[3.25rem] px-8 bg-surface hover:bg-muted-bg text-text-primary border border-border/50 font-black uppercase text-[0.6rem] tracking-[0.2em] rounded-xl transition-all flex items-center gap-3 flex-1 md:flex-none justify-center shadow-lg hover:-translate-y-0.5"
+                className="h-[3.25rem] px-8 bg-card hover:bg-muted text-foreground border border-border/50 font-black uppercase text-[0.6rem] tracking-[0.2em] rounded-xl transition-all flex items-center gap-3 flex-1 md:flex-none justify-center shadow-lg hover:-translate-y-0.5"
               >
                 <FilterIcon size={16} /> Filter
               </Button>
@@ -112,7 +112,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
               <Button
                 variant="ghost"
                 onClick={importModal.open}
-                className="h-[3.25rem] px-6 bg-surface hover:bg-purple-500/10 text-text-primary hover:text-purple-500 border border-border/50 hover:border-purple-500/50 font-black uppercase text-[0.6rem] tracking-[0.2em] rounded-xl transition-all flex items-center gap-3 flex-1 md:flex-none justify-center shadow-lg hover:-translate-y-0.5"
+                className="h-[3.25rem] px-6 bg-card hover:bg-purple-500/10 text-foreground hover:text-purple-500 border border-border/50 hover:border-purple-500/50 font-black uppercase text-[0.6rem] tracking-[0.2em] rounded-xl transition-all flex items-center gap-3 flex-1 md:flex-none justify-center shadow-lg hover:-translate-y-0.5"
               >
                 <Upload size={16} /> Import
               </Button>
@@ -154,7 +154,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="px-4 py-2 bg-surface/90/50 hover:bg-muted-bg text-text-secondary hover:text-primary rounded-lg border border-border/50 transition-all flex items-center gap-2 font-black text-[0.55rem] uppercase tracking-widest h-auto"
+                  className="px-4 py-2 bg-card/90 hover:bg-muted text-foreground hover:text-primary rounded-lg border border-border/50 transition-all flex items-center gap-2 font-black text-[0.55rem] uppercase tracking-widest h-auto"
                 >
                   <FileText className="w-3.5 h-3.5" /> Export
                 </Button>

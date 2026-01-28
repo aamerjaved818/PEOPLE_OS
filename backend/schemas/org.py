@@ -1,7 +1,7 @@
 
 import json
 from typing import Optional, List, Any
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, ConfigDict, computed_field
 from .shared import AuditBase
 
 # --- Plant ---
@@ -54,6 +54,11 @@ class OrganizationBase(BaseModel):
     is_active: bool = Field(True, alias="isActive")
     head_id: Optional[str] = Field(None, alias="headId")
 
+    @computed_field
+    @property
+    def status(self) -> str:
+        return "Active" if self.is_active else "Inactive"
+
     industry: Optional[str] = None
     currency: Optional[str] = "PKR"
     tax_year_end: Optional[str] = Field(None, alias="taxYearEnd")
@@ -76,9 +81,9 @@ class OrganizationBase(BaseModel):
     description: Optional[str] = None
     social_links: Optional[Any] = Field(None, alias="socialLinks")
     
-    enabled_modules: Optional[str] = Field(None, alias="enabledModules")
+    enabled_modules: Optional[Any] = Field(None, alias="enabledModules")
     system_authority: Optional[str] = Field(None, alias="systemAuthority")
-    approval_workflows: Optional[str] = Field(None, alias="approvalWorkflows")
+    approval_workflows: Optional[Any] = Field(None, alias="approvalWorkflows")
 
     @field_validator("code")
     @classmethod
@@ -125,9 +130,9 @@ class OrganizationUpdate(BaseModel):
     cover_url: Optional[str] = None
     description: Optional[str] = None
     social_links: Optional[Any] = None
-    enabled_modules: Optional[str] = None
+    enabled_modules: Optional[Any] = None
     system_authority: Optional[str] = None
-    approval_workflows: Optional[str] = None
+    approval_workflows: Optional[Any] = None
 
     model_config = ConfigDict(populate_by_name=True)
 

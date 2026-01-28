@@ -125,16 +125,16 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-black/20">
-          <h2 className="text-xl font-black uppercase tracking-tight text-white flex items-center gap-3">
-            <Building className="text-blue-400" size={24} />
+      <div className="w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between p-6 border-b border-border bg-muted/20">
+          <h2 className="text-xl font-black uppercase tracking-tight text-foreground flex items-center gap-3">
+            <Building className="text-primary" size={24} />
             {initialData ? 'Edit Organization' : 'Register New Organization'}
           </h2>
           <Button
             onClick={onClose}
             variant="ghost"
-            className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors h-auto"
+            className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors h-auto"
           >
             <X size={20} />
           </Button>
@@ -151,7 +151,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Organization Name <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
@@ -165,19 +165,19 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50 transition-all"
                     placeholder="e.g. Acme Corp"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Organization Code <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <Hash
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     size={16}
                   />
                   <input
@@ -193,7 +193,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                         setFormData((prev: any) => ({ ...prev, code: val }));
                       }
                     }}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all uppercase"
+                    className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50 transition-all uppercase"
                     placeholder="e.g. PEOPLE01"
                   />
                   <p className="text-[10px] text-slate-500 mt-1 ml-1">
@@ -204,12 +204,12 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Industry / Sector
                 </label>
                 <div className="relative">
                   <Activity
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     size={16}
                   />
                   <input
@@ -217,7 +217,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                     name="industry"
                     value={formData.industry}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50 transition-all"
                     placeholder="e.g. Technology"
                   />
                 </div>
@@ -237,7 +237,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                     name="foundedDate"
                     value={formData.foundedDate}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all [&::-webkit-calendar-picker-indicator]:invert"
+                    className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all [&::-webkit-calendar-picker-indicator]:invert"
                   />
                 </div>
               </div>
@@ -264,7 +264,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50 transition-all"
                     placeholder="e.g. Pakistan"
                   />
                 </div>
@@ -284,7 +284,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50 transition-all"
                     placeholder="e.g. Lahore"
                   />
                 </div>
@@ -304,7 +304,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50 transition-all"
                     placeholder="contact@company.com"
                   />
                 </div>
@@ -324,7 +324,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50 transition-all"
                     placeholder="+92 300 1234567"
                   />
                 </div>
@@ -345,7 +345,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                   name="website"
                   value={formData.website}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50 transition-all"
                   placeholder="https://example.com"
                 />
               </div>
@@ -376,7 +376,7 @@ const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
                       required
                       value={formData.adminUsername}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all font-bold"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-600 transition-all"
                       placeholder="e.g. admin_acme"
                     />
                   </div>
@@ -619,35 +619,37 @@ const OrganizationManagement: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Dashboard Stats Header */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-slate-800/40 border border-white/5 p-4 rounded-2xl flex items-center gap-4">
+        <div className="bg-card/50 border border-border p-4 rounded-2xl flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
             <Building size={24} />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">
               Total Organizations
             </p>
-            <p className="text-2xl font-black text-white">{stats.total}</p>
+            <p className="text-2xl font-black text-foreground">{stats.total}</p>
           </div>
         </div>
-        <div className="bg-slate-800/40 border border-white/5 p-4 rounded-2xl flex items-center gap-4">
+        <div className="bg-card/50 border border-border p-4 rounded-2xl flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
             <Activity size={24} />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">
               Active Tenants
             </p>
-            <p className="text-2xl font-black text-white">{stats.active}</p>
+            <p className="text-2xl font-black text-foreground">{stats.active}</p>
           </div>
         </div>
-        <div className="bg-slate-800/40 border border-white/5 p-4 rounded-2xl flex items-center gap-4">
+        <div className="bg-card/50 border border-border p-4 rounded-2xl flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
             <LayoutDashboard size={24} />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Industries</p>
-            <p className="text-2xl font-black text-white">{stats.industries}</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">
+              Industries
+            </p>
+            <p className="text-2xl font-black text-foreground">{stats.industries}</p>
           </div>
         </div>
         <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-4 rounded-2xl flex flex-col justify-center items-start shadow-xl shadow-blue-900/20">
@@ -662,10 +664,13 @@ const OrganizationManagement: React.FC = () => {
       </div>
 
       {/* Control Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/50 p-4 rounded-2xl border border-white/5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-muted/50 p-4 rounded-2xl border border-border">
         <div className="flex items-center gap-4 flex-1">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              size={16}
+            />
             <input
               type="text"
               placeholder="Search organizations..."
@@ -687,7 +692,10 @@ const OrganizationManagement: React.FC = () => {
                 </option>
               ))}
             </select>
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+            <Filter
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              size={14}
+            />
           </div>
           <div className="relative">
             <select
@@ -700,30 +708,30 @@ const OrganizationManagement: React.FC = () => {
               <option value="Inactive">Inactive</option>
             </select>
             <Activity
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
               size={14}
             />
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-slate-800 p-1 rounded-xl border border-white/10 flex items-center">
+          <div className="bg-muted p-1 rounded-xl border border-border flex items-center">
             <Button
               variant={viewMode === 'grid' ? 'primary' : 'ghost'}
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg transition-all h-auto ${viewMode === 'grid' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+              className={`p-2 rounded-lg transition-all h-auto ${viewMode === 'grid' ? 'bg-blue-600 text-white shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
             >
               <LayoutGrid size={16} />
             </Button>
             <Button
               variant={viewMode === 'table' ? 'primary' : 'ghost'}
               onClick={() => setViewMode('table')}
-              className={`p-2 rounded-lg transition-all h-auto ${viewMode === 'table' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+              className={`p-2 rounded-lg transition-all h-auto ${viewMode === 'table' ? 'bg-blue-600 text-white shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
             >
               <List size={16} />
             </Button>
           </div>
-          <div className="h-6 w-px bg-white/10 mx-1"></div>
+          <div className="h-6 w-px bg-border mx-1"></div>
           <Button
             className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-black uppercase tracking-wider text-xs shadow-lg shadow-blue-600/20"
             onClick={handleCreate}
@@ -755,10 +763,10 @@ const OrganizationManagement: React.FC = () => {
 
       {/* Content Area */}
       {filteredOrgs.length === 0 && !error ? (
-        <div className="text-center py-20 bg-slate-800/20 rounded-3xl border border-white/5 border-dashed">
-          <Building className="mx-auto text-slate-600 mb-4 opacity-50" size={64} />
-          <h3 className="text-xl font-bold text-white mb-2">No organizations found</h3>
-          <p className="text-slate-400 font-medium max-w-sm mx-auto mb-6">
+        <div className="text-center py-20 bg-muted/20 rounded-3xl border border-border border-dashed">
+          <Building className="mx-auto text-muted-foreground/50 mb-4 opacity-50" size={64} />
+          <h3 className="text-xl font-bold text-foreground mb-2">No organizations found</h3>
+          <p className="text-muted-foreground font-medium max-w-sm mx-auto mb-6">
             We couldn't find any organizations matching your search criteria.
           </p>
           <Button
@@ -780,8 +788,15 @@ const OrganizationManagement: React.FC = () => {
               {filteredOrgs.map((org) => (
                 <div
                   key={org.id}
-                  className={`group relative bg-slate-800/40 border rounded-2xl p-6 hover:bg-slate-800/60 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1 ${currentOrganization?.id === org.id ? 'border-emerald-500/50 shadow-emerald-900/20 bg-emerald-900/5' : 'border-white/5'}`}
+                  className={`group relative bg-card border rounded-2xl p-6 hover:bg-accent hover:opacity-100 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1 ${currentOrganization?.id === org.id ? 'border-emerald-500/50 shadow-emerald-900/20 bg-emerald-900/10' : 'border-border'}`}
                   onMouseLeave={() => setActiveMenu(null)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      toggleSelectOrg(org);
+                    }
+                  }}
                 >
                   {currentOrganization?.id === org.id && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500 text-emerald-950 font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow-lg border border-emerald-400 z-20 flex items-center gap-1">

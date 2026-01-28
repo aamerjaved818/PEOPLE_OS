@@ -195,7 +195,7 @@ export const SystemCleanup: React.FC = () => {
 
         {/* Report Card */}
         <div className="w-full md:w-[400px]">
-          <Card className="h-full bg-white/5 border border-white/10 backdrop-blur-xl rounded-[3rem] hover:bg-white/10 transition-all">
+          <Card className="h-full bg-card border border-border backdrop-blur-xl rounded-[3rem] hover:bg-accent/10 transition-all">
             <CardHeader>
               <CardTitle>Execution Report</CardTitle>
             </CardHeader>

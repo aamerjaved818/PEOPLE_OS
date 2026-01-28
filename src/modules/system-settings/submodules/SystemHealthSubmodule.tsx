@@ -66,7 +66,7 @@ const SystemHealth: React.FC = () => {
           <div className="flex items-center gap-4">
             <Button
               onClick={() => runCycle()}
-              className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all group backdrop-blur-xl h-auto"
+              className="p-3 bg-card border border-border rounded-2xl hover:bg-accent transition-all group backdrop-blur-xl h-auto"
               title="Run Evolution Cycle"
               aria-label="Run Evolution Cycle"
             >
@@ -75,7 +75,7 @@ const SystemHealth: React.FC = () => {
                 className="text-primary group-hover:rotate-180 transition-transform duration-700"
               />
             </Button>
-            <div className="bg-white/5 backdrop-blur-xl px-6 py-3 rounded-2xl shadow-lg border border-white/10 flex items-center gap-4">
+            <div className="bg-card/30 backdrop-blur-xl px-6 py-3 rounded-2xl shadow-lg border border-border flex items-center gap-4">
               <div className="relative">
                 <div
                   className={`w-3 h-3 ${pressure === 'low' ? 'bg-success' : 'bg-warning'} rounded-full animate-ping absolute opacity-75`}
@@ -84,7 +84,7 @@ const SystemHealth: React.FC = () => {
                   className={`w-3 h-3 ${pressure === 'low' ? 'bg-success' : 'bg-warning'} rounded-full relative shadow-[0_0_0.9375rem_rgba(22,163,74,0.5)]`}
                 ></div>
               </div>
-              <span className="text-[0.625rem] font-black text-white uppercase tracking-widest">
+              <span className="text-[0.625rem] font-black text-foreground uppercase tracking-widest">
                 Pressure Level: {pressure.toUpperCase()}
               </span>
             </div>
@@ -94,7 +94,7 @@ const SystemHealth: React.FC = () => {
 
       {/* Top KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-        <div className="p-8 bg-transparent border border-white/10 rounded-[2.5rem] hover:bg-white/5 transition-all group relative overflow-hidden">
+        <div className="p-8 bg-transparent border border-border rounded-[2.5rem] hover:bg-accent/10 transition-all group relative overflow-hidden">
           <div className="relative z-10">
             <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <ShieldCheck size={24} />
@@ -112,7 +112,7 @@ const SystemHealth: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-8 bg-transparent border border-white/10 rounded-[2.5rem] hover:bg-white/5 transition-all group relative overflow-hidden">
+        <div className="p-8 bg-transparent border border-border rounded-[2.5rem] hover:bg-accent/10 transition-all group relative overflow-hidden">
           <div className="relative z-10">
             <div
               className={`w-12 h-12 rounded-xl ${pressureBg} ${pressureColor} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
@@ -136,7 +136,7 @@ const SystemHealth: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-8 bg-transparent border border-white/10 rounded-[2.5rem] hover:bg-white/5 transition-all group relative overflow-hidden">
+        <div className="p-8 bg-transparent border border-border rounded-[2.5rem] hover:bg-accent/10 transition-all group relative overflow-hidden">
           <div className="relative z-10">
             <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <ShieldCheck size={24} />
@@ -156,7 +156,7 @@ const SystemHealth: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-8 bg-transparent border border-white/10 rounded-[2.5rem] hover:bg-white/5 transition-all group relative overflow-hidden">
+        <div className="p-8 bg-transparent border border-border rounded-[2.5rem] hover:bg-accent/10 transition-all group relative overflow-hidden">
           <div className="relative z-10">
             <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <TrendingUp size={24} />
@@ -176,7 +176,7 @@ const SystemHealth: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-8 bg-transparent border border-white/10 rounded-[2.5rem] hover:bg-white/5 transition-all group relative overflow-hidden">
+        <div className="p-8 bg-transparent border border-border rounded-[2.5rem] hover:bg-accent/10 transition-all group relative overflow-hidden">
           <div className="relative z-10">
             <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <RefreshCw size={24} className={pressure === 'critical' ? 'animate-spin' : ''} />
@@ -219,15 +219,15 @@ const SystemHealth: React.FC = () => {
               .map((incident) => (
                 <div
                   key={incident.id}
-                  className="p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all flex flex-col group"
+                  className="p-6 bg-card border border-border rounded-2xl hover:bg-accent/50 transition-all flex flex-col group"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-2 h-2 rounded-full bg-primary animate-ping"></div>
-                    <h4 className="font-black text-sm text-white uppercase tracking-wider truncate">
+                    <h4 className="font-black text-sm text-foreground uppercase tracking-wider truncate">
                       {'action' in incident ? incident.action : incident.title}
                     </h4>
                   </div>
-                  <p className="text-xs text-white/60 mb-6 flex-1 italic">
+                  <p className="text-xs text-muted-foreground mb-6 flex-1 italic">
                     "{incident.remediation}"
                   </p>
                   <div className="flex items-center justify-between gap-4 mt-auto">
@@ -244,7 +244,7 @@ const SystemHealth: React.FC = () => {
                           ? dismissDecision(incident.id)
                           : dismissProposal(incident.id)
                       }
-                      className="py-3 px-6 bg-white/5 border border-white/10 rounded-xl font-black text-[0.625rem] uppercase tracking-widest hover:bg-white/10 transition-all h-auto"
+                      className="py-3 px-6 bg-secondary border border-border rounded-xl font-black text-[0.625rem] uppercase tracking-widest hover:bg-secondary/80 transition-all h-auto"
                     >
                       Ignore
                     </Button>
@@ -266,8 +266,10 @@ const SystemHealth: React.FC = () => {
                 <Scale size={24} className="text-primary" />
               </div>
               <div>
-                <h3 className="font-black text-2xl text-white tracking-tight">Governance stream</h3>
-                <p className="text-[0.625rem] font-black uppercase text-white/60 tracking-widest mt-1">
+                <h3 className="font-black text-2xl text-foreground tracking-tight">
+                  Governance stream
+                </h3>
+                <p className="text-[0.625rem] font-black uppercase text-muted-foreground tracking-widest mt-1">
                   Ethical Evaluation History
                 </p>
               </div>
@@ -287,11 +289,11 @@ const SystemHealth: React.FC = () => {
               decisions.map((d) => (
                 <div
                   key={d.id}
-                  className="p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all border-l-4 border-l-primary"
+                  className="p-6 bg-card border border-border rounded-2xl hover:bg-accent/10 transition-all border-l-4 border-l-primary"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
-                      <h4 className="font-black text-sm text-white uppercase tracking-wider">
+                      <h4 className="font-black text-sm text-foreground uppercase tracking-wider">
                         {d.action}
                       </h4>
                       {d.intercepted && (
@@ -310,20 +312,20 @@ const SystemHealth: React.FC = () => {
                       {Math.round(d.confidence * 100)}% Match
                     </span>
                   </div>
-                  <p className="text-xs text-white/60 mb-3">{d.reason}</p>
+                  <p className="text-xs text-muted-foreground mb-3">{d.reason}</p>
 
                   {/* Forensics Section */}
                   {d.forensics && (
-                    <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+                    <div className="mt-4 pt-4 border-t border-border space-y-3">
                       <div className="flex items-center gap-2">
                         <Workflow size={12} className="text-primary/60" />
-                        <span className="text-[0.625rem] font-black text-white/40 uppercase tracking-widest">
+                        <span className="text-[0.625rem] font-black text-muted-foreground uppercase tracking-widest">
                           Logic Forensics
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="p-3 bg-white/5 rounded-xl border border-white/5">
-                          <p className="text-[0.5rem] font-black text-white/20 uppercase tracking-widest mb-1">
+                        <div className="p-3 bg-muted/20 rounded-xl border border-border">
+                          <p className="text-[0.5rem] font-black text-muted-foreground/50 uppercase tracking-widest mb-1">
                             Applied Principles
                           </p>
                           <div className="flex flex-wrap gap-1">
@@ -337,11 +339,11 @@ const SystemHealth: React.FC = () => {
                             ))}
                           </div>
                         </div>
-                        <div className="p-3 bg-white/5 rounded-xl border border-white/5">
-                          <p className="text-[0.5rem] font-black text-white/20 uppercase tracking-widest mb-1">
+                        <div className="p-3 bg-muted/20 rounded-xl border border-border">
+                          <p className="text-[0.5rem] font-black text-muted-foreground/50 uppercase tracking-widest mb-1">
                             Execution Branch
                           </p>
-                          <p className="text-[0.5625rem] font-black text-white/60 truncate">
+                          <p className="text-[0.5625rem] font-black text-muted-foreground truncate">
                             {d.forensics.logicBranch}
                           </p>
                         </div>
@@ -350,10 +352,10 @@ const SystemHealth: React.FC = () => {
                   )}
 
                   <div className="flex items-center justify-between mt-4">
-                    <span className="text-[0.5625rem] font-bold text-white/40 uppercase tracking-widest">
+                    <span className="text-[0.5625rem] font-bold text-muted-foreground uppercase tracking-widest">
                       Domain: {d.domain}
                     </span>
-                    <span className="text-[0.5625rem] font-bold text-white/40">
+                    <span className="text-[0.5625rem] font-bold text-muted-foreground">
                       {formatTime(d.timestamp)}
                     </span>
                   </div>
@@ -371,8 +373,8 @@ const SystemHealth: React.FC = () => {
               <Workflow size={24} className="text-purple-500" />
             </div>
             <div>
-              <h3 className="font-black text-2xl text-white tracking-tight">Evolution</h3>
-              <p className="text-[0.625rem] font-black uppercase text-white/60 tracking-widest mt-1">
+              <h3 className="font-black text-2xl text-foreground tracking-tight">Evolution</h3>
+              <p className="text-[0.625rem] font-black uppercase text-muted-foreground tracking-widest mt-1">
                 Suggested System Pivots
               </p>
             </div>
@@ -389,12 +391,12 @@ const SystemHealth: React.FC = () => {
               proposals.map((p) => (
                 <div
                   key={p.id}
-                  className="p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/20 transition-all group/item"
+                  className="p-6 bg-card border border-border rounded-2xl hover:bg-accent/10 transition-all group/item"
                 >
                   <h4 className="font-black text-xs text-purple-400 uppercase tracking-widest mb-2">
                     {p.title}
                   </h4>
-                  <p className="text-[0.6875rem] text-white/70 mb-4">{p.description}</p>
+                  <p className="text-[0.6875rem] text-muted-foreground mb-4">{p.description}</p>
                   <div className="flex items-center justify-between mt-auto">
                     <span
                       className={`text-[0.5625rem] font-black px-2 py-0.5 rounded uppercase tracking-widest ${
@@ -409,7 +411,7 @@ const SystemHealth: React.FC = () => {
                     </span>
                     <Button
                       variant="ghost"
-                      className="text-[0.5625rem] font-black text-white/40 hover:text-white uppercase tracking-widest transition-colors h-auto p-0 hover:bg-transparent"
+                      className="text-[0.5625rem] font-black text-muted-foreground hover:text-foreground uppercase tracking-widest transition-colors h-auto p-0 hover:bg-transparent"
                     >
                       Approve Evolution →
                     </Button>
@@ -428,8 +430,10 @@ const SystemHealth: React.FC = () => {
                 <History size={24} className="text-amber-500" />
               </div>
               <div>
-                <h3 className="font-black text-2xl text-white tracking-tight">Signal Ingest</h3>
-                <p className="text-[0.625rem] font-black uppercase text-white/60 tracking-widest mt-1">
+                <h3 className="font-black text-2xl text-foreground tracking-tight">
+                  Signal Ingest
+                </h3>
+                <p className="text-[0.625rem] font-black uppercase text-muted-foreground tracking-widest mt-1">
                   Real-time Telemetry
                 </p>
               </div>
@@ -437,7 +441,7 @@ const SystemHealth: React.FC = () => {
             <Button
               onClick={() => clearHistory()}
               variant="ghost"
-              className="text-[0.625rem] font-black uppercase tracking-[0.2em] text-white/40 hover:text-error transition-colors h-auto p-0 hover:bg-transparent"
+              className="text-[0.625rem] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-error transition-colors h-auto p-0 hover:bg-transparent"
             >
               Purge Telemetry
             </Button>
@@ -447,7 +451,7 @@ const SystemHealth: React.FC = () => {
             {signals.map((s, i) => (
               <div
                 key={i}
-                className="flex items-start gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-all"
+                className="flex items-start gap-4 p-4 bg-card border border-border rounded-2xl hover:bg-accent/10 transition-all"
               >
                 <div
                   className={`mt-1.5 w-2 h-2 rounded-full shrink-0 shadow-sm ${
@@ -461,10 +465,12 @@ const SystemHealth: React.FC = () => {
                   }`}
                 ></div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[0.6875rem] font-black text-white/90 truncate uppercase tracking-wider">
+                  <p className="text-[0.6875rem] font-black text-foreground/90 truncate uppercase tracking-wider">
                     {s.source}
                   </p>
-                  <p className="text-[0.625rem] text-white/50 mt-1 line-clamp-1">{s.message}</p>
+                  <p className="text-[0.625rem] text-muted-foreground mt-1 line-clamp-1">
+                    {s.message}
+                  </p>
                 </div>
               </div>
             ))}
@@ -478,8 +484,10 @@ const SystemHealth: React.FC = () => {
               <ShieldCheck size={24} className="text-success" />
             </div>
             <div>
-              <h3 className="font-black text-2xl text-white tracking-tight">Active guardrails</h3>
-              <p className="text-[0.625rem] font-black uppercase text-white/60 tracking-widest mt-1">
+              <h3 className="font-black text-2xl text-foreground tracking-tight">
+                Active guardrails
+              </h3>
+              <p className="text-[0.625rem] font-black uppercase text-muted-foreground tracking-widest mt-1">
                 Ethical Enforcement Registry
               </p>
             </div>
@@ -489,12 +497,12 @@ const SystemHealth: React.FC = () => {
             {EthicalKernel.registry.map((rule) => (
               <div
                 key={rule.id}
-                className="p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all"
+                className="p-6 bg-card border border-border rounded-2xl hover:bg-accent/10 transition-all"
               >
                 <h4 className="font-black text-xs text-success uppercase tracking-widest mb-2">
                   {rule.name}
                 </h4>
-                <p className="text-[0.6875rem] text-white/70">{rule.description}</p>
+                <p className="text-[0.6875rem] text-muted-foreground">{rule.description}</p>
               </div>
             ))}
           </div>
@@ -509,8 +517,10 @@ const SystemHealth: React.FC = () => {
                 <Cpu size={24} className="text-error" />
               </div>
               <div>
-                <h3 className="font-black text-2xl text-white tracking-tight">Simulation lab</h3>
-                <p className="text-[0.625rem] font-black uppercase text-white/60 tracking-widest mt-1">
+                <h3 className="font-black text-2xl text-foreground tracking-tight">
+                  Simulation lab
+                </h3>
+                <p className="text-[0.625rem] font-black uppercase text-muted-foreground tracking-widest mt-1">
                   Stress Test System Governance
                 </p>
               </div>
@@ -545,17 +555,17 @@ const SystemHealth: React.FC = () => {
                 key={sim.id}
                 onClick={() => triggerSimulation(sim.id)}
                 variant="ghost"
-                className="p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-left group h-auto flex flex-col items-start normal-case"
+                className="p-6 bg-card border border-border rounded-2xl hover:bg-accent/10 transition-all text-left group h-auto flex flex-col items-start normal-case"
               >
                 <sim.icon
                   size={24}
                   className={`${sim.color} mb-4 group-hover:scale-110 transition-transform`}
                 />
-                <h4 className="font-black text-sm text-white uppercase tracking-tight mb-2">
+                <h4 className="font-black text-sm text-foreground uppercase tracking-tight mb-2">
                   {sim.name}
                 </h4>
-                <p className="text-[0.625rem] text-white/50 leading-relaxed">{sim.desc}</p>
-                <div className="mt-4 text-[0.5625rem] font-black text-white/20 uppercase tracking-widest group-hover:text-white/60 transition-colors">
+                <p className="text-[0.625rem] text-muted-foreground leading-relaxed">{sim.desc}</p>
+                <div className="mt-4 text-[0.5625rem] font-black text-muted-foreground/40 uppercase tracking-widest group-hover:text-foreground/60 transition-colors">
                   Execute Sim →
                 </div>
               </Button>

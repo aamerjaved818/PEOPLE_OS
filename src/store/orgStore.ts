@@ -356,102 +356,80 @@ export const useOrgStore = create<OrgState>()(
       fetchMasterData: async () => {
         const { api } = await import('../services/api');
 
-        // Helper to safely fetch data without crashing the whole chain
-        const safeFetch = async <T>(promise: Promise<T>, name: string): Promise<T | null> => {
-          try {
-            return await promise;
-          } catch (e) {
-            console.warn(`[fetchMasterData] Partial failure loading ${name}`, e);
-            return null;
-          }
-        };
-
         try {
-          // Phase 1: Essentials (Config, Flags, Users - Required for UI shell)
-          const [systemFlags, payrollSettings, users] = await Promise.all([
-            safeFetch(api.getSystemFlags?.() ?? Promise.resolve(null), 'systemFlags'),
-            safeFetch(api.getPayrollSettings(), 'payrollSettings'),
-            safeFetch(api.getUsers(), 'users'),
-          ]);
+          const data = await api.getInitialData();
+          if (!data) {
+            return;
+          }
 
-          // Map users data to frontend format
-          const mappedUsers = users
-            ? users.map((u: any) => ({
+          const now = Date.now();
+
+          // 1. Map Current User Profile (Canonical Source)
+          if (data.currentUser) {
+            const found = data.currentUser;
+            const mappedUser: User = {
+              id: found.id || '',
+              name: found.name || found.username || found.email || 'User',
+              email: found.email || '',
+              role: found.role || 'Employee',
+              username: found.username || '',
+              employeeId: found.employeeId || '',
+              department: '',
+              profileStatus: found.status === 'Active' ? 'Active' : 'Inactive',
+              userType:
+                found.role === 'Root' || (found as any).is_system_user ? 'SystemAdmin' : 'OrgUser',
+              status: found.status || 'Active',
+              lastLogin: new Date().toISOString(),
+              isSystemUser: (found as any).is_system_user || false,
+              organizationId: found.organizationId || found.organization_id || '',
+            };
+            set({ currentUser: mappedUser });
+            const { secureStorage } = await import('../utils/secureStorage');
+            secureStorage.setItem('current_user', JSON.stringify(found));
+          }
+
+          // 2. Map users list to frontend format
+          const mappedUsers = data.users
+            ? data.users.map((u: any) => ({
                 ...u,
                 name: u.name || u.username || 'Unknown',
                 email: u.email || `${u.username}@system.local`,
-                userType: u.isSystemUser ? 'SystemAdmin' : 'OrgUser',
-                isSystemUser: u.isSystemUser || false,
+                userType: u.isSystemUser || (u as any).is_system_user ? 'SystemAdmin' : 'OrgUser',
+                isSystemUser: u.isSystemUser || (u as any).is_system_user || false,
               }))
             : null;
 
           set((state) => ({
-            systemFlags: systemFlags ? { ...state.systemFlags, ...systemFlags } : state.systemFlags,
-            payrollSettings: payrollSettings || state.payrollSettings,
+            systemFlags: data.systemFlags
+              ? { ...state.systemFlags, ...data.systemFlags }
+              : state.systemFlags,
+            payrollSettings: data.payrollSettings || state.payrollSettings,
             users: mappedUsers || state.users,
-          }));
-
-          // Phases 2 & 3: Structural & Operational (Merged for performance)
-          // Navigation, Structural and Operational data can all be loaded in parallel
-          const [
-            plants,
-            depts,
-            subDepts,
-            desig,
-            grades,
-            shifts,
-            empLevels,
-            holidays,
-            banks,
-            positions,
-          ] = await Promise.all([
-            safeFetch(api.getPlants?.() ?? Promise.resolve([]), 'plants'),
-            safeFetch(api.getDepartments(), 'departments'),
-            safeFetch(api.getSubDepartments(), 'subDepartments'),
-            safeFetch(api.getDesignations(), 'designations'),
-            safeFetch(api.getGrades(), 'grades'),
-            safeFetch(api.getShifts(), 'shifts'),
-            safeFetch(api.getJobLevels(), 'jobLevels'),
-            safeFetch(api.getHolidays(), 'holidays'),
-            safeFetch(api.getBanks(), 'banks'),
-            safeFetch(api.getPositions?.() ?? Promise.resolve(null), 'positions'),
-          ]);
-
-          const now = Date.now();
-          set((state) => ({
-            plants: plants || state.plants,
-            departments: depts || state.departments,
-            subDepartments: subDepts || state.subDepartments,
-            designations: desig || state.designations,
-            grades: grades || state.grades,
-            shifts: shifts || state.shifts,
-            jobLevels: empLevels || state.jobLevels,
-            holidays: holidays || state.holidays,
-            banks: banks || state.banks,
-            positions: positions || state.positions,
+            plants: data.plants || state.plants,
+            departments: data.departments || state.departments,
+            subDepartments: data.subDepartments || state.subDepartments,
+            designations: data.designations || state.designations,
+            grades: data.grades || state.grades,
+            shifts: data.shifts || state.shifts,
+            jobLevels: data.jobLevels || state.jobLevels,
+            holidays: data.holidays || state.holidays,
+            banks: data.banks || state.banks,
+            positions: data.positions || state.positions,
+            rolePermissions:
+              data.rolePermissions && Object.keys(data.rolePermissions).length > 0
+                ? { ...state.rolePermissions, ...data.rolePermissions }
+                : state.rolePermissions,
             lastFetched: {
               ...state.lastFetched,
-              designations: desig ? now : state.lastFetched.designations,
-              grades: grades ? now : state.lastFetched.grades,
-              shifts: shifts ? now : state.lastFetched.shifts,
-              jobLevels: empLevels ? now : state.lastFetched.jobLevels,
-              holidays: holidays ? now : state.lastFetched.holidays,
-              banks: banks ? now : state.lastFetched.banks,
-              positions: positions ? now : state.lastFetched.positions,
+              designations: data.designations ? now : state.lastFetched.designations,
+              grades: data.grades ? now : state.lastFetched.grades,
+              shifts: data.shifts ? now : state.lastFetched.shifts,
+              jobLevels: data.jobLevels ? now : state.lastFetched.jobLevels,
+              holidays: data.holidays ? now : state.lastFetched.holidays,
+              banks: data.banks ? now : state.lastFetched.banks,
+              positions: data.positions ? now : state.lastFetched.positions,
             },
           }));
-
-          // Load Dynamic Permissions (Merged with defaults)
-          try {
-            const dynamicPerms = api.getAllRolePermissions ? await api.getAllRolePermissions() : {};
-            if (dynamicPerms && Object.keys(dynamicPerms).length > 0) {
-              set((state) => ({
-                rolePermissions: { ...state.rolePermissions, ...dynamicPerms },
-              }));
-            }
-          } catch (e) {
-            console.warn('Failed to load dynamic permissions, using defaults', e);
-          }
 
           // Constitution: Analyze System Pressure & Entropy
           useSystemStore.getState().runCycle();
@@ -502,7 +480,7 @@ export const useOrgStore = create<OrgState>()(
 
             const { api } = await import('../services/api');
             const startTime = performance.now();
-            console.info(
+            Logger.info(
               `[fetchProfile] (debounced) Starting profile fetch... orgId=${orgId || 'auto'}`
             );
 
@@ -521,7 +499,7 @@ export const useOrgStore = create<OrgState>()(
                 try {
                   org = await api.getOrganizationById(targetId);
                 } catch (e) {
-                  console.warn(
+                  Logger.warn(
                     `[fetchProfile] Failed to fetch persisted org ${targetId}, falling back to list default`
                   );
                   try {
@@ -549,7 +527,7 @@ export const useOrgStore = create<OrgState>()(
               const duration = performance.now() - startTime;
 
               if (org) {
-                console.info(
+                Logger.info(
                   `[fetchProfile] Received org '${org.name || org.id}' in ${duration.toFixed(0)}ms`,
                   org
                 );
@@ -563,7 +541,7 @@ export const useOrgStore = create<OrgState>()(
                   }
                 }
               } else {
-                console.warn(
+                Logger.warn(
                   `[fetchProfile] Could not resolve any organization after ${duration.toFixed(0)}ms`
                 );
                 const stored = localStorage.getItem('org_profile');
@@ -870,18 +848,11 @@ export const useOrgStore = create<OrgState>()(
         }
       },
 
-      fetchEmployees: async (force = false) => {
-        const STALE_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+      fetchEmployees: async (_force = false) => {
         const state = get();
-        const lastFetch = state.lastFetched.employees || 0;
-        const isStale = Date.now() - lastFetch > STALE_THRESHOLD;
 
-        // Skip if already loading or data is fresh (unless forced)
+        // Skip if already loading
         if (state.loadingEntities['employees']) {
-          return;
-        }
-        if (!force && !isStale && state.employees.length > 0) {
-          console.info('[fetchEmployees] Data is fresh, skipping refetch');
           return;
         }
 
@@ -1102,6 +1073,7 @@ export const useOrgStore = create<OrgState>()(
           // UI usually generates temp ID.
           const saved = await api.createPlant(plant);
           set((state) => ({ plants: [...state.plants, saved] }));
+          get().fetchMasterData(); // Refresh related stats
         } catch (e) {
           console.error(e);
           throw e;
@@ -1114,6 +1086,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             plants: state.plants.map((p) => (p.id === id ? { ...p, ...updated } : p)),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1124,6 +1097,7 @@ export const useOrgStore = create<OrgState>()(
         try {
           await api.deletePlant(id);
           set((state) => ({ plants: state.plants.filter((p) => p.id !== id) }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1137,6 +1111,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             departments: [...state.departments, saved],
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1149,6 +1124,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             departments: state.departments.map((d) => (d.id === id ? { ...d, ...updated } : d)),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1161,6 +1137,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             departments: state.departments.filter((d) => d.id !== id),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1172,6 +1149,7 @@ export const useOrgStore = create<OrgState>()(
         try {
           const saved = await api.saveSubDepartment(subDept);
           set((state) => ({ subDepartments: [...state.subDepartments, saved] }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1186,6 +1164,7 @@ export const useOrgStore = create<OrgState>()(
               d.id === id ? { ...d, ...updated } : d
             ),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1196,6 +1175,7 @@ export const useOrgStore = create<OrgState>()(
         try {
           await api.deleteSubDepartment(id);
           set((state) => ({ subDepartments: state.subDepartments.filter((d) => d.id !== id) }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1209,6 +1189,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             grades: [...state.grades, saved],
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1221,6 +1202,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             grades: state.grades.map((g) => (g.id === gradeId ? { ...g, ...updated } : g)),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1233,6 +1215,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             grades: state.grades.filter((g) => g.id !== gradeId),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1246,6 +1229,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             designations: [...state.designations, saved],
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1258,6 +1242,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             designations: state.designations.map((d) => (d.id === id ? { ...d, ...updated } : d)),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1270,6 +1255,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             designations: state.designations.filter((d) => d.id !== id),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1281,6 +1267,7 @@ export const useOrgStore = create<OrgState>()(
         try {
           const saved = await api.savePosition(position);
           set((state) => ({ positions: [...state.positions, saved] }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1293,6 +1280,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             positions: state.positions.map((p) => (p.id === id ? { ...p, ...updated } : p)),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1303,6 +1291,7 @@ export const useOrgStore = create<OrgState>()(
         try {
           await api.deletePosition(id);
           set((state) => ({ positions: state.positions.filter((p) => p.id !== id) }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1316,6 +1305,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             jobLevels: [...state.jobLevels, saved],
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1328,6 +1318,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             jobLevels: state.jobLevels.map((l) => (l.id === id ? { ...l, ...updated } : l)),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1340,6 +1331,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             jobLevels: state.jobLevels.filter((l) => l.id !== id),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1352,6 +1344,7 @@ export const useOrgStore = create<OrgState>()(
         try {
           const saved = await api.saveHoliday(holiday);
           set((state) => ({ holidays: [...state.holidays, saved] }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1364,6 +1357,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             holidays: state.holidays.map((h) => (h.id === id ? { ...h, ...updated } : h)),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1374,6 +1368,7 @@ export const useOrgStore = create<OrgState>()(
         try {
           await api.deleteHoliday(id);
           set((state) => ({ holidays: state.holidays.filter((h) => h.id !== id) }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1385,6 +1380,7 @@ export const useOrgStore = create<OrgState>()(
         try {
           const saved = await api.saveBank(bank);
           set((state) => ({ banks: [...state.banks, saved] }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1397,6 +1393,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             banks: state.banks.map((b) => (b.id === id ? { ...b, ...updated } : b)),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1407,6 +1404,7 @@ export const useOrgStore = create<OrgState>()(
         try {
           await api.deleteBank(id);
           set((state) => ({ banks: state.banks.filter((b) => b.id !== id) }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1420,6 +1418,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             shifts: [...state.shifts, saved],
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1432,6 +1431,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             shifts: state.shifts.map((s) => (s.id === id ? { ...s, ...updated } : s)),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1444,6 +1444,7 @@ export const useOrgStore = create<OrgState>()(
           set((state) => ({
             shifts: state.shifts.filter((s) => s.id !== id),
           }));
+          get().fetchMasterData();
         } catch (e) {
           console.error(e);
           throw e;
@@ -1510,13 +1511,20 @@ export const useOrgStore = create<OrgState>()(
       },
       refreshCurrentUser: async () => {
         const { secureStorage } = await import('../utils/secureStorage');
+        const token = secureStorage.getItem('token');
 
-        // Try to restore from 'current_user' (set by Login)
+        // Only restore if we have a token
+        if (!token) {
+          set({ currentUser: null });
+          return;
+        }
+
+        // 1. Try to restore from 'current_user' cache (immediate UI update)
         const storedUser = secureStorage.getItem('current_user');
+        let hasCachedUser = false;
         if (storedUser) {
           try {
             const parsed = JSON.parse(storedUser);
-            // Ensure it matches User interface
             const user: User = {
               id: parsed.id || '',
               name: parsed.name || parsed.username || 'User',
@@ -1526,49 +1534,93 @@ export const useOrgStore = create<OrgState>()(
               employeeId: parsed.employeeId || '',
               department: '',
               profileStatus: parsed.status === 'Active' ? 'Active' : 'Inactive',
-              userType: parsed.role === 'Root' || parsed.isSystemUser ? 'SystemAdmin' : 'OrgUser',
+              userType:
+                parsed.role === 'Root' || parsed.isSystemUser || (parsed as any).is_system_user
+                  ? 'SystemAdmin'
+                  : 'OrgUser',
               status: parsed.status || 'Active',
               lastLogin: new Date().toISOString(),
-              isSystemUser: parsed.isSystemUser || false,
+              isSystemUser: parsed.isSystemUser || (parsed as any).is_system_user || false,
               organizationId: parsed.organizationId || parsed.organization_id || '',
             };
             set({ currentUser: user });
-            // Don't return, allow email check to act as backup or sync
+            hasCachedUser = true;
           } catch (e) {
-            console.error('Failed to parse current_user', e);
+            console.warn('[refreshCurrentUser] STALE_CACHE: Failed to parse current_user', e);
           }
         }
 
-        const email = secureStorage.getItem('user_email');
-        const currentUser = get().currentUser;
-
-        if (!currentUser && email) {
+        // 2. Validate session with Backend
+        // If we have a cached user, we can resolve immediately and validate in background
+        const validate = async () => {
           try {
             const { api } = await import('../services/api');
-            const users = await api.getUsers();
-            const found = users.find((u: any) => u.email === email || u.username === email);
+            const data = await api.getInitialData();
 
-            if (found) {
+            if (data && data.currentUser) {
+              const found = data.currentUser;
               const mappedUser: User = {
                 id: found.id || '',
-                name: found.name || found.username || 'User',
+                name: found.name || found.username || found.email || 'User',
                 email: found.email || '',
                 role: found.role || 'Employee',
                 username: found.username || '',
                 employeeId: found.employeeId || '',
                 department: '',
                 profileStatus: found.status === 'Active' ? 'Active' : 'Inactive',
-                userType: found.role === 'Root' || found.isSystemUser ? 'SystemAdmin' : 'OrgUser',
+                userType:
+                  found.role === 'Root' || (found as any).is_system_user
+                    ? 'SystemAdmin'
+                    : 'OrgUser',
                 status: found.status || 'Active',
                 lastLogin: new Date().toISOString(),
-                isSystemUser: found.isSystemUser || false,
-                organizationId: found.organizationId || '',
+                isSystemUser: (found as any).is_system_user || false,
+                organizationId: found.organizationId || found.organization_id || '',
               };
               set({ currentUser: mappedUser });
+              secureStorage.setItem('current_user', JSON.stringify(found));
+            } else if (data && data.users) {
+              const email = secureStorage.getItem('user_email');
+              const found = data.users.find((u: any) => u.email === email || u.username === email);
+              if (found) {
+                const mappedUser: User = {
+                  id: found.id || '',
+                  name: found.name || found.username || 'User',
+                  email: found.email || '',
+                  role: found.role || 'Employee',
+                  username: found.username || '',
+                  employeeId: found.employeeId || '',
+                  department: '',
+                  profileStatus: found.status === 'Active' ? 'Active' : 'Inactive',
+                  userType:
+                    found.role === 'Root' || (found as any).is_system_user
+                      ? 'SystemAdmin'
+                      : 'OrgUser',
+                  status: found.status || 'Active',
+                  lastLogin: new Date().toISOString(),
+                  isSystemUser: (found as any).is_system_user || false,
+                  organizationId: found.organizationId || '',
+                };
+                set({ currentUser: mappedUser });
+                secureStorage.setItem('current_user', JSON.stringify(found));
+              }
             }
           } catch (e) {
-            console.error('Failed to restore user session', e);
+            console.error(
+              '[refreshCurrentUser] SESSION_EXPIRED: Resetting and redirecting to login',
+              e
+            );
+            set({ currentUser: null });
+            secureStorage.removeItem('token');
+            secureStorage.removeItem('current_user');
           }
+        };
+
+        if (hasCachedUser) {
+          validate(); // Background
+          return;
+        } else {
+          return await validate(); // Foreground wait
         }
       },
       syncProfileStatus: async (employeeId, status) => {

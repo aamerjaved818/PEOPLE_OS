@@ -45,6 +45,7 @@ def get_engine():
                 # Disable FK checks in test environment for faster, isolated tests
                 cursor.execute("PRAGMA foreign_keys=OFF")
             else:
+                cursor.execute("PRAGMA journal_mode=WAL")
                 cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
 

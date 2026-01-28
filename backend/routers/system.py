@@ -18,13 +18,7 @@ from backend.config import settings
 
 router = APIRouter(tags=["System"])
 
-@router.get("/health")
-def health_check(db: Session = Depends(get_db)):
-    try:
-        db.execute(text("SELECT 1"))
-        return {"status": "Optimal", "database": "Connected", "timestamp": datetime.datetime.now().isoformat()}
-    except Exception as e:
-        return {"status": "Degraded", "database": "Disconnected", "details": str(e)}
+
 
 @router.get("/system/flags", response_model=schemas.SystemFlags)
 def read_system_flags(db: Session = Depends(get_db), current_user: dict = Depends(requires_role("SystemAdmin"))):
@@ -121,3 +115,35 @@ def get_system_logs(
         return {"logs": [line.strip() for line in last_lines], "total": len(all_lines), "shown": len(last_lines)}
     except Exception as e:
         return {"logs": [f"Error reading logs: {str(e)}"], "error": True}
+
+@router.get("/audit/history", tags=["System Audit"])
+def get_audit_history(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(requires_role("Root", "SystemAdmin"))
+):
+    """Placeholder for audit history."""
+    return []
+
+@router.get("/audit/regressions", tags=["System Audit"])
+def get_audit_regressions(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(requires_role("Root", "SystemAdmin"))
+):
+    """Placeholder for audit regressions."""
+    return []
+
+@router.get("/audit-logs", tags=["System Audit"])
+def get_audit_logs(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(requires_role("Root", "SystemAdmin"))
+):
+    """Placeholder for audit logs."""
+    return []
+
+@router.get("/system/initial-data", response_model=schemas.InitialData)
+def get_initial_data(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    org_id = get_user_org(current_user)
+    return crud.get_initial_data(db, organization_id=org_id, current_user=current_user)

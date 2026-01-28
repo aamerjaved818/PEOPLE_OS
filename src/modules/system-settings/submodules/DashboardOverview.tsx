@@ -65,7 +65,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = React.memo(
                 >
                   <item.icon size={16} />
                 </div>
-                <h3 className="text-[0.6rem] font-black text-text-muted uppercase tracking-widest mb-1">
+                <h3 className="text-[0.6rem] font-black text-text-secondary uppercase tracking-widest mb-1">
                   {item.label}
                 </h3>
                 <div className="flex items-end justify-between">
@@ -74,7 +74,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = React.memo(
                   >
                     {item.status}
                   </span>
-                  <span className="text-[0.6rem] font-bold text-text-muted opacity-60 font-mono">
+                  <span className="text-[0.6rem] font-bold text-text-secondary font-mono">
                     {item.latency}
                   </span>
                 </div>

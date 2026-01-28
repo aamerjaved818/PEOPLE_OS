@@ -62,7 +62,7 @@ const OrgProfile: React.FC = () => {
               </p>
             </div>
 
-            <div className="h-8 w-px bg-white/10" />
+            <div className="h-8 w-px bg-border" />
 
             <OrgSwitcher currentOrgId={profile.id} onSwitch={handleOrgSwitch} />
           </div>
@@ -100,18 +100,21 @@ const OrgProfile: React.FC = () => {
           <form className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Branding Section */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="h-56 w-full rounded-2xl card-vibrant border-2 border-dashed border-border flex flex-col items-center justify-center group cursor-pointer hover:border-primary/50 hover:bg-bg/80 transition-all relative overflow-hidden">
+              <div className="h-56 w-full rounded-2xl card-vibrant border-2 border-dashed border-border flex flex-col items-center justify-center group cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-all relative overflow-hidden">
                 {profile.logo ? (
                   <img src={profile.logo} alt="Logo" className="w-full h-full object-contain p-4" />
                 ) : (
                   <div className="text-center p-6">
-                    <div className="w-16 h-16 bg-surface/50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Upload size={24} className="text-text-muted group-hover:text-primary" />
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <Upload
+                        size={24}
+                        className="text-muted-foreground group-hover:text-primary"
+                      />
                     </div>
-                    <p className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
                       Upload Logo
                     </p>
-                    <p className="text-[0.6rem] text-text-muted">
+                    <p className="text-[0.6rem] text-muted-foreground">
                       PNG, JPG or SVG
                       <br />
                       Max 2MB
@@ -137,53 +140,53 @@ const OrgProfile: React.FC = () => {
               </div>
 
               <div className="card-vibrant rounded-xl p-5 border border-border">
-                <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4 border-b border-border pb-2">
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4 border-b border-border pb-2">
                   Regional Settings
                 </h4>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[0.6rem] font-black text-text-muted uppercase tracking-widest mb-1.5">
+                    <label className="block text-[0.6rem] font-black text-muted-foreground uppercase tracking-widest mb-1.5">
                       Currency
                     </label>
                     <select
                       {...register('currency')}
-                      className="w-full bg-bg border border-border rounded-lg p-2.5 text-sm font-bold text-text-secondary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      className="w-full bg-input border border-border rounded-lg p-2.5 text-sm font-bold text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                     >
-                      <option value="PKR" className="bg-surface text-text-primary">
+                      <option value="PKR" className="bg-surface text-foreground">
                         PKR (Pakistani Rupee)
                       </option>
-                      <option value="USD" className="bg-surface text-text-primary">
+                      <option value="USD" className="bg-surface text-foreground">
                         USD (US Dollar)
                       </option>
-                      <option value="EUR" className="bg-surface text-text-primary">
+                      <option value="EUR" className="bg-surface text-foreground">
                         EUR (Euro)
                       </option>
-                      <option value="GBP" className="bg-surface text-text-primary">
+                      <option value="GBP" className="bg-surface text-foreground">
                         GBP (British Pound)
                       </option>
-                      <option value="AED" className="bg-surface text-text-primary">
+                      <option value="AED" className="bg-surface text-foreground">
                         AED (UAE Dirham)
                       </option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[0.6rem] font-black text-text-muted uppercase tracking-widest mb-1.5">
+                    <label className="block text-[0.6rem] font-black text-muted-foreground uppercase tracking-widest mb-1.5">
                       Tax Year End
                     </label>
                     <select
                       {...register('taxYearEnd')}
-                      className="w-full bg-bg border border-border rounded-lg p-2.5 text-sm font-bold text-text-secondary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      className="w-full bg-input border border-border rounded-lg p-2.5 text-sm font-bold text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                     >
-                      <option value="June" className="bg-surface text-text-primary">
+                      <option value="June" className="bg-surface text-foreground">
                         June
                       </option>
-                      <option value="December" className="bg-surface text-text-primary">
+                      <option value="December" className="bg-surface text-foreground">
                         December
                       </option>
-                      <option value="March" className="bg-surface text-text-primary">
+                      <option value="March" className="bg-surface text-foreground">
                         March
                       </option>
-                      <option value="September" className="bg-surface text-text-primary">
+                      <option value="September" className="bg-surface text-foreground">
                         September
                       </option>
                     </select>
@@ -196,21 +199,24 @@ const OrgProfile: React.FC = () => {
             <div className="lg:col-span-2 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="col-span-full">
-                  <label className="text-[0.65rem] font-black text-text-muted uppercase tracking-[0.1em] mb-2 flex justify-between">
+                  <label className="text-[0.65rem] font-black text-muted-foreground uppercase tracking-[0.1em] mb-2 flex justify-between">
                     Organization Code
-                    <Lock size={12} className="text-text-muted/70" />
+                    <Lock size={12} className="text-muted-foreground/70" />
                   </label>
                   <div className="relative">
-                    <Building className="absolute left-3.5 top-3.5 text-text-muted" size={18} />
+                    <Building
+                      className="absolute left-3.5 top-3.5 text-muted-foreground"
+                      size={18}
+                    />
                     <input
                       {...register('code', { required: true })}
                       readOnly
-                      className="w-full bg-slate-900/50 dark:bg-slate-950/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white font-bold focus:ring-0 outline-none transition-all uppercase tracking-widest cursor-not-allowed opacity-75"
+                      className="w-full bg-muted/50 border border-border rounded-xl py-3 pl-10 pr-4 text-foreground font-bold focus:ring-0 outline-none transition-all uppercase tracking-widest cursor-not-allowed opacity-75"
                       placeholder="e.g. ORG01"
                       title="Organization Code is immutable"
                     />
                   </div>
-                  <p className="text-[0.6rem] text-text-muted font-medium mt-1.5 ml-1">
+                  <p className="text-[0.6rem] text-muted-foreground font-medium mt-1.5 ml-1">
                     Unique identifier for your organization.
                   </p>
                 </div>
@@ -221,11 +227,14 @@ const OrgProfile: React.FC = () => {
                     <Lock size={12} className="text-primary/70" />
                   </label>
                   <div className="relative">
-                    <Building className="absolute left-3.5 top-3.5 text-text-muted" size={18} />
+                    <Building
+                      className="absolute left-3.5 top-3.5 text-muted-foreground"
+                      size={18}
+                    />
                     <input
                       {...register('name', { required: true })}
                       readOnly
-                      className="w-full bg-slate-900/50 dark:bg-slate-950/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white font-bold focus:ring-0 outline-none transition-all cursor-not-allowed opacity-75"
+                      className="w-full bg-muted/50 border border-border rounded-xl py-3 pl-10 pr-4 text-foreground font-bold focus:ring-0 outline-none transition-all cursor-not-allowed opacity-75"
                       placeholder="e.g. Acme Corp"
                       title="Company Name is immutable. Contact support for changes."
                     />

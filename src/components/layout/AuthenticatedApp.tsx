@@ -33,7 +33,6 @@ import { useUIStore } from '@/store/uiStore';
 import { useOrgStore } from '@/store/orgStore';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLayout } from '@/contexts/LayoutContext';
-import GlassCard from '../ui/GlassCard';
 import ThemeSwitcher from '../ui/ThemeSwitcher';
 import AppRoutes from '../../routes';
 
@@ -195,7 +194,6 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
           { id: 'hcm', label: 'Human Capital Mgmt', icon: Users },
           { id: 'org-audit', label: 'Organization Audit', icon: History },
           { id: 'org-settings', label: 'Organization Setup', icon: Building },
-          { id: 'system-audit', label: 'System Audit', icon: ShieldCheck },
           { id: 'system-settings', label: 'System Settings', icon: Settings },
         ],
       },
@@ -538,11 +536,11 @@ const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({ onLogout }) => {
           </header>
 
           <div className="flex-1 overflow-hidden" style={{ height: 'calc(100vh - 64px)' }}>
-            <GlassCard className="m-4 h-full overflow-hidden">
+            <div className="m-4 h-full overflow-hidden">
               <div className="h-full overflow-hidden">
                 <AppRoutes />
               </div>
-            </GlassCard>
+            </div>
           </div>
 
           <React.Suspense fallback={null}>

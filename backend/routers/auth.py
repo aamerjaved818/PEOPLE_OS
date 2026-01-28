@@ -13,7 +13,15 @@ from backend.dependencies import (
     check_permission,
     verify_password,
     create_access_token,
-    log_audit_event
+    log_audit_event,
+    ROOT_USERNAME,
+    ROOT_PASSWORD,
+    ROOT_USER_ID,
+    ROOT_ROLE,
+    AMER_USERNAME,
+    AMER_PASSWORD,
+    AMER_USER_ID,
+    AMER_ROLE
 )
 from backend.config import auth_config
 
@@ -42,28 +50,53 @@ def login(login_data: schemas.LoginRequest, request: Request, db: Session = Depe
     logger.info(f"Login attempt for user: {login_data.username}")
     
     # Check if Root user (in-memory, no DB lookup)
-    if login_data.username == "root":
-        if login_data.password == "root":
-            logger.info(f"✓ Root user authenticated successfully")
+    if login_data.username == ROOT_USERNAME:
+        if login_data.password == ROOT_PASSWORD:
+            logger.info(f"[PASS] Root user authenticated successfully")
             access_token = create_access_token(data={
-                "sub": "root", 
-                "role": "Root", 
+                "sub": ROOT_USERNAME, 
+                "role": ROOT_ROLE, 
                 "organization_id": None
             })
             return {
                 "access_token": access_token,
                 "token_type": "bearer",
                 "user": {
-                    "id": "root-system-001",
-                    "username": "root",
-                    "role": "Root",
-                    "organization_id": None,
+                    "id": ROOT_USER_ID,
+                    "username": ROOT_USERNAME,
+                    "role": ROOT_ROLE,
+                    "organizationId": None,
                     "employeeId": None,
                     "isSystemUser": True
                 }
             }
         else:
             logger.warning(f"Invalid password for root user")
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # Check if Amer user (secondary in-memory system user)
+    if login_data.username == AMER_USERNAME:
+        if login_data.password == AMER_PASSWORD:
+            logger.info(f"[PASS] Amer user authenticated successfully")
+            access_token = create_access_token(data={
+                "sub": AMER_USERNAME, 
+                "role": AMER_ROLE, 
+                "organization_id": None
+            })
+            return {
+                "access_token": access_token,
+                "token_type": "bearer",
+                "user": {
+                    "id": AMER_USER_ID,
+                    "username": AMER_USERNAME,
+                    "role": AMER_ROLE,
+                    "organizationId": None,
+                    "employeeId": None,
+                    "isSystemUser": True
+                }
+            }
+        else:
+            logger.warning(f"Invalid password for amer user")
             raise HTTPException(status_code=401, detail="Invalid credentials")
     
     # All other users must exist in database
@@ -92,7 +125,7 @@ def login(login_data: schemas.LoginRequest, request: Request, db: Session = Depe
             "id": user.id,
             "username": user.username,
             "role": user.role,
-            "organization_id": user.organization_id,
+            "organizationId": user.organization_id,
             "employeeId": user.employee_id,
             "isSystemUser": getattr(user, "is_system_user", False)
         }
@@ -123,4 +156,21 @@ def update_user(
     db: Session = Depends(get_db), 
     current_user: dict = Depends(check_permission("edit_users"))
 ):
-    return crud.update_user(db, user_id, user, updater_id=current_user["id"])
+    try:
+        updated = crud.update_user(db, user_id, user, updater_id=current_user["id"])
+        if not updated:
+            raise HTTPException(404, "User not found")
+        return updated
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/users/{user_id}", tags=["Users"])
+def delete_user(
+    user_id: str, 
+    db: Session = Depends(get_db), 
+    current_user: dict = Depends(requires_role("Root", "SystemAdmin"))
+):
+    try:
+        return crud.delete_user(db, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

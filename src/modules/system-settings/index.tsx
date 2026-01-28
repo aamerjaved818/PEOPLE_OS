@@ -23,11 +23,11 @@ import { secureStorage } from '@/utils/secureStorage';
 import { HorizontalTabs } from '@/components/ui/HorizontalTabs';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ModuleSkeleton from '@/components/ui/ModuleSkeleton'; // Improved loading state
+import UserManagement from './submodules/UserManagement'; // Fixed dynamic import error
 // useOrgStore is used indirectly via child components
 import { SYSTEM_CONFIG } from './submodules/systemConfig';
 
 // Lazy Load Sub-components for better performance
-const UserManagement = React.lazy(() => import('./submodules/UserManagement'));
 const LogViewer = React.lazy(() => import('./submodules/LogViewer'));
 const InfrastructureMonitor = React.lazy(() => import('./submodules/InfrastructureMonitor'));
 const APIManager = React.lazy(() => import('./submodules/APIManager'));
@@ -38,6 +38,10 @@ const DashboardOverview = React.lazy(() => import('./submodules/DashboardOvervie
 const ComplianceSettings = React.lazy(() => import('./submodules/ComplianceSettings'));
 const SecuritySettings = React.lazy(() => import('./submodules/SecuritySettings'));
 const OrganizationManagement = React.lazy(() => import('./submodules/OrganizationManagement'));
+// Import System Audit (moved from standalone)
+const AuditDashboard = React.lazy(() =>
+  import('../system-audit/AuditDashboard').then((module) => ({ default: module.AuditDashboard }))
+);
 
 const NeuralModule = React.lazy(() => import('./submodules/NeuralSubmodule'));
 
@@ -140,13 +144,14 @@ const SystemSettings: React.FC = () => {
     { id: 'dashboard', label: 'Dashboard', icon: Layout },
     { id: 'neural', label: 'AI Lab', icon: Bot },
     { id: 'sys-admin', label: 'Access Control', icon: ShieldCheck },
+    { id: 'audit', label: 'System Audit', icon: ShieldCheck }, // New Audit Tab
     { id: 'ai', label: 'AI Settings', icon: BrainCircuit },
     { id: 'integrations', label: 'Integrations', icon: Cloud },
     { id: 'compliance', label: 'Compliance', icon: ShieldCheck },
     { id: 'security', label: 'Security', icon: Lock },
     { id: 'logs', label: 'System Logs', icon: Terminal },
     { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'org-mgmt', label: 'Organization Management', icon: Building },
+    { id: 'org-mgmt', label: 'Organizations', icon: Building },
     { id: 'maintenance', label: 'Maintenance', icon: Database },
   ];
 
@@ -189,11 +194,19 @@ const SystemSettings: React.FC = () => {
         {activeSection === 'dashboard' && (
           <DashboardOverview systemHealth={systemHealth} storageUsage={storageUsage} />
         )}
-
         {activeSection === 'org-mgmt' && <OrganizationManagement />}
         {activeSection === 'neural' && <NeuralModule />}
 
         {activeSection === 'sys-admin' && <UserManagement onSync={handleSyncSettings} />}
+
+        {/* Render System Audit Component */}
+        {activeSection === 'audit' && (
+          <div className="h-full w-full overflow-y-auto overscroll-contain custom-scrollbar px-6 md:px-10 pb-10">
+            <div className="w-full pb-20">
+              <AuditDashboard />
+            </div>
+          </div>
+        )}
 
         {activeSection === 'ai' && <AIConfig />}
 

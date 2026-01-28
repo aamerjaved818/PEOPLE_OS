@@ -41,7 +41,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         const userJson = secureStorage.getItem('current_user');
         if (userJson) {
           try {
-            setCurrentUser(JSON.parse(userJson));
+            const rawUser = JSON.parse(userJson);
+            // Ensure derived fields are present
+            const mappedUser = {
+              ...rawUser,
+              userType: rawUser.role === 'Root' || rawUser.isSystemUser ? 'SystemAdmin' : 'OrgUser',
+              profileStatus: rawUser.status === 'Active' ? 'Active' : 'Inactive',
+            };
+            setCurrentUser(mappedUser);
           } catch (e) {
             console.error('Failed to parse user from storage', e);
           }
@@ -168,12 +175,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             )}
           </Button>
         </form>
-
-        <div className="mt-8 text-center">
-          <p className="text-xs text-text-muted font-medium">
-            Protected by <span className="text-primary font-bold">PeopleOS Security™</span>
-          </p>
-        </div>
       </GlassCard>
     </div>
   );

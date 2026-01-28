@@ -27,7 +27,14 @@ class Settings(BaseSettings):
     # --- Core Application Settings ---
     APP_ENV: str = "development"
     PROJECT_NAME: str = "peopleOS eBusiness Suite"
-    VERSION: str = "1.0.0"
+    
+    # Read version from root VERSION file
+    try:
+        _version_path = Path(__file__).resolve().parent.parent / "VERSION"
+        VERSION: str = _version_path.read_text().strip()
+    except Exception:
+        VERSION: str = "1.0.0" # Fallback
+        
     API_HOST: str = "0.0.0.0"
     API_PORT: int = Field(8000, alias="PORT_API")
     

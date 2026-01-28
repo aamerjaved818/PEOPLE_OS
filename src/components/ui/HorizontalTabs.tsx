@@ -39,7 +39,7 @@ export const HorizontalTabs: React.FC<HorizontalTabsProps> = ({
         role="tablist"
         aria-label="Content Navigation"
         className={`
-                bg-surface/30 backdrop-blur-md border border-border/50 p-1.5 rounded-[2rem] flex items-center gap-1 shadow-2xl max-w-full
+                bg-surface/90 border border-border/50 p-1.5 rounded-[2rem] flex items-center gap-1 shadow-2xl max-w-full
                 ${wrap ? `flex-wrap ${alignClass}` : 'overflow-x-auto no-scrollbar flex-nowrap'}
             `}
       >
@@ -55,11 +55,11 @@ export const HorizontalTabs: React.FC<HorizontalTabsProps> = ({
               aria-label={tab.label}
               aria-disabled={disabled}
               className={`
-                flex items-center gap-3 px-8 py-3 rounded-[1.5rem] transition-all duration-500 group whitespace-nowrap
+                flex items-center gap-3 px-8 py-3 rounded-[1.5rem] transition-all duration-300 group whitespace-nowrap
                 ${
                   isActive
                     ? 'bg-primary text-white shadow-xl shadow-primary/30 scale-[1.05] z-10'
-                    : 'text-text-muted hover:text-text-primary hover:bg-muted-bg/50'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-muted-bg'
                 }
                 ${disabled ? 'opacity-80 cursor-not-allowed pointer-events-none grayscale' : ''}
               `}

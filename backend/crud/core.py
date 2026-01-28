@@ -11,7 +11,12 @@ from backend import schemas
 from backend import models
 
 logger = logging.getLogger(__name__)
-ROOT_USER_ID = "0"  # or whatever constant was used, usually defined in logic
+ROOT_USER_ID = "root-system-001"
+
+from backend.dependencies import (
+    ROOT_USER_ID, ROOT_USERNAME, ROOT_ROLE,
+    AMER_USER_ID, AMER_USERNAME, AMER_ROLE
+)
 
 # --- User Management ---
 
@@ -27,7 +32,37 @@ def get_users(db: Session, skip: int = 0, limit: int = 100, current_user: dict =
         # Exclude Root user from the results
         query = query.filter(models.DBUser.role != "Root")
     
-    return query.all()
+    users = query.all()
+
+    # Inject In-Memory Root Users if visible (Only for Root role)
+    if current_user and current_user.get("role") == "Root":
+        # Create synthetic DBUser objects
+        # We manually construct these so they appear in the UI list
+        root_user = models.DBUser(
+            id=ROOT_USER_ID,
+            username=ROOT_USERNAME,
+            role=ROOT_ROLE,
+            is_active=True,
+            is_system_user=True,
+            name="System Root",
+            email="root@system.local",
+            organization_id=None
+        )
+        amer_user = models.DBUser(
+             id=AMER_USER_ID,
+             username=AMER_USERNAME,
+             role=AMER_ROLE,
+             is_active=True,
+             is_system_user=True,
+             name="System Administrator (Amer)",
+             email="amer@system.local",
+             organization_id=None
+        )
+        
+        # Prepend to list (Reverse order so Root is first)
+        users = [root_user, amer_user] + users
+        
+    return users
 
 
 def get_user(db: Session, user_id: str, current_user: dict = None):

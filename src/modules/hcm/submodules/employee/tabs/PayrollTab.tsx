@@ -156,7 +156,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
     <>
       <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700">
         {/* 1. Summary Card (Moved to Top) */}
-        <Card className="p-14 relative overflow-hidden group bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 transition-all rounded-[3rem]">
+        <Card className="p-14 relative overflow-hidden group bg-card border border-border backdrop-blur-xl hover:bg-accent/10 transition-all rounded-[3rem]">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent pointer-events-none"></div>
           <div className="absolute top-0 right-0 p-12 opacity-5 text-text-muted pointer-events-none">
             <Wallet className="w-64 h-64" />
@@ -267,7 +267,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
               <select
                 value={employee?.paymentMode || 'Cash Payment'}
                 onChange={(e) => updateField('paymentMode', e.target.value)}
-                className="w-full bg-muted-bg border border-border rounded-md px-6 py-3 text-[0.75rem] outline-none font-bold text-text-primary"
+                className="w-full bg-muted border border-border rounded-md px-6 py-3 text-[0.75rem] outline-none font-bold text-foreground"
               >
                 {PAYMENT_MODES.map((opt) => (
                   <option key={opt} value={opt}>
@@ -286,7 +286,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
                   <select
                     value={employee?.bankId || ''}
                     onChange={(e) => updateField('bankId', e.target.value)}
-                    className="w-full bg-muted-bg border border-border rounded-md px-6 py-3 text-[0.75rem] outline-none font-bold text-text-primary"
+                    className="w-full bg-muted border border-border rounded-md px-6 py-3 text-[0.75rem] outline-none font-bold text-foreground"
                   >
                     <option value="">Select Bank</option>
                     {banks.map((bank) => (
@@ -332,7 +332,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
             {(employee?.increments || []).map((inc, i) => (
               <div
                 key={i}
-                className="p-8 bg-surface rounded-md border border-border flex flex-col gap-6 group hover:shadow-md transition-all"
+                className="p-8 bg-card rounded-md border border-border flex flex-col gap-6 group hover:shadow-md transition-all"
               >
                 <div className="flex items-center gap-6 py-4">
                   {/* Status Indicator & Icon */}
@@ -433,7 +433,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
               </div>
             ))}
             {(!employee?.increments || employee.increments.length === 0) && (
-              <div className="p-16 text-center text-text-muted font-black uppercase text-xs tracking-[0.2em] border-2 border-dashed border-border rounded-md bg-muted-bg/10">
+              <div className="p-16 text-center text-muted-foreground font-black uppercase text-xs tracking-[0.2em] border-2 border-dashed border-border rounded-md bg-muted/10">
                 No salary history found.
                 <br />
                 <span className="text-[0.5rem] opacity-50 mt-2 block">
@@ -458,10 +458,10 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
             </Button>
           </div>
 
-          <div className="bg-surface rounded-md border border-border overflow-hidden">
+          <div className="bg-card rounded-md border border-border overflow-hidden">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-muted-bg/50 text-[0.5625rem] font-black uppercase text-text-muted tracking-widest">
+                <tr className="bg-muted/50 text-[0.5625rem] font-black uppercase text-muted-foreground tracking-widest">
                   <th className="px-6 py-4">Month</th>
                   <th className="px-4 py-4">Basic</th>
                   <th className="px-4 py-4">Allowances</th>
@@ -474,7 +474,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
                 {payrollRecords
                   .filter((r) => r.employeeId === employee?.id)
                   .map((record) => (
-                    <tr key={record.id} className="hover:bg-muted-bg/50 transition-colors">
+                    <tr key={record.id} className="hover:bg-muted/50 transition-colors">
                       <td className="px-6 py-4 font-bold text-text-primary text-xs">
                         {record.month}
                       </td>
@@ -529,7 +529,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
             <select
               value={modalType}
               onChange={(e) => setModalType(e.target.value as Increment['type'])}
-              className="w-full bg-surface border border-border rounded-md px-4 py-3 text-sm font-bold text-text-primary outline-none"
+              className="w-full bg-card border border-border rounded-md px-4 py-3 text-sm font-bold text-foreground outline-none"
             >
               <option value="Increment">Increment</option>
               <option value="Promotion">Promotion</option>
@@ -555,7 +555,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
                 type="number"
                 value={modalData.newGross || ''}
                 onChange={(e) => setModalData({ ...modalData, newGross: Number(e.target.value) })}
-                className="w-full bg-surface border border-border rounded-md px-4 py-3 text-sm font-bold text-text-primary outline-none"
+                className="w-full bg-card border border-border rounded-md px-4 py-3 text-sm font-bold text-foreground outline-none"
                 required
               />
             </div>
@@ -569,7 +569,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
                 onChange={(e) =>
                   setModalData({ ...modalData, newHouseRent: Number(e.target.value) })
                 }
-                className="w-full bg-surface border border-border rounded-md px-4 py-3 text-sm font-bold text-text-primary outline-none"
+                className="w-full bg-card border border-border rounded-md px-4 py-3 text-sm font-bold text-foreground outline-none"
               />
             </div>
             <div className="space-y-2">
@@ -582,7 +582,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
                 onChange={(e) =>
                   setModalData({ ...modalData, newUtilityAllowance: Number(e.target.value) })
                 }
-                className="w-full bg-surface border border-border rounded-md px-4 py-3 text-sm font-bold text-text-primary outline-none"
+                className="w-full bg-card border border-border rounded-md px-4 py-3 text-sm font-bold text-foreground outline-none"
               />
             </div>
             <div className="space-y-2">
@@ -595,7 +595,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
                 onChange={(e) =>
                   setModalData({ ...modalData, newOtherAllowance: Number(e.target.value) })
                 }
-                className="w-full bg-surface border border-border rounded-md px-4 py-3 text-sm font-bold text-text-primary outline-none"
+                className="w-full bg-card border border-border rounded-md px-4 py-3 text-sm font-bold text-foreground outline-none"
               />
             </div>
           </div>
@@ -609,7 +609,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employee, updateField, isNewRec
               value={modalData.remarks}
               onChange={(e) => setModalData({ ...modalData, remarks: e.target.value })}
               placeholder="e.g., Annual increment, Market adjustment..."
-              className="w-full bg-surface border border-border rounded-md px-4 py-3 text-sm text-text-primary outline-none"
+              className="w-full bg-card border border-border rounded-md px-4 py-3 text-sm text-foreground outline-none"
             />
           </div>
         </div>

@@ -13,10 +13,9 @@ import JobLevelManagement from './JobLevelManagement';
 import HierarchyChart from './HierarchyChart';
 import LeadershipManagement from './LeadershipManagement';
 
-import { useTheme } from '@/contexts/ThemeContext';
+import { useOrgStore } from '@/store/orgStore';
 
 const OrganizationSetup: React.FC = () => {
-  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('profile');
 
   // Define tabs with RBAC checks if necessary
@@ -58,6 +57,12 @@ const OrganizationSetup: React.FC = () => {
     },
   ];
 
+  const { fetchMasterData } = useOrgStore();
+
+  const handleSync = () => {
+    fetchMasterData();
+  };
+
   return (
     <DetailLayout
       aria-label="Organization Setup"
@@ -81,9 +86,9 @@ const OrganizationSetup: React.FC = () => {
         {activeTab === 'hierarchy' && <HierarchyChart />}
         {activeTab === 'leadership' && <LeadershipManagement />}
         {activeTab === 'plants' && <PlantManagement />}
-        {activeTab === 'departments' && <DepartmentManagement onSync={() => {}} />}
-        {activeTab === 'designations' && <DesignationManagement onSync={() => {}} />}
-        {activeTab === 'job-levels' && <JobLevelManagement onSync={() => {}} />}
+        {activeTab === 'departments' && <DepartmentManagement onSync={handleSync} />}
+        {activeTab === 'designations' && <DesignationManagement onSync={handleSync} />}
+        {activeTab === 'job-levels' && <JobLevelManagement onSync={handleSync} />}
       </div>
     </DetailLayout>
   );

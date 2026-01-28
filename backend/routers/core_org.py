@@ -26,8 +26,8 @@ def get_organizations(db: Session = Depends(get_db), current_user: dict = Depend
     """
     user_role = current_user.get("role", "")
     
-    # ONLY ROOT has system-wide access to all organizations
-    if user_role == "Root":
+    # ONLY ROOT and SystemAdmin have system-wide access to all organizations
+    if user_role in ["Root", "SystemAdmin"]:
         return crud.get_organizations(db)
     
     # All other roles (including Super Admin, Business Admin, etc.) are org-scoped
@@ -54,7 +54,7 @@ def get_organization(
 def create_organization(
     org: schemas.OrganizationWithAdminCreate, 
     db: Session = Depends(get_db), 
-    current_user: dict = Depends(requires_role("Root"))
+    current_user: dict = Depends(requires_role("Root", "SystemAdmin"))
 ):
     return crud.create_organization(db, org, user_id=current_user["id"])
 
@@ -63,7 +63,7 @@ def update_organization(
     org_id: str, 
     org: schemas.OrganizationCreate, 
     db: Session = Depends(get_db), 
-    current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin"))
+    current_user: dict = Depends(requires_role("SystemAdmin", "Business Admin", "Root"))
 ):
     return crud.update_organization(db, org_id, org, user_id=current_user["id"])
 
@@ -71,7 +71,7 @@ def update_organization(
 def delete_organization(
     org_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(requires_role("Root")),
+    current_user: dict = Depends(requires_role("Root", "SystemAdmin")),
 ):
     return crud.delete_organization(db, org_id, current_user_id=current_user.get("id"))
 

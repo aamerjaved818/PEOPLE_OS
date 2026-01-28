@@ -8,7 +8,6 @@ const GeneralAdministration = React.lazy(() => import('./modules/gen-admin'));
 const HCMModule = React.lazy(() => import('./modules/hcm'));
 const OrganizationSetup = React.lazy(() => import('./modules/org-setup'));
 const SystemSettings = React.lazy(() => import('./modules/system-settings'));
-const SystemAudit = React.lazy(() => import('./modules/system-audit'));
 const OrgAudit = React.lazy(() => import('./modules/org-audit'));
 
 // Lazy Load Functional Modules
@@ -67,15 +66,6 @@ const AppRoutes: React.FC = () => {
         element={
           <RoleGuard permission="system_config">
             <SystemSettings />
-          </RoleGuard>
-        }
-      />
-
-      <Route
-        path="/system-audit"
-        element={
-          <RoleGuard permission="system_config">
-            <SystemAudit />
           </RoleGuard>
         }
       />

@@ -135,15 +135,137 @@ def check_prerequisites() -> tuple[Path, bool]:
 
 
 def print_status():
-    """Print current system status."""
-    print(f"{Colors.BOLD}System Status:{Colors.END}")
-    print(f"  Backend  :{BACKEND_PORT}       {'[OK] Running' if port_in_use(BACKEND_PORT) else '[X] Stopped'}")
-    print(f"  Frontend :{FRONTEND_DEV_PORT}      {'[OK] Running' if port_in_use(FRONTEND_DEV_PORT) else '[X] Stopped'}")
+    """Print current system status in a structured format."""
+    print(f"\n{Colors.BOLD}{Colors.CYAN}System Status Summary{Colors.END}")
+    print("-" * 40)
+    
+    services = [
+        ("Backend  ", BACKEND_PORT),
+        ("Frontend ", FRONTEND_DEV_PORT)
+    ]
+    
+    for name, port in services:
+        status = f"{Colors.GREEN}[RUNNING]{Colors.END}" if port_in_use(port) else f"{Colors.RED}[STOPPED]{Colors.END}"
+        print(f"  {name} {Colors.YELLOW}:{port}{Colors.END}    {status}")
     
     venv_python, node_modules = check_prerequisites()
-    print(f"\n{Colors.BOLD}Prerequisites:{Colors.END}")
-    print(f"  .venv         {'[OK] Found' if venv_python.exists() else '[X] Missing'}")
-    print(f"  node_modules  {'[OK] Found' if node_modules else '[X] Missing'}")
+    print("-" * 40)
+    print(f"  {Colors.BOLD}Prerequisites:{Colors.END}")
+    print(f"  .venv         {'[OK]' if venv_python.exists() else '[MISSING]'}")
+    print(f"  node_modules  {'[OK]' if node_modules else '[MISSING]'}")
+    print("-" * 40 + "\n")
+
+def run_doctor():
+    """Run comprehensive system diagnostics."""
+    print(f"\n{Colors.BOLD}{Colors.CYAN}--- peopleOS System Doctor ---{Colors.END}\n")
+    
+    checks = []
+    
+    # 1. Python Check
+    py_version = sys.version_info
+    py_ok = py_version.major == 3 and py_version.minor >= 9
+    checks.append(("Python >= 3.9", f"{sys.version.split()[0]}", py_ok))
+    
+    # 2. Node Check
+    node = shutil.which("node")
+    if node:
+        try:
+            node_ver = subprocess.check_output(["node", "--version"]).decode().strip()
+            node_ok = int(node_ver.lstrip('v').split('.')[0]) >= 18
+            checks.append(("Node.js >= 18", node_ver, node_ok))
+        except:
+            checks.append(("Node.js", "Error checking version", False))
+    else:
+        checks.append(("Node.js", "Not Found", False))
+        
+    # 3. Environment Check
+    critical_env = ["JWT_SECRET_KEY", "CORS_ORIGINS", "API_PORT"]
+    missing_env = []
+    if ENV_FILE.exists():
+        content = ENV_FILE.read_text()
+        for key in critical_env:
+            if key not in content: missing_env.append(key)
+        checks.append(("Environment", f"Missing: {', '.join(missing_env)}" if missing_env else "All critical keys found", not missing_env))
+    else:
+        checks.append(("Environment", ".env file missing", False))
+        
+    # 4. Identity Health Check (Backend Architecture Compliance)
+    identity_ok = True
+    identity_msg = "OK (In-memory only)"
+    
+    # Try multiple potential database locations and environment-specific names
+    env_name = CONF.get("APP_ENV", "development")
+    db_files = [
+        f"people_os_{env_name}.db",
+        "people_os_dev.db",
+        "people_os.db"
+    ]
+    db_dirs = [
+        PROJECT_ROOT / "data",
+        PROJECT_ROOT / "backend" / "data"
+    ]
+    
+    found_db = None
+    for dname in db_dirs:
+        for fname in db_files:
+            p = dname / fname
+            if p.exists():
+                found_db = p
+                break
+        if found_db: break
+    
+    if found_db:
+        try:
+            import sqlite3
+            conn = sqlite3.connect(found_db)
+            cursor = conn.cursor()
+            
+            # Check if core_users table exists first
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='core_users';")
+            if cursor.fetchone():
+                cursor.execute("SELECT COUNT(*) FROM core_users WHERE role = 'Root';")
+                root_count = cursor.fetchone()[0]
+                if root_count > 0:
+                    identity_ok = False
+                    identity_msg = f"Inconsistent (Found {root_count} Root users in DB)"
+                else:
+                    identity_msg = f"OK (Verified {found_db.name})"
+            else:
+                identity_msg = f"Safe (Tables not initialized in {found_db.name})"
+            
+            conn.close()
+        except Exception as e:
+            identity_msg = f"Check failed: {str(e)}"
+            identity_ok = False
+    else:
+        identity_msg = "Database not found (Safe)"
+    
+    checks.append(("Identity", identity_msg, identity_ok))
+
+    # 5. Disk & Path Check
+    import tempfile
+    space_ok = True
+    try:
+        # Check if we can write to a temporary file
+        with tempfile.NamedTemporaryFile(delete=True) as tmp:
+            tmp.write(b"test")
+        
+        # Check disk space (very basic check)
+        if hasattr(shutil, "disk_usage"):
+            usage = shutil.disk_usage(PROJECT_ROOT)
+            free_gb = usage.free / (1024**3)
+            space_ok = free_gb > 0.5
+            checks.append(("Disk Space", f"{free_gb:.1f} GB free", space_ok))
+    except Exception as e:
+        checks.append(("File System", f"Permission denied or error: {str(e)}", False))
+
+    # Print Results
+    for label, info, ok in checks:
+        icon = f"{Colors.GREEN}[PASS]{Colors.END}" if ok else f"{Colors.RED}[FAIL]{Colors.END}"
+        print(f"  {icon} {label:<15} : {info}")
+    
+    print(f"\n{Colors.BOLD}Diagnostic Complete.{Colors.END}\n")
+    return all(c[2] for c in checks)
 
 
 
@@ -269,10 +391,15 @@ def start_dev():
     """Start development environment."""
     print(f"{Colors.BOLD}Starting Development Environment{Colors.END}\n")
     
+    # Pre-flight checks
     venv_python, _ = check_prerequisites()
     if not venv_python.exists():
         print(f"{Colors.RED}Error: .venv not found. Run: python -m venv .venv{Colors.END}")
         return
+    
+    if not run_doctor():
+        print(f"{Colors.YELLOW}Warning: System doctor reported issues. Startup may fail.{Colors.END}")
+        time.sleep(2)
     
     # Start Backend
     backend_proc = start_backend(venv_python, "development")
@@ -362,8 +489,11 @@ def main():
         start_prod()
     elif command == "status":
         print_status()
+    elif command == "doctor":
+        run_doctor()
     else:
         print(f"{Colors.RED}Unknown command: {command}{Colors.END}")
+        print("Valid commands: dev, prod, status, doctor")
 
 if __name__ == "__main__":
     main()
